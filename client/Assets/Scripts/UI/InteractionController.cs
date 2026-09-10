@@ -6,6 +6,12 @@ namespace Espectro.Prototype
     public sealed class InteractionController : MonoBehaviour
     {
         public static System.Action<string> OnlineNpcTalkRequested;
+        // Mesmo padrão de NetworkChatController.InputFocused: NetworkEconomyController também lê a
+        // tecla E (pra abrir Forja/Comerciante) e agora pode disputar com este diálogo, já que os
+        // NPCs do GDD ficam dentro do alcance de ambos os controllers. Setado no exato momento em
+        // que dialoguePanel muda de estado (não amostrado uma vez por Update), pra não depender da
+        // ordem de execução entre os dois MonoBehaviours no mesmo frame.
+        public static bool DialogueActive;
         [SerializeField] private PrototypePlayerController player;
         [SerializeField] private Button actionButton;
         [SerializeField] private Text actionLabel;
@@ -57,7 +63,10 @@ namespace Espectro.Prototype
 
             if (Input.GetKeyDown(KeyCode.E)) Interact();
             if (dialoguePanel.activeSelf && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Space)))
+            {
                 dialoguePanel.SetActive(false);
+                DialogueActive = false;
+            }
         }
 
         public void Interact()
@@ -74,6 +83,7 @@ namespace Espectro.Prototype
                 speakerText.text = current.DisplayName;
                 dialogueText.text = current.GetLine(0);
                 dialoguePanel.SetActive(true);
+                DialogueActive = true;
                 return;
             }
 
@@ -100,6 +110,7 @@ namespace Espectro.Prototype
             if (dialogueTarget.AdvanceToStage >= 0) questStage = dialogueTarget.AdvanceToStage;
             dialogueTarget.Complete();
             dialoguePanel.SetActive(false);
+            DialogueActive = false;
             dialogueTarget = null;
             RefreshObjective();
         }

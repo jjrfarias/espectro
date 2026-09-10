@@ -14,8 +14,8 @@ namespace Espectro.Network
     // (vender/comprar poção) e a da Forja (fundir) ficam fechadas até o jogador apertar E perto do
     // respectivo NPC — GDD §12 ("vender ao comerciante"), §11 ("o ferreiro libera a forja") e
     // docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md princípio 2 (prompt contextual único, em vez de
-    // painel sempre visível). Ver UpdateNpcContext() pro fallback usado enquanto o Codex não
-    // posiciona os NPCs "Ferreiro"/"Comerciante" no mundo.
+    // painel sempre visível). Ver UpdateNpcContext()/LateUpdate() pro fallback de segurança e pra
+    // como a tecla E é compartilhada com o diálogo de InteractionController sem conflito.
     public sealed class NetworkEconomyController : MonoBehaviour
     {
         public event Action<string> MineRequested;
@@ -97,6 +97,10 @@ namespace Espectro.Network
         private bool contextInitialized;
         private bool merchantOpen;
         private bool forgeOpen;
+        private bool cachedMerchantExists;
+        private bool cachedMerchantNear;
+        private bool cachedForgeExists;
+        private bool cachedForgeNear;
 
         private GameObject miningProgressRoot;
         private Image miningProgressFill;
@@ -335,45 +339,54 @@ namespace Espectro.Network
 
         // GDD/REFERENCIAS-INTERFACE-JOGABILIDADE.md princípio 2: um prompt contextual único (tecla
         // E, mesmo padrão de InteractionController.cs) abre o painel — em vez de "aparece sozinho
-        // quando perto". Como os NPCs "Ferreiro" e "Comerciante" ainda não foram posicionados no
-        // mundo pelo Codex, cada seção tem um fallback seguro: se o NPC daquele nome não existir em
-        // lugar nenhum da cena, a seção continua sempre visível (evita esconder a função de vez).
-        // Assim que o Codex posicionar os NPCs, o comportamento vira automaticamente
-        // "fechado até apertar E perto do NPC", sem precisar mudar este código de novo.
+        // quando perto". Os NPCs "Ferreiro" e "Comerciante" já estão posicionados no mundo
+        // (GddNpcBootstrap.cs); cada seção mantém um fallback seguro só pro caso hipotético do NPC
+        // não existir na cena (evita esconder a função de vez). O toggle de E de verdade fica em
+        // LateUpdate() (ver HandleNpcInteractionKey) pra nunca competir com o diálogo de
+        // InteractionController, que também lê E no mesmo alcance.
         private void UpdateNpcContext()
         {
-            var merchantExists = AnyNpcNamed(MerchantNpcName);
-            var forgeExists = AnyNpcNamed(ForgeNpcName);
-            var merchantNear = merchantExists && NearNpcNamed(MerchantNpcName);
-            var forgeNear = forgeExists && NearNpcNamed(ForgeNpcName);
+            cachedMerchantExists = AnyNpcNamed(MerchantNpcName);
+            cachedForgeExists = AnyNpcNamed(ForgeNpcName);
+            cachedMerchantNear = cachedMerchantExists && NearNpcNamed(MerchantNpcName);
+            cachedForgeNear = cachedForgeExists && NearNpcNamed(ForgeNpcName);
 
-            if (!merchantExists) merchantOpen = false; // fallback: seção sempre visível, não usa o toggle.
-            else if (!merchantNear) merchantOpen = false; // fecha ao se afastar.
+            if (!cachedMerchantExists) merchantOpen = false; // fallback: seção sempre visível, não usa o toggle.
+            else if (!cachedMerchantNear) merchantOpen = false; // fecha ao se afastar.
 
-            if (!forgeExists) forgeOpen = false;
-            else if (!forgeNear) forgeOpen = false;
+            if (!cachedForgeExists) forgeOpen = false;
+            else if (!cachedForgeNear) forgeOpen = false;
 
-            var merchantPromptActive = merchantExists && merchantNear && !merchantOpen;
-            var forgePromptActive = forgeExists && forgeNear && !forgeOpen && !merchantPromptActive;
-
-            if (!NetworkChatController.InputFocused && Input.GetKeyDown(KeyCode.E))
-            {
-                if (merchantExists && merchantNear) merchantOpen = !merchantOpen;
-                else if (forgeExists && forgeNear) forgeOpen = !forgeOpen;
-            }
+            var merchantPromptActive = cachedMerchantExists && cachedMerchantNear && !merchantOpen;
+            var forgePromptActive = cachedForgeExists && cachedForgeNear && !forgeOpen && !merchantPromptActive;
 
             contextPromptBackdrop.SetActive(merchantPromptActive || forgePromptActive);
             if (merchantPromptActive) contextPromptText.text = "Pressione E para negociar com o Comerciante";
             else if (forgePromptActive) contextPromptText.text = "Pressione E para usar a Forja";
 
-            var showMerchant = !merchantExists || merchantOpen;
-            var showForge = !forgeExists || forgeOpen;
+            var showMerchant = !cachedMerchantExists || merchantOpen;
+            var showForge = !cachedForgeExists || forgeOpen;
             var showHint = !showMerchant && !showForge && !merchantPromptActive && !forgePromptActive;
             if (!contextInitialized || showMerchant != merchantVisible || showForge != forgeVisible || showHint != hintVisible)
             {
                 contextInitialized = true;
                 RelayoutContext(showMerchant, showForge, showHint);
             }
+        }
+
+        // Roda depois de todo Update() da cena (garantia do próprio Unity), inclusive o de
+        // InteractionController.cs — por isso InteractionController.DialogueActive já reflete se um
+        // diálogo abriu neste mesmo frame, mesmo que a ordem de execução entre os dois componentes
+        // não seja definida. Sem isso, cada tecla E usada só pra avançar uma fala com o Ferreiro
+        // também abriria/fecharia o painel da forja junto.
+        private void LateUpdate()
+        {
+            if (!panel.activeSelf || player == null) return;
+            if (NetworkChatController.InputFocused || InteractionController.DialogueActive) return;
+            if (!Input.GetKeyDown(KeyCode.E)) return;
+
+            if (cachedMerchantExists && cachedMerchantNear) merchantOpen = !merchantOpen;
+            else if (cachedForgeExists && cachedForgeNear) forgeOpen = !forgeOpen;
         }
 
         private static bool AnyNpcNamed(string npcDisplayName)
