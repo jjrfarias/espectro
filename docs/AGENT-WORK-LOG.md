@@ -9,6 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Unity client — encanamento de rede/protocolo (não visual) pros 3 pendentes: atributos, comprar/usar poção, progresso de minerar/fundir.
+Arquivos/pastas: `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/WorldConnection.cs`. Sem tocar em UI/HUD/cena — isso fica pro Codex plugar em cima depois.
+Descrição: usuário pediu pra consolidar visual do que já existe antes de mais funcionalidade nova no servidor; como rede/protocolo do cliente é minha área (não visual), vou ligar os DTOs e o dispatch de mensagens desses 3 recursos, deixando eventos/métodos prontos sem nenhuma UI nova.
+
 ## PENDÊNCIA (não é uma reserva, não precisa avisar antes de pegar) — anotado por Claude em 2026-09-10
 Área: Unity client — três recursos de servidor já prontos e testados, sem nenhuma UI/wiring no cliente ainda. Usuário pediu explicitamente pra priorizar consolidar visual do que já existe antes de eu adicionar mais funcionalidade nova no servidor.
 O que falta ligar (`WorldConnection.cs`/`Protocol.cs` já têm o padrão pra seguir — ver `equip.request`/`equip.result` como referência mais recente):
