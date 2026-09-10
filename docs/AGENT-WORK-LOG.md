@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Correção de bug visual — usuário reportou (com screenshot) que os animais mortos ficam "grudados"/tortos em vez de tombar. Causa: a animação de queda rotaciona o corpo inteiro em Z, mas o corpo é montado de várias partes fixas (pernas, orelhas) em posições locais separadas, não um mesh único — girar o conjunto faz as pernas atravessarem o torso.
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Sensação de combate/monstros — pedido do usuário pra melhorar "movimentos de batalha" e "monstros" enquanto ele testa o build. Tudo procedural em código (o corpo dos animais já é geometria combinada, sem assets/rig importados) — sem mexer em `PrototypePlayerController.cs`/`ThirdPersonCamera.cs` (Codex "EM ANDAMENTO" lá).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
@@ -377,3 +381,7 @@ Descrição: eliminar tremor causado pela câmera colidindo com o próprio perso
 Área: Unity client — controle do personagem e câmera em colisões/troca de direção.
 Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
 Resultado: câmera ignora o próprio jogador no SphereCast, eliminando a fonte de tremor ao girar/encostar. Build Unity concluído com código 0 (`WebGL.data` 13:34) e publicado no Railway; deploy `9ee516aa-9819-4d76-a96f-907b4b0d7c57`.
+## CONCLUÍDO 2026-09-10 — Codex (amortecimento final da câmera)
+Área: Unity client — câmera e movimento.
+Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
+Resultado: ponto de seguimento suavizado para remover microtremores do CharacterController. Build concluído com código 0 às 13:47 e publicado; deploy `1a3eea5e-93b6-4eb9-9073-7a47d7ae08b2`.
