@@ -9,10 +9,14 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 15:50 -03:00 — Codex (impacto visual de golpe)
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: "Suco" de jogo — flash vermelho nas bordas da tela ao tomar dano (hoje só a barra de vida muda).
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`.
+
+## CONCLUÍDO 2026-09-10 15:50 -03:00 — Codex (impacto visual de golpe)
 Área: apresentação visual confirmada de dano no inimigo.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
-Descrição: enriquecer `ShowHit` com flash e arco de golpe procedural, sem alterar regras de combate nem a HUD reservada por Claude.
+Resultado: dano confirmado agora aplica também um impacto curto e elástico no corpo do inimigo, integrado ao número de dano e flash existentes. Incluído na build WebGL `5f06055a-83e9-4daf-98ec-7b3b97961025`, publicada com sucesso por Claude no Railway.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: "Suco" de jogo (efeitos procedurais, sem depender de arte nova) — pedido do usuário: o jogo já está online com gente entrando, quer algo que cative visualmente sem esbarrar no Codex. Primeiro item escolhido: banner de "subiu de nível" chamativo (hoje era só uma linha de texto que some em 4s).
