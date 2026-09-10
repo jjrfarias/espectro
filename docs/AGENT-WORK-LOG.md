@@ -14,6 +14,10 @@ volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou
 Arquivos/pastas: Editor Unity em batchmode (`-executeMethod Espectro.Editor.Corte0ProjectSetup.BuildWebGL`), `client/Builds/WebGL/`, `client/Logs/build-webgl-ui.log`; republicado no serviço Railway `webgl` (`fa30d289-441d-4fd4-b971-2cee32600afd`) via `railway up . --service webgl --path-as-root --no-gitignore`. Nenhum script/cena tocado nesta etapa.
 Resultado: build concluído com retorno 0, 114.720.267 bytes, sem `error CS`; deploy `31702b3b-c908-4fcd-997f-023cd634fea3` com status `SUCCESS` no Railway. Usuário precisa recarregar a página com cache limpo (Ctrl+Shift+R) pra baixar o `.wasm`/`.data` novos.
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Polimento visual contínuo (pedido do usuário) — moldura/estilo do minimapa e mapa completo, marcador do jogador mais visível.
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkMapController.cs`. Não toco em `NetworkUI.cs` (Codex está ativamente iterando o login) nem em `ThirdPersonCamera.cs`/`PrototypePlayerController.cs` (Codex "EM ANDAMENTO" em câmera/movimento).
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Correção de layout da UI online — usuário reportou (com screenshot) que a interface estava "bagunçada e feia", com o painel de Atributos sobrepondo a barra de vida/XP e o painel de Economia estourando o próprio fundo (texto/botões de poção colidindo com ALVO/ATACAR).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs` (barra de vida agora é um botão — clique abre/fecha os Atributos), `client/Assets/Scripts/Network/NetworkAttributesController.cs` (recolhido por padrão, reposicionado abaixo da HUD de vida/nível), `client/Assets/Scripts/Network/NetworkEconomyController.cs` (reescrito: fundo com altura calculada dinamicamente pelas seções visíveis, em vez de tamanho fixo que o conteúdo estourava).
