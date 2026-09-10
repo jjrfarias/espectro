@@ -7,7 +7,7 @@ Implementa **presença compartilhada**, **combate** e **economia produtiva** de 
 ### Corte 1 — presença compartilhada
 
 - `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout` — conta e sessão, com token de acesso curto (JWT) e token de renovação rotativo (armazenado apenas como hash).
-- `POST /characters`, `GET /characters/me` — um personagem por conta.
+- `POST /characters`, `GET /characters/me` — um personagem por conta. Aceita `race` (`humano`/`elfo`/`anao`/`orc`) e `gender` (`masculino`/`feminino`), padrão `humano`/`masculino` se omitidos — ver [ESPECTRO-VISAO.md §9](../docs/ESPECTRO-VISAO.md) "Raça não é classe": guardado em `characters.appearance_json`, puramente cultura/aparência, nunca lido por nenhuma regra de atributo, progressão ou economia.
 - `GET /world` (WebSocket) — envelope versionado (`docs/ARQUITETURA-MVP.md`, seção 8); mensagens `world.join`, `movement.input` (cliente → servidor) e `world.snapshot`, `error` (servidor → cliente).
 - Movimento validado e aplicado inteiramente pelo servidor: velocidade máxima, `dt` medido pelo relógio do servidor (nunca pelo cliente) e limite de mensagens por segundo.
 - Posição persistida a cada 10 s e ao desconectar; ao reconectar, o servidor envia um snapshot completo a partir da última posição salva.

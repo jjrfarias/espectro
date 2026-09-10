@@ -1,9 +1,12 @@
 import type { FastifyInstance } from "fastify";
+import { genderCodes, raceCodes } from "@espectro/contracts";
 import { z } from "zod";
 import { requireAccountId } from "../auth/authenticate.js";
 import { firstValidationMessage } from "../../transport/validation.js";
 import { CharacterError, type CharacterRow, createCharacter, getCharacterByAccountId } from "./characters.service.js";
 
+// ESPECTRO-VISAO.md §9 "Raça não é classe": padrão "humano"/"masculino" cobre clientes antigos
+// que ainda não enviam esses campos, sem quebrar a criação de personagem.
 const createCharacterSchema = z.object({
   name: z
     .string()
@@ -11,6 +14,8 @@ const createCharacterSchema = z.object({
     .min(3, "O nome precisa ter ao menos 3 caracteres.")
     .max(20, "O nome pode ter no máximo 20 caracteres.")
     .regex(/^[\p{L}0-9 _-]+$/u, "Use apenas letras, números, espaço, hífen ou sublinhado."),
+  race: z.enum(raceCodes).default("humano"),
+  gender: z.enum(genderCodes).default("masculino"),
 });
 
 export async function characterRoutes(app: FastifyInstance): Promise<void> {
@@ -24,7 +29,10 @@ export async function characterRoutes(app: FastifyInstance): Promise<void> {
         .send({ error: "VALIDATION_ERROR", message: firstValidationMessage(body.error), details: body.error.flatten() });
     }
     try {
-      const character = await createCharacter(accountId, body.data.name);
+      const character = await createCharacter(accountId, body.data.name, {
+        race: body.data.race,
+        gender: body.data.gender,
+      });
       return reply.code(201).send(toResponse(character));
     } catch (error) {
       if (error instanceof CharacterError) {
@@ -56,5 +64,9 @@ function toResponse(character: CharacterRow) {
     hp: character.hp,
     position: character.position_json,
     version: character.version,
+    // Personagens criados antes desta mudança têm appearance_json = {} (sem essas chaves) — os
+    // valores padrão evitam mandar `undefined` pro cliente nesse caso.
+    race: character.appearance_json.race ?? "humano",
+    gender: character.appearance_json.gender ?? "masculino",
   };
 }

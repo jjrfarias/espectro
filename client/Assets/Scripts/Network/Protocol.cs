@@ -30,6 +30,10 @@ namespace Espectro.Network
     public class CreateCharacterRequest
     {
         public string name;
+        // ESPECTRO-VISAO.md §9 "Raça não é classe": só cultura/aparência, nunca afeta atributos.
+        // Valores válidos espelham contracts/src/index.ts (raceCodes/genderCodes).
+        public string race;
+        public string gender;
     }
 
     [Serializable]
@@ -51,6 +55,8 @@ namespace Espectro.Network
         public int hp;
         public PositionDto position;
         public int version;
+        public string race;
+        public string gender;
     }
 
     [Serializable]

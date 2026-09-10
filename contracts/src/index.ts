@@ -392,6 +392,16 @@ export type ChatMessagePayload = z.infer<typeof chatMessagePayloadSchema>;
 export const npcCodes = ["instrutora", "minerador", "ferreiro", "comerciante", "cronista"] as const;
 export type NpcCode = (typeof npcCodes)[number];
 
+// ESPECTRO-VISAO.md §9 "Raça não é classe": a origem escolhida na criação do personagem só
+// define cultura/aparência/costumes iniciais — nunca restringe atributos, progressão ou
+// profissão (isso continua livre, GDD-MVP.md "sem classe fixa"). Puramente cosmético/narrativo
+// no servidor: guardado em characters.appearance_json, nunca lido por nenhuma regra de jogo.
+export const raceCodes = ["humano", "elfo", "anao", "orc"] as const;
+export type RaceCode = (typeof raceCodes)[number];
+
+export const genderCodes = ["masculino", "feminino"] as const;
+export type GenderCode = (typeof genderCodes)[number];
+
 // GDD §4 "Jornada da primeira sessão", passos 5-10 (os que dependem de uma ação confirmável pelo
 // servidor — os passos 1-4 e 11 não têm uma ação de servidor correspondente pra marcar).
 export const tutorialStepCodes = [

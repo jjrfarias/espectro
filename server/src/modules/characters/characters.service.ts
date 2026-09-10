@@ -1,4 +1,4 @@
-import type { Equipment, ItemCode, NpcCode, TutorialStepCode } from "@espectro/contracts";
+import type { Equipment, GenderCode, ItemCode, NpcCode, RaceCode, TutorialStepCode } from "@espectro/contracts";
 import { pool } from "../../persistence/db.js";
 import { maxHp, type CharacterAttributes } from "../combat/formulas.js";
 
@@ -12,6 +12,13 @@ export interface CharacterPosition {
   facingY: number;
 }
 
+// ESPECTRO-VISAO.md §9: raça e gênero escolhidos na criação — puramente cosmético/narrativo,
+// guardados junto (nunca lidos por nenhuma regra de atributo/progressão/economia).
+export interface CharacterAppearance {
+  race: RaceCode;
+  gender: GenderCode;
+}
+
 export interface CharacterRow {
   id: string;
   account_id: string;
@@ -21,6 +28,7 @@ export interface CharacterRow {
   hp: number;
   position_json: CharacterPosition;
   version: number;
+  appearance_json: CharacterAppearance;
 }
 
 export interface CharacterCombatState extends CharacterRow {
@@ -51,20 +59,24 @@ export class CharacterError extends Error {
   }
 }
 
-const SELECT_FIELDS = "id, account_id, name, level, xp, hp, position_json, version";
+const SELECT_FIELDS = "id, account_id, name, level, xp, hp, position_json, version, appearance_json";
 const SWORD_SKILL_CODE = "sword";
 const MINING_SKILL_CODE = "mineracao";
 const METALLURGY_SKILL_CODE = "metalurgia";
 
-export async function createCharacter(accountId: string, name: string): Promise<CharacterRow> {
+export async function createCharacter(
+  accountId: string,
+  name: string,
+  appearance: CharacterAppearance,
+): Promise<CharacterRow> {
   const client = await pool.connect();
   try {
     await client.query("begin");
     const result = await client.query<CharacterRow>(
-      `insert into characters (account_id, name, hp) values ($1, $2, $3)
+      `insert into characters (account_id, name, hp, appearance_json) values ($1, $2, $3, $4)
        on conflict (account_id) do nothing
        returning ${SELECT_FIELDS}`,
-      [accountId, name, STARTING_HP],
+      [accountId, name, STARTING_HP, JSON.stringify(appearance)],
     );
     if (result.rowCount === 0) {
       throw new CharacterError("CHARACTER_EXISTS", "Esta conta já possui um personagem.");
@@ -137,7 +149,7 @@ interface CombatStateRow extends CharacterRow {
 export async function getCharacterCombatStateByAccountId(accountId: string): Promise<CharacterCombatState | null> {
   const result = await pool.query<CombatStateRow>(
     `select
-       c.id, c.account_id, c.name, c.level, c.xp, c.hp, c.position_json, c.version, c.coin_balance,
+       c.id, c.account_id, c.name, c.level, c.xp, c.hp, c.position_json, c.version, c.appearance_json, c.coin_balance,
        a.strength, a.agility, a.vitality, a.resistance, a.unspent_points,
        coalesce(sw.level, 1) as sword_level, coalesce(sw.xp, 0) as sword_xp,
        coalesce(mi.level, 1) as mining_level, coalesce(mi.xp, 0) as mining_xp,
@@ -168,6 +180,7 @@ export async function getCharacterCombatStateByAccountId(accountId: string): Pro
     hp: row.hp,
     position_json: row.position_json,
     version: row.version,
+    appearance_json: row.appearance_json,
     attributes: {
       strength: row.strength,
       agility: row.agility,

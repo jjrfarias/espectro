@@ -30,8 +30,8 @@ namespace Espectro.Network
         public static Task<SessionResponse> RefreshAsync(string refreshToken) =>
             SendAsync<SessionResponse>("POST", "/auth/refresh", new RefreshRequest { refreshToken = refreshToken }, null);
 
-        public static Task<CharacterResponse> CreateCharacterAsync(string accessToken, string name) =>
-            SendAsync<CharacterResponse>("POST", "/characters", new CreateCharacterRequest { name = name }, accessToken);
+        public static Task<CharacterResponse> CreateCharacterAsync(string accessToken, string name, string race, string gender) =>
+            SendAsync<CharacterResponse>("POST", "/characters", new CreateCharacterRequest { name = name, race = race, gender = gender }, accessToken);
 
         public static Task<CharacterResponse> GetMyCharacterAsync(string accessToken) =>
             SendAsync<CharacterResponse>("GET", "/characters/me", null, accessToken);

@@ -12,7 +12,12 @@ namespace Espectro.Network
     {
         public event Action<string, string> LoginSubmitted;
         public event Action<string, string> RegisterSubmitted;
-        public event Action<string> CharacterNameSubmitted;
+        // ESPECTRO-VISAO.md §9 "Raça não é classe": nome, raça, gênero — puramente cultura/
+        // aparência, nunca afeta atributos/progressão (contracts/src/index.ts raceCodes/genderCodes).
+        public event Action<string, string, string> CharacterNameSubmitted;
+
+        private static readonly Color UnselectedOptionColor = new Color(0.10f, 0.30f, 0.34f, 0.96f);
+        private static readonly Color SelectedOptionColor = new Color(0.82f, 0.58f, 0.24f, 1f);
 
         private GameObject authPanel;
         private InputField emailField;
@@ -22,6 +27,10 @@ namespace Espectro.Network
         private GameObject characterPanel;
         private InputField characterNameField;
         private Text characterStatus;
+        private string selectedRace = "humano";
+        private string selectedGender = "masculino";
+        private readonly System.Collections.Generic.Dictionary<string, Image> raceButtons = new();
+        private readonly System.Collections.Generic.Dictionary<string, Image> genderButtons = new();
 
         public static NetworkUI Create()
         {
@@ -100,18 +109,57 @@ namespace Espectro.Network
             characterPanel = CreateBackground(parent, "Painel de Personagem");
             var panelTransform = characterPanel.transform;
 
-            var title = CreateLabel(panelTransform, "Titulo", "SUA HISTÓRIA COMEÇA AQUI", 38, new Vector2(0f, 180f), new Vector2(900f, 70f));
+            var title = CreateLabel(panelTransform, "Titulo", "SUA HISTÓRIA COMEÇA AQUI", 36, new Vector2(0f, 270f), new Vector2(900f, 60f));
             title.color = new Color(0.96f, 0.72f, 0.34f);
-            var hint = CreateLabel(panelTransform, "Hint", "Dê um nome à pessoa que atravessará o Véu.", 22, new Vector2(0f, 120f), new Vector2(800f, 40f));
+            var hint = CreateLabel(panelTransform, "Hint", "Dê um nome à pessoa que atravessará o Véu.", 20, new Vector2(0f, 215f), new Vector2(800f, 36f));
             hint.color = new Color(0.75f, 0.84f, 0.8f);
-            characterNameField = CreateInputField(panelTransform, "Campo Nome", "nome do personagem", false, new Vector2(0f, 40f));
-            characterStatus = CreateLabel(panelTransform, "Status", "", 24, new Vector2(0f, -30f), new Vector2(560f, 60f));
+            characterNameField = CreateInputField(panelTransform, "Campo Nome", "nome do personagem", false, new Vector2(0f, 145f));
+
+            // GDD-MVP.md continua "sem classe fixa" — raça só define cultura/aparência inicial
+            // (ver nota do evento acima), nunca atributos ou progressão.
+            var raceLabel = CreateLabel(panelTransform, "Rotulo Origem", "ESCOLHA SUA ORIGEM", 18, new Vector2(0f, 95f), new Vector2(700f, 30f));
+            raceLabel.color = new Color(0.75f, 0.84f, 0.8f);
+            AddRaceButton(panelTransform, "humano", "Humano", -285f);
+            AddRaceButton(panelTransform, "elfo", "Elfo", -95f);
+            AddRaceButton(panelTransform, "anao", "Anão", 95f);
+            AddRaceButton(panelTransform, "orc", "Orc", 285f);
+            SelectRace(selectedRace);
+
+            var genderLabel = CreateLabel(panelTransform, "Rotulo Genero", "ESCOLHA SEU GÊNERO", 18, new Vector2(0f, -20f), new Vector2(700f, 30f));
+            genderLabel.color = new Color(0.75f, 0.84f, 0.8f);
+            AddGenderButton(panelTransform, "masculino", "Masculino", -130f);
+            AddGenderButton(panelTransform, "feminino", "Feminino", 130f);
+            SelectGender(selectedGender);
+
+            characterStatus = CreateLabel(panelTransform, "Status", "", 22, new Vector2(0f, -140f), new Vector2(560f, 50f));
             characterStatus.color = new Color(1f, 0.55f, 0.5f);
 
-            CreateButton(panelTransform, "Botao Criar Personagem", "ENTRAR NO MUNDO", new Vector2(0f, -110f), new Vector2(360f, 70f),
-                () => CharacterNameSubmitted?.Invoke(characterNameField.text));
+            CreateButton(panelTransform, "Botao Criar Personagem", "ENTRAR NO MUNDO", new Vector2(0f, -210f), new Vector2(360f, 70f),
+                () => CharacterNameSubmitted?.Invoke(characterNameField.text, selectedRace, selectedGender));
 
             characterPanel.SetActive(false);
+        }
+
+        private void AddRaceButton(Transform parent, string code, string label, float x)
+        {
+            raceButtons[code] = CreateSelectableButton(parent, $"Botao Raca {code}", label, new Vector2(x, 40f), new Vector2(170f, 56f), () => SelectRace(code));
+        }
+
+        private void AddGenderButton(Transform parent, string code, string label, float x)
+        {
+            genderButtons[code] = CreateSelectableButton(parent, $"Botao Genero {code}", label, new Vector2(x, -65f), new Vector2(220f, 56f), () => SelectGender(code));
+        }
+
+        private void SelectRace(string race)
+        {
+            selectedRace = race;
+            foreach (var pair in raceButtons) pair.Value.color = pair.Key == race ? SelectedOptionColor : UnselectedOptionColor;
+        }
+
+        private void SelectGender(string gender)
+        {
+            selectedGender = gender;
+            foreach (var pair in genderButtons) pair.Value.color = pair.Key == gender ? SelectedOptionColor : UnselectedOptionColor;
         }
 
         private static GameObject CreateBackground(Transform parent, string name)
@@ -215,6 +263,36 @@ namespace Espectro.Network
             text.alignment = TextAnchor.MiddleCenter;
             text.color = Color.white;
             text.text = label;
+        }
+
+        // Como CreateButton, mas devolve a Image pra poder realçar a opção escolhida depois
+        // (raça/gênero são seleção única entre várias opções, não um botão de ação isolado).
+        private static Image CreateSelectableButton(Transform parent, string name, string label, Vector2 anchoredPosition, Vector2 size, UnityEngine.Events.UnityAction onClick)
+        {
+            var item = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            item.transform.SetParent(parent, false);
+            var rect = (RectTransform)item.transform;
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = anchoredPosition;
+            rect.sizeDelta = size;
+            var image = item.GetComponent<Image>();
+            image.color = UnselectedOptionColor;
+            var button = item.GetComponent<Button>();
+            button.targetGraphic = image;
+            button.onClick.AddListener(onClick);
+
+            var textObject = new GameObject("Texto", typeof(RectTransform), typeof(Text));
+            textObject.transform.SetParent(item.transform, false);
+            Stretch((RectTransform)textObject.transform);
+            var text = textObject.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = 20;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.text = label;
+            return image;
         }
 
         private static void Stretch(RectTransform rect, float inset = 0f)

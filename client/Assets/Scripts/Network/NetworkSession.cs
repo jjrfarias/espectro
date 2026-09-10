@@ -250,7 +250,7 @@ namespace Espectro.Network
             PlayerPrefs.Save();
         }
 
-        private async void HandleCreateCharacter(string name)
+        private async void HandleCreateCharacter(string name, string race, string gender)
         {
             if (busy || !onlineRequested || connection != null) return;
             var attempt = generation;
@@ -258,7 +258,7 @@ namespace Espectro.Network
             ui.SetCharacterStatus("Criando...");
             try
             {
-                var character = await ApiClient.CreateCharacterAsync(accessToken, name);
+                var character = await ApiClient.CreateCharacterAsync(accessToken, name, race, gender);
                 if (IsCurrent(attempt)) await EnterWorld(character, attempt);
             }
             catch (Exception ex)
