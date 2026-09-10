@@ -36,6 +36,8 @@ namespace Espectro.Prototype
             dialogueText = body;
             objectiveText = objective;
             dialoguePanel.SetActive(false);
+            questStage = 0;
+            RefreshObjective();
         }
 
         private void Update()
@@ -101,11 +103,11 @@ namespace Espectro.Prototype
         {
             objectiveText.text = questStage switch
             {
-                0 => "OBJETIVO: Fale com a Ancia Mira na praca",
-                1 => "OBJETIVO: Encontre a Lumina perto da forja",
-                2 => "OBJETIVO: Leve a Lumina ate a entrada da mina",
-                3 => "OBJETIVO: Retorne e conte a Ancia o que encontrou",
-                _ => "OBJETIVO CONCLUIDO: O chamado sob as pedras"
+                0 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nFale com a Anciã Mira na praça",
+                1 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nEncontre a Lumina perto da forja",
+                2 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nLeve a Lumina até a entrada da mina",
+                3 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nRetorne e conte à Anciã o que encontrou",
+                _ => "CAPÍTULO I  •  CONCLUÍDO\nO chamado sob as pedras foi respondido"
             };
         }
     }
