@@ -13,6 +13,7 @@ namespace Espectro.Network
         private NetworkUI ui;
         private NetworkCombatController combat;
         private NetworkEconomyController economy;
+        private NetworkAttributesController attributesController;
         private NetworkMapController map;
         private WorldConnection connection;
         private PrototypePlayerController player;
@@ -63,6 +64,10 @@ namespace Espectro.Network
             economy.CraftRequested += RequestCraft;
             economy.SellRequested += RequestSell;
             economy.EquipRequested += RequestEquip;
+            attributesController = NetworkAttributesController.Create();
+            attributesController.transform.SetParent(transform, false);
+            attributesController.AllocateRequested += RequestAttributeAllocate;
+            attributesController.RespecRequested += RequestAttributeRespec;
             map = NetworkMapController.Create(player);
             map.transform.SetParent(transform, false);
             // O jogo inicia sempre no fluxo online; o mundo não é exibido como
@@ -111,11 +116,14 @@ namespace Espectro.Network
             joined = false;
             SetGameplayActive(false);
             economy.SetActive(false);
+            attributesController.SetActive(false);
             map.SetActive(false);
             EnsureAuthUi();
             ShowAuth();
             ui.SetAuthStatus("");
             combat.SetConnectingMode("Entre para compartilhar o mundo.");
+            var savedRefresh = PlayerPrefs.GetString("espectro.session.refresh", "");
+            if (!string.IsNullOrEmpty(savedRefresh)) _ = RestoreSavedSession(savedRefresh, generation);
         }
 
         private void EnsureAuthUi()
@@ -153,6 +161,7 @@ namespace Espectro.Network
             }
             combat.SetLocalMode();
             economy.SetActive(false);
+            attributesController.SetActive(false);
             map.SetActive(false);
             SetGameplayActive(true);
         }
@@ -175,6 +184,7 @@ namespace Espectro.Network
                 if (!IsCurrent(attempt)) return;
                 accessToken = session.accessToken;
                 refreshToken = session.refreshToken;
+                SaveSession(session);
                 CharacterResponse character;
                 try
                 {
@@ -203,6 +213,37 @@ namespace Espectro.Network
             {
                 if (IsCurrent(attempt)) busy = false;
             }
+        }
+
+        private async Task RestoreSavedSession(string savedToken, int attempt)
+        {
+            if (busy || !onlineRequested || connection != null) return;
+            busy = true;
+            ui.SetAuthStatus("Restaurando sua sessão...");
+            try
+            {
+                var session = await ApiClient.RefreshAsync(savedToken);
+                if (!IsCurrent(attempt)) return;
+                accessToken = session.accessToken;
+                refreshToken = session.refreshToken;
+                SaveSession(session);
+                var character = await ApiClient.GetMyCharacterAsync(accessToken);
+                if (IsCurrent(attempt)) await EnterWorld(character, attempt);
+            }
+            catch
+            {
+                PlayerPrefs.DeleteKey("espectro.session.refresh");
+                PlayerPrefs.Save();
+                if (IsCurrent(attempt)) ui.SetAuthStatus("Sessão expirada. Entre novamente.");
+            }
+            finally { busy = false; }
+        }
+
+        private static void SaveSession(SessionResponse session)
+        {
+            if (session == null || string.IsNullOrEmpty(session.refreshToken)) return;
+            PlayerPrefs.SetString("espectro.session.refresh", session.refreshToken);
+            PlayerPrefs.Save();
         }
 
         private async void HandleCreateCharacter(string name)
@@ -245,6 +286,7 @@ namespace Espectro.Network
             pending.CraftResultReceived += HandleCraftResult;
             pending.SellResultReceived += HandleSellResult;
             pending.EquipResultReceived += HandleEquipResult;
+            pending.AttributesSnapshotReceived += HandleAttributesSnapshot;
             pending.TutorialSnapshotReceived += HandleTutorialSnapshot;
             pending.NpcTalkResultReceived += HandleNpcTalkResult;
             pending.Disconnected += HandleDisconnected;
@@ -361,6 +403,18 @@ namespace Espectro.Network
                 connection.SendEquipRequest(slot, itemCode);
         }
 
+        private void RequestAttributeAllocate(string attribute)
+        {
+            if (joined && alive && connection != null && connection.IsOpen)
+                connection.SendAttributeAllocateRequest(attribute);
+        }
+
+        private void RequestAttributeRespec()
+        {
+            if (joined && alive && connection != null && connection.IsOpen)
+                connection.SendAttributeRespecRequest();
+        }
+
         private void HandleEconomySnapshot(EconomySnapshotPayload result) => economy.ApplyEconomy(result);
 
         private void HandleMineResult(MineResultPayload result) => economy.ApplyMineResult(result);
@@ -370,6 +424,8 @@ namespace Espectro.Network
         private void HandleSellResult(SellResultPayload result) => economy.ApplySellResult(result);
 
         private void HandleEquipResult(EquipResultPayload result) => economy.ApplyEquipResult(result);
+
+        private void HandleAttributesSnapshot(AttributesSnapshotPayload result) => attributesController.ApplyAttributes(result);
 
         private void HandleCombatResolved(CombatResolvedPayload result) => combat.ApplyResolved(result);
 
@@ -408,6 +464,7 @@ namespace Espectro.Network
             ResetMovement();
             SetGameplayActive(false);
             economy.SetActive(false);
+            attributesController.SetActive(false);
             map.SetActive(false);
             if (!wasJoined)
             {
@@ -442,6 +499,7 @@ namespace Espectro.Network
             ResetMovement();
             SetGameplayActive(false);
             economy.SetActive(false);
+            attributesController.SetActive(false);
             map.SetActive(false);
             EnsureAuthUi();
             ShowAuth();
@@ -463,6 +521,7 @@ namespace Espectro.Network
             connection.CraftResultReceived -= HandleCraftResult;
             connection.SellResultReceived -= HandleSellResult;
             connection.EquipResultReceived -= HandleEquipResult;
+            connection.AttributesSnapshotReceived -= HandleAttributesSnapshot;
             connection.Disconnected -= HandleDisconnected;
             connection.Dispose();
             connection = null;
