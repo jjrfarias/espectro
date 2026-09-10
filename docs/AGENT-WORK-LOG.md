@@ -9,6 +9,12 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## CONCLUÍDO 2026-09-10 — Codex (build WebGL do login)
+Área: Unity client/build — gerar e republicar o WebGL com as últimas alterações da tela de login.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-login-railway.log`, serviço Railway `webgl`.
+Descrição: recompilar o cliente com o commit visual mais recente e enviar a saída estática ao serviço WebGL publicado, preservando o servidor Railway.
+Resultado: build Unity WebGL concluído com retorno 0 e arquivos atualizados às 08:58; republicado no serviço Railway `webgl` via `railway up . --service webgl --path-as-root --no-gitignore`. O link público agora precisa ser recarregado com cache limpo para baixar o novo build.
+
 Formato da entrada:
 
 ```
