@@ -9,9 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
-Área: "Suco" de jogo — contador de moedas animado (hoje o número troca na hora, sem transição, mesmo ganhando/perdendo uma quantia grande).
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEconomyController.cs`. Não toco em `NetworkCombatController.cs` (reserva ativa do Codex acima, arco de ataque).
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: "Suco" de jogo — contador de moedas animado (antes o número trocava na hora, sem transição, mesmo ganhando/perdendo uma quantia grande).
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`. Não toquei em `NetworkCombatController.cs` (reserva ativa do Codex na hora, arco de ataque).
+Resultado: MOEDAS agora conta até o novo valor (velocidade proporcional à diferença) com um pulso leve de escala enquanto conta, em vez de trocar na hora; a primeira leitura ao entrar no mundo continua mostrando o valor direto (sem contar a partir de 0). Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.804.360 bytes, já inclui o trabalho concorrente do Codex — `PlayerAttackFeedback.cs` novo) republicado no serviço Railway `webgl` — deploy `9f9ca2ed-2965-469a-bc25-b10d493386f0`, status `SUCCESS`.
 
 ## EM ANDAMENTO 2026-09-10 16:12 -03:00 — Codex (build do arco de ataque)
 Área: build e publicação WebGL do efeito de ataque.
