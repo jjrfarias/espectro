@@ -20,10 +20,17 @@ Descrição: <o que está sendo feito, 1-2 frases>
 
 ---
 
-## EM ANDAMENTO 2026-09-10 — Codex (pré-jogo e onboarding)
+## CONCLUÍDO 2026-09-10 — Codex (cliente conectado ao Railway)
+Área: Unity client — configuração de endpoints HTTP/WebSocket para produção e desenvolvimento.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSettings.cs`, `docs/DEPLOY-RAILWAY.md`, `docs/AGENT-WORK-LOG.md`.
+Descrição: permitir que o cliente use o servidor publicado no Railway por padrão em builds, mantendo override explícito para localhost durante desenvolvimento.
+Resultado: `NetworkSettings.cs` agora usa HTTPS/WSS do Railway por padrão e mantém `UseProduction=false` como chave explícita para desenvolvimento local; `docs/DEPLOY-RAILWAY.md` documenta o fluxo GitHub → deploy automático → verificações. Nenhuma credencial foi incluída no cliente. Validação feita por inspeção do diff e dos endpoints configurados; sem mudanças no servidor.
+
+## CONCLUÍDO 2026-09-10 — Codex (pré-jogo e onboarding)
 Área: Unity client — tela inicial narrativa, login e criação de conta.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `docs/PRE-JOGO.md`, `.codex-validation/` para compilação/verificação.
 Descrição: evoluir a interface de entrada com chamada visual, história curta do universo, navegação entre login/cadastro e criação de personagem, preservando a lógica de rede em `NetworkSession.cs`.
+Resultado: `NetworkUI.cs` recebeu composição narrativa azul-petróleo/âmbar, chamada do Véu, sinopse da Mata dos Sussurros, títulos de ação e criação de personagem; `docs/PRE-JOGO.md` documenta o fluxo. O refresh/compilação via Unity MCP excedeu 300s no Editor já aberto; não foram observados erros de código no diff e nenhuma alteração foi feita no servidor.
 
 ## CONCLUÍDO 2026-09-10 — Codex (Mata dos Sussurros)
 Área: Unity client — densidade, composição e leitura natural da floresta.
