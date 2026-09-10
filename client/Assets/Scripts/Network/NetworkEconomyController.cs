@@ -11,11 +11,11 @@ namespace Espectro.Network
     // NetworkCombatController: HUD construída em código, presentation-only.
     //
     // Layout: cabeçalho (moedas/equipamento/poção) sempre visível; a seção do Comerciante
-    // (vender/comprar poção) e a da Forja (fundir) só aparecem perto do respectivo NPC — GDD §12
-    // ("vender ao comerciante") e §11 ("o ferreiro libera a forja"). Como os NPCs "Ferreiro" e
-    // "Comerciante" ainda não foram posicionados no mundo pelo Codex, a checagem de proximidade
-    // tem um fallback seguro: se nenhum WorldInteractable com aquele nome existir na cena, a
-    // seção fica sempre visível (evita esconder a função só porque o NPC não foi colocado ainda).
+    // (vender/comprar poção) e a da Forja (fundir) ficam fechadas até o jogador apertar E perto do
+    // respectivo NPC — GDD §12 ("vender ao comerciante"), §11 ("o ferreiro libera a forja") e
+    // docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md princípio 2 (prompt contextual único, em vez de
+    // painel sempre visível). Ver UpdateNpcContext() pro fallback usado enquanto o Codex não
+    // posiciona os NPCs "Ferreiro"/"Comerciante" no mundo.
     public sealed class NetworkEconomyController : MonoBehaviour
     {
         public event Action<string> MineRequested;
@@ -85,9 +85,13 @@ namespace Espectro.Network
         private GameObject merchantSection;
         private GameObject forgeSection;
         private Text contextHintText;
+        private Text contextPromptText;
         private bool merchantVisible;
         private bool forgeVisible = true; // valor inicial diferente força o primeiro Relayout().
+        private bool hintVisible;
         private bool contextInitialized;
+        private bool merchantOpen;
+        private bool forgeOpen;
 
         private GameObject miningProgressRoot;
         private Image miningProgressFill;
@@ -128,6 +132,8 @@ namespace Espectro.Network
                 miningProgressRoot.SetActive(false);
                 craftProgressRoot.SetActive(false);
                 craftInProgressRecipe = null;
+                merchantOpen = false;
+                forgeOpen = false;
             }
             else
             {
@@ -293,37 +299,77 @@ namespace Espectro.Network
             if (craftProgressRoot.activeSelf)
                 craftProgressFill.fillAmount = Mathf.Clamp01((Time.unscaledTime - craftProgressStart) / craftProgressDuration);
 
-            var nearMerchant = IsNearOrAbsent(MerchantNpcName);
-            var nearForge = IsNearOrAbsent(ForgeNpcName);
-            if (!contextInitialized || nearMerchant != merchantVisible || nearForge != forgeVisible)
+            UpdateNpcContext();
+        }
+
+        // GDD/REFERENCIAS-INTERFACE-JOGABILIDADE.md princípio 2: um prompt contextual único (tecla
+        // E, mesmo padrão de InteractionController.cs) abre o painel — em vez de "aparece sozinho
+        // quando perto". Como os NPCs "Ferreiro" e "Comerciante" ainda não foram posicionados no
+        // mundo pelo Codex, cada seção tem um fallback seguro: se o NPC daquele nome não existir em
+        // lugar nenhum da cena, a seção continua sempre visível (evita esconder a função de vez).
+        // Assim que o Codex posicionar os NPCs, o comportamento vira automaticamente
+        // "fechado até apertar E perto do NPC", sem precisar mudar este código de novo.
+        private void UpdateNpcContext()
+        {
+            var merchantExists = AnyNpcNamed(MerchantNpcName);
+            var forgeExists = AnyNpcNamed(ForgeNpcName);
+            var merchantNear = merchantExists && NearNpcNamed(MerchantNpcName);
+            var forgeNear = forgeExists && NearNpcNamed(ForgeNpcName);
+
+            if (!merchantExists) merchantOpen = false; // fallback: seção sempre visível, não usa o toggle.
+            else if (!merchantNear) merchantOpen = false; // fecha ao se afastar.
+
+            if (!forgeExists) forgeOpen = false;
+            else if (!forgeNear) forgeOpen = false;
+
+            var merchantPromptActive = merchantExists && merchantNear && !merchantOpen;
+            var forgePromptActive = forgeExists && forgeNear && !forgeOpen && !merchantPromptActive;
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                if (merchantExists && merchantNear) merchantOpen = !merchantOpen;
+                else if (forgeExists && forgeNear) forgeOpen = !forgeOpen;
+            }
+
+            contextPromptText.gameObject.SetActive(merchantPromptActive || forgePromptActive);
+            if (merchantPromptActive) contextPromptText.text = "Pressione E para negociar com o Comerciante";
+            else if (forgePromptActive) contextPromptText.text = "Pressione E para usar a Forja";
+
+            var showMerchant = !merchantExists || merchantOpen;
+            var showForge = !forgeExists || forgeOpen;
+            var showHint = !showMerchant && !showForge && !merchantPromptActive && !forgePromptActive;
+            if (!contextInitialized || showMerchant != merchantVisible || showForge != forgeVisible || showHint != hintVisible)
             {
                 contextInitialized = true;
-                RelayoutContext(nearMerchant, nearForge);
+                RelayoutContext(showMerchant, showForge, showHint);
             }
         }
 
-        // Perto do NPC (dentro do alcance) OU o NPC ainda não existe na cena — ver nota no topo
-        // do arquivo sobre o fallback enquanto o mundo (Codex) não posiciona Ferreiro/Comerciante.
-        private bool IsNearOrAbsent(string npcDisplayName)
+        private static bool AnyNpcNamed(string npcDisplayName)
         {
-            var exists = false;
+            foreach (var interactable in WorldInteractable.Active)
+                if (interactable != null && interactable.DisplayName == npcDisplayName) return true;
+            return false;
+        }
+
+        private bool NearNpcNamed(string npcDisplayName)
+        {
             var rangeSq = NpcInteractionRange * NpcInteractionRange;
             foreach (var interactable in WorldInteractable.Active)
             {
                 if (interactable == null || interactable.DisplayName != npcDisplayName) continue;
-                exists = true;
                 if ((interactable.transform.position - player.transform.position).sqrMagnitude <= rangeSq) return true;
             }
-            return !exists;
+            return false;
         }
 
-        private void RelayoutContext(bool nearMerchant, bool nearForge)
+        private void RelayoutContext(bool nearMerchant, bool nearForge, bool showHint)
         {
             merchantVisible = nearMerchant;
             forgeVisible = nearForge;
+            hintVisible = showHint;
             merchantSection.SetActive(nearMerchant);
             forgeSection.SetActive(nearForge);
-            var showHint = !nearMerchant && !nearForge;
             contextHintText.gameObject.SetActive(showHint);
 
             var forgeY = HeaderBottomY - (nearMerchant ? MerchantSectionHeight + SectionGapY : 0f);
@@ -460,9 +506,11 @@ namespace Espectro.Network
 
             minePromptText = Label(panel.transform, "Dica de Mineracao", "", 26, new Vector2(0.5f, 0.45f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
             minePromptText.gameObject.SetActive(false);
+            contextPromptText = Label(panel.transform, "Dica de Interacao NPC", "", 26, new Vector2(0.5f, 0.38f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
+            contextPromptText.gameObject.SetActive(false);
             messageText = Label(panel.transform, "Mensagem de Economia", "", 24, new Vector2(0.5f, 0.28f), Vector2.zero, new Vector2(800f, 45f), TextAnchor.MiddleCenter);
 
-            RelayoutContext(true, true);
+            RelayoutContext(true, true, false);
         }
 
         private void BuildMerchantSection(Vector2 topRight)
