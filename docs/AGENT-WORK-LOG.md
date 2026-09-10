@@ -9,6 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: CI automático no GitHub — rodar a suíte de testes do servidor e checagem de tipos em todo push/PR.
+Arquivos/pastas: `.github/workflows/ci.yml` (novo).
+Descrição: com Codex e Claude mexendo no mesmo repositório em paralelo, regressão só era pega se alguém rodasse os testes manualmente. Sem tocar em nada do cliente Unity.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Revisão de segurança do servidor, agora exposto publicamente (autenticação, validação de input WebSocket, SQL injection, secrets, CORS, limites de autorização entre personagens, hashing de senha).
 Arquivos/pastas: `server/src/transport/http.ts` (único fix aplicado).
