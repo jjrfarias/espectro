@@ -9,10 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: CI automático no GitHub — rodar a suíte de testes do servidor e checagem de tipos em todo push/PR.
 Arquivos/pastas: `.github/workflows/ci.yml` (novo).
 Descrição: com Codex e Claude mexendo no mesmo repositório em paralelo, regressão só era pega se alguém rodasse os testes manualmente. Sem tocar em nada do cliente Unity.
+Resultado: workflow builda `contracts`, roda `tsc --noEmit` no `server` e a suíte de testes (`npm run test --workspace=server`), sem precisar de Postgres real (todos os testes usam mocks). Validado localmente antes do push (`npm ci --dry-run`, build, typecheck e testes, todos limpos) e depois confirmado rodando de verdade no GitHub Actions (`gh run watch`): run `34481484314`, sucesso em 27s.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Revisão de segurança do servidor, agora exposto publicamente (autenticação, validação de input WebSocket, SQL injection, secrets, CORS, limites de autorização entre personagens, hashing de senha).
@@ -223,3 +224,8 @@ Descrição: correção de eixo/escala dos pacotes Nature/Village, shader toon/c
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-tutorial-production.log`, `AGENTS.md`, serviço Railway `webgl`.
 Descrição: registrar e executar o build obrigatório após alterações do cliente.
 Resultado: build Unity WebGL concluído com retorno 0; `WebGL.data` atualizado às 09:50 e publicado no Railway `webgl`. A regra permanente de publicação foi adicionada ao `AGENTS.md`.
+## CONCLUÍDO 2026-09-10 — Codex (tutorial online no cliente)
+Área: Unity client — protocolo de missões persistentes.
+Arquivos/pastas: `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/WorldConnection.cs`, `.codex-validation/csharp/`.
+Descrição: adicionar envelopes e eventos para `npc.talk.request`, `npc.talk.result` e `tutorial.snapshot`, preparando o HUD para consumir o progresso salvo no Railway.
+Resultado: `WorldConnection` agora envia conversa com NPC e despacha os dois eventos de tutorial; compilação Editor/WebGL passou com 31 scripts. A interação visual ainda usa o estágio local até a próxima ligação de `InteractionController` à sessão.
