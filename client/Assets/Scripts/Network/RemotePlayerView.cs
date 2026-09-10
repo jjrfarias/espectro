@@ -25,21 +25,34 @@ namespace Espectro.Network
 
             var shader = Shader.Find("Espectro/ToonLit") ?? Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
 
-            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            body.name = "Corpo";
-            body.transform.SetParent(root.transform, false);
-            body.transform.localPosition = new Vector3(0f, 1f, 0f);
-            body.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
-            body.GetComponent<Renderer>().material = new Material(shader) { color = new Color(0.78f, 0.42f, 0.14f) };
-            Object.Destroy(body.GetComponent<Collider>());
+            // O jogador local usa o aventureiro KayKit; reutilizamos o mesmo prefab
+            // para que os demais jogadores não apareçam como cápsulas laranja.
+            var prefab = Resources.Load<GameObject>("EspectroModels/Adventurers/Aventureiro");
+            if (prefab != null)
+            {
+                var model = Object.Instantiate(prefab, root.transform, false);
+                model.name = "Aventureiro";
+                model.transform.localPosition = Vector3.zero;
+                model.transform.localRotation = Quaternion.identity;
+            }
+            else
+            {
+                var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                body.name = "Corpo";
+                body.transform.SetParent(root.transform, false);
+                body.transform.localPosition = new Vector3(0f, 1f, 0f);
+                body.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
+                body.GetComponent<Renderer>().material = new Material(shader) { color = new Color(0.78f, 0.42f, 0.14f) };
+                Object.Destroy(body.GetComponent<Collider>());
 
-            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            head.name = "Cabeca";
-            head.transform.SetParent(root.transform, false);
-            head.transform.localPosition = new Vector3(0f, 2.05f, 0f);
-            head.transform.localScale = Vector3.one * 0.56f;
-            head.GetComponent<Renderer>().material = new Material(shader) { color = new Color(0.82f, 0.63f, 0.45f) };
-            Object.Destroy(head.GetComponent<Collider>());
+                var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                head.name = "Cabeca";
+                head.transform.SetParent(root.transform, false);
+                head.transform.localPosition = new Vector3(0f, 2.05f, 0f);
+                head.transform.localScale = Vector3.one * 0.56f;
+                head.GetComponent<Renderer>().material = new Material(shader) { color = new Color(0.82f, 0.63f, 0.45f) };
+                Object.Destroy(head.GetComponent<Collider>());
+            }
 
             view.CreateNameLabel(data.name);
             view.SnapTo(data);

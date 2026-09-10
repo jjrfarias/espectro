@@ -268,8 +268,9 @@ Resultado: eventos persistentes ligados à sessão; compilação Editor/WebGL pa
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-tutorial-online.log`, serviço Railway `webgl`.
 Descrição: gerar o build Unity WebGL com o commit `211110e` e republicar a saída estática no Railway antes de considerar a alteração disponível em produção.
 Resultado: build WebGL concluído com Unity batchmode, saída atualizada em 10/09/2026 10:47 (21,644,879 bytes) e publicada no serviço Railway `webgl` (deploy `8690bf73-c96e-4566-80e2-5b51d30accb8`). Log final: `Exiting batchmode successfully now!`, código 0.
-## EM ANDAMENTO 2026-09-10 — Codex (avatar remoto)
+## CONCLUÍDO 2026-09-10 — Codex (avatar remoto)
 Área: Unity client — representação visual dos outros jogadores.
 Arquivos/pastas: `client/Assets/Scripts/World/`, `client/Assets/Scripts/Network/`, `client/Assets/Scenes/` se necessário.
 Descrição: investigar por que o segundo jogador aparece como cápsula laranja e corrigir o avatar remoto para usar o mesmo personagem visual do jogador local, com nome e orientação coerentes.
 Escopo ampliado: após a alteração do cliente, gerar e publicar o build WebGL obrigatório em `client/Builds/WebGL/` e Railway `webgl`.
+Resultado: `RemotePlayerView` agora instancia `EspectroModels/Adventurers/Aventureiro`, com fallback procedural apenas se o prefab não existir. Build Unity WebGL concluído com código 0 (`WebGL.data` atualizado às 11:08) e publicado no Railway; deploy `1f455e80-2372-4961-84c0-7c817ed33b02`.
