@@ -10,6 +10,10 @@ status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou pa
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Validação de compilação — confirmação retroativa das duas entradas de UI abaixo (Atributos e Comerciante/poção + barras de progresso), pendentes de checagem de compilação real.
+Resultado: assim que o Editor do Codex fechou (0 processos `Unity.exe`), rodei o batchmode compile check completo — desta vez com Domain Reload e `CompileScripts` de verdade (não a falha de lock das duas tentativas anteriores) — terminando com "Exiting batchmode successfully now!" (código de retorno 0) e **0 `error CS`**. As duas UIs (`NetworkAttributesController.cs`, extensão de `NetworkEconomyController.cs`, e os pontos de `NetworkSession.cs` que as conectam) compilam limpo.
+
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: UI de comerciante/poção e barra de progresso de minerar/fundir — últimos dois itens do pedido "melhorar toda a mecânica de jogabilidade" (visual, escopo excepcional pedido pelo usuário).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs` (estendido, não um controller novo — comprar/usar poção, barras de progresso de mineração e fundição com cancelar), `client/Assets/Scripts/Network/NetworkSession.cs` (assinatura de `BuyRequested`/`UseItemRequested`/`CraftCancelRequested` e dos eventos `Buy/UseItem/MineStarted/MineCancelled/CraftStarted/CraftCancelledReceived`, já existentes em `WorldConnection.cs`/`Protocol.cs` mas nunca conectados à UI).
 Descrição: linha de poção no painel de economia (preço fixo 15, mostra quantidade possuída, botão comprar sempre ativo e usar só se tiver ao menos 1); duas barras de progresso preenchendo em tempo real (`Image.Type.Filled`) com base em `durationMs` de `resource.mine.started`/`craft.started`, escondidas ao receber o resultado ou cancelamento; botão "X" de cancelar fundição (mineração cancela sozinha ao mover/tomar dano, sem ação do cliente — confirmado em `contracts/src/index.ts`, não existe `resource.mine.cancel` do lado cliente).
