@@ -26,7 +26,9 @@ namespace Espectro.Network
         private Text progressText;
         private Text targetText;
         private Text messageText;
+        private GameObject messageBackdrop;
         private Text deathText;
+        private GameObject deathBackdrop;
         private Image healthFill;
         private Button modeButton;
         private Button attackButton;
@@ -152,6 +154,7 @@ namespace Espectro.Network
         public void ShowMessage(string message)
         {
             messageText.text = message;
+            messageBackdrop.SetActive(!string.IsNullOrEmpty(message));
             messageUntil = Time.unscaledTime + 4f;
         }
 
@@ -161,7 +164,7 @@ namespace Espectro.Network
             healthText.text = $"VIDA  {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}";
             var fraction = maxHp > 0 ? Mathf.Clamp01(hp / maxHp) : 0f;
             healthFill.rectTransform.localScale = new Vector3(fraction, 1f, 1f);
-            deathText.gameObject.SetActive(!alive);
+            deathBackdrop.SetActive(!alive);
             deathText.text = "VOCÊ CAIU\nAguardando o retorno a O Berço...";
         }
 
@@ -194,7 +197,11 @@ namespace Espectro.Network
             targetText.text = hasTarget
                 ? $"{selected.DisplayName} · {Mathf.CeilToInt(selected.Hp)} / {Mathf.CeilToInt(selected.MaxHp)} PV · {HorizontalDistance(selected):0.0} m"
                 : "Procure lobos e javalis na floresta";
-            if (Time.unscaledTime > messageUntil) messageText.text = "";
+            if (Time.unscaledTime > messageUntil && messageText.text != "")
+            {
+                messageText.text = "";
+                messageBackdrop.SetActive(false);
+            }
         }
 
         private void Attack()
@@ -265,7 +272,8 @@ namespace Espectro.Network
         private void BuildHud()
         {
             var topRight = new Vector2(1f, 1f);
-            modeText = Label(transform, "Estado da Sessao", "", 20, topRight, new Vector2(-30f, -95f), new Vector2(580f, 35f), TextAnchor.MiddleRight);
+            var modeBackdrop = Backdrop(transform, topRight, new Vector2(-30f, -95f), new Vector2(580f, 35f));
+            modeText = Label(modeBackdrop.transform, "Estado da Sessao", "", 20, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(580f, 35f), TextAnchor.MiddleRight);
             modeButton = MakeButton(transform, "Modo Online", "ENTRAR ONLINE", topRight, new Vector2(-30f, -28f), new Vector2(340f, 58f),
                 () => { if (local) OnlineRequested?.Invoke(); else LocalRequested?.Invoke(); });
             modeButtonLabel = modeButton.GetComponentInChildren<Text>();
@@ -287,15 +295,28 @@ namespace Espectro.Network
             healthText = Label(healthBackground.transform, "Valor Vida", "VIDA", 25, topLeft, new Vector2(12f, -5f), new Vector2(330f, 45f), TextAnchor.MiddleLeft);
             var attributesHint = Label(healthBackground.transform, "Dica Atributos", "▾ clique para ver atributos", 13, topLeft, new Vector2(12f, -62f), new Vector2(330f, 22f), TextAnchor.MiddleLeft);
             attributesHint.color = new Color(0.6f, 0.68f, 0.65f);
-            progressText = Label(battleHud.transform, "Progresso", "", 22, topLeft, new Vector2(28f, -235f), new Vector2(430f, 35f), TextAnchor.MiddleLeft);
-            targetText = Label(battleHud.transform, "Alvo", "", 25, new Vector2(0.5f, 1f), new Vector2(0f, -35f), new Vector2(620f, 55f), TextAnchor.MiddleCenter);
-            messageText = Label(battleHud.transform, "Resultado", "", 25, new Vector2(0.5f, 0f), new Vector2(0f, 155f), new Vector2(1000f, 70f), TextAnchor.MiddleCenter);
-            deathText = Label(battleHud.transform, "Morte", "", 34, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(900f, 130f), TextAnchor.MiddleCenter);
+            var progressBackdrop = Backdrop(battleHud.transform, topLeft, new Vector2(28f, -235f), new Vector2(430f, 35f));
+            progressText = Label(progressBackdrop.transform, "Progresso", "", 22, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(430f, 35f), TextAnchor.MiddleLeft);
+            var targetBackdrop = Backdrop(battleHud.transform, new Vector2(0.5f, 1f), new Vector2(0f, -35f), new Vector2(620f, 55f));
+            targetText = Label(targetBackdrop.transform, "Alvo", "", 25, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(620f, 55f), TextAnchor.MiddleCenter);
+            messageBackdrop = Backdrop(battleHud.transform, new Vector2(0.5f, 0f), new Vector2(0f, 155f), new Vector2(1000f, 70f));
+            messageText = Label(messageBackdrop.transform, "Resultado", "", 25, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1000f, 70f), TextAnchor.MiddleCenter);
+            messageBackdrop.SetActive(false);
+            deathBackdrop = Panel(battleHud.transform, "Fundo Morte", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(940f, 160f), new Color(0.02f, 0.02f, 0.02f, 0.7f));
+            deathText = Label(deathBackdrop.transform, "Morte", "", 34, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(900f, 130f), TextAnchor.MiddleCenter);
             deathText.color = new Color(1f, 0.72f, 0.55f);
-            deathText.gameObject.SetActive(false);
+            deathBackdrop.SetActive(false);
             attackButton = MakeButton(battleHud.transform, "Atacar", "ATACAR [F]", new Vector2(1f, 0f), new Vector2(-35f, 340f), new Vector2(235f, 85f), Attack);
             targetButton = MakeButton(battleHud.transform, "Trocar Alvo", "ALVO [TAB]", new Vector2(1f, 0f), new Vector2(-35f, 440f), new Vector2(235f, 58f), SelectNext);
             UpdateProgress();
+        }
+
+        // Fundo semi-transparente atrás de texto solto sobre a cena 3D (céu claro, terreno) —
+        // sem isso o texto branco fica ilegível dependendo do fundo atrás dele.
+        private static GameObject Backdrop(Transform parent, Vector2 anchor, Vector2 position, Vector2 size)
+        {
+            var item = Panel(parent, "Fundo de Texto", anchor, position, size + new Vector2(24f, 10f), new Color(0.02f, 0.03f, 0.03f, 0.55f));
+            return item;
         }
 
         private static RectTransform Rect(GameObject item, Transform parent, Vector2 anchor, Vector2 position, Vector2 size)
