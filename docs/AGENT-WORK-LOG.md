@@ -9,6 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Redistribuição gratuita de atributos (GDD §6/§13) — última peça de gameplay do servidor ainda faltando. Servidor já implementado; agora ligando o encanamento de rede do cliente (não visual, mesmo padrão de antes).
+Arquivos/pastas: `contracts/src/index.ts`, `server/src/modules/combat/attributes.service.ts`, `server/src/transport/ws.ts`, `server/tests/unit/attributes.service.test.ts`; `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/WorldConnection.cs` (só DTOs/eventos/métodos de envio, sem UI).
+Descrição: "redistribuição gratuita durante o teste, falando com a instrutora" — devolve todos os pontos de atributo já alocados pra não-gastos, resetando os 4 pro valor inicial (5).
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Validação — teste de carga com ~30 jogadores simultâneos contra o servidor de produção (GDD §20, critério de aceite 9, nunca demonstrado).
 Arquivos/pastas: script descartável local de carga (WebSocket), apagado ao final; nenhum arquivo de produto tocado.
