@@ -9,9 +9,14 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Sensação de combate/monstros — pedido do usuário pra melhorar "movimentos de batalha" e "monstros" enquanto ele testa o build. Tudo procedural em código (o corpo dos animais já é geometria combinada, sem assets/rig importados) — sem mexer em `PrototypePlayerController.cs`/`ThirdPersonCamera.cs` (Codex "EM ANDAMENTO" lá).
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEnemyView.cs`. (fundo atrás de texto solto sobre a cena) aplicada ao HUD de combate, agora no painel de economia (`minePromptText`, `contextPromptText`, `messageText` sem fundo).
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
+Resultado: respiração sutil (bob senoidal) enquanto o animal está vivo; morte agora toca uma animação curta de tombo (rotaciona e afunda) em vez de sumir na hora — dá peso ao golpe final; número de dano ganha um "punch" de escala em vez de só desvanecer; anel de seleção pulsa sutilmente em vez de ficar estático. Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.736.856 bytes) republicado no serviço Railway `webgl` — deploy `da15de11-4a1b-4ec3-b198-74c92ea13579`, status `SUCCESS`.
+**Ideia levantada e não implementada** (fora do escopo seguro desta sessão): dar feedback visual ao *golpe do jogador* (hoje o ataque não tem nenhuma animação de arma/braço) — não dá pra mexer em `PrototypePlayerController.cs` (Codex ativo lá) nem modificar `transform.position`/rotação do jogador de outro script sem risco de brigar com o controller de movimento. Alternativa segura: um efeito de "golpe" (arco/flash) desenhado no `NetworkEnemyView.cs` do alvo quando `ApplyResolved` chega, sem tocar no jogador. Fica como sugestão pro próximo passo.
+
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Polimento visual contínuo — mesma correção de legibilidade (fundo atrás de texto solto sobre a cena) aplicada ao HUD de combate, agora no painel de economia (`minePromptText`, `contextPromptText`, `messageText` sem fundo).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
 Resultado: os três textos que flutuam sobre a cena 3D (dica de mineração, prompt de NPC, mensagem de resultado) agora têm fundo escuro semi-transparente atrás, só aparecendo quando há texto (mesmo padrão `Backdrop()` já usado em `NetworkCombatController.cs`). Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.735.637 bytes) republicado no serviço Railway `webgl` — deploy `4654751a-b4a1-4c8d-90cb-198b37e22bd3`, status `SUCCESS`.
 
