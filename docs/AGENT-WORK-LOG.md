@@ -9,9 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Migrar Comerciante/Forja pro padrão de prompt contextual (princípio 2 de `REFERENCIAS-INTERFACE-JOGABILIDADE.md`), em vez de "seção aparece sozinha quando perto".
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
+Descrição: `UpdateNpcContext()` substitui `IsNearOrAbsent`; agora cada seção tem estado aberto/fechado (`merchantOpen`/`forgeOpen`), fechado por padrão e fechado automaticamente ao se afastar. Perto do NPC (e não aberto ainda) mostra um prompt único "Pressione E para negociar com o Comerciante"/"Pressione E para usar a Forja" (mesma tecla E do `InteractionController.cs`); apertar E abre/fecha o painel. **Atenção Codex**: quando adicionar os NPCs "Comerciante"/"Ferreiro" com diálogo no `InteractionController.cs`, cuidado com colisão — os dois sistemas escutam `KeyCode.E` de forma independente; se o NPC também tiver `WorldInteractable` com linhas de diálogo, apertar E perto dele vai tentar abrir o diálogo E o painel de comércio/forja ao mesmo tempo. Recomendo unificar (o `Interact()` do `InteractionController` chamar o toggle do painel em vez de/além da fala) antes de posicionar esses dois NPCs no mundo.
+Resultado: fallback preservado (sem NPC no mundo, seção sempre visível, comportamento idêntico ao que já estava em produção) — nada quebra até o Codex posicionar os NPCs; a partir daí o painel some/aparece automaticamente. Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.733.964 bytes) republicado no serviço Railway `webgl` — deploy `4ef05fcf-c2d8-4c44-a5da-644d1c2934e0`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Documentação — novo `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`, pedido explícito do usuário pra registrar referências de jogos (Zelda BOTW/TOTK, Palia, RuneScape clássico) que guiam decisões de interface/jogabilidade daqui pra frente, pra Claude E pro Codex.
