@@ -9,6 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Infraestrutura Railway — demonstrar backup e restauração do Postgres de produção (GDD §20, critério de aceite 10, nunca demonstrado).
+Arquivos/pastas: infraestrutura Railway (proxy TCP temporário no serviço Postgres, removido ao final), scripts descartáveis locais de dump/restore. Sem tocar em nenhum arquivo do repositório além de, possivelmente, documentar o procedimento no final.
+Descrição: vou expor o Postgres de produção temporariamente via TCP proxy (Railway não dá acesso público por padrão) pra rodar `pg_dump` de fora, restaurar num banco de teste local e confirmar os dados batem — depois removo o proxy.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Validação — jornada completa da primeira sessão (GDD §4/§20, critério de aceite 2) de ponta a ponta contra o servidor real, sem atalhos de banco. Achou e corrigiu um bug real no caminho.
 Arquivos/pastas: script descartável `server/e2e_full_journey_test.mjs` (apagado ao final); correção real em `server/src/modules/economy/economy.repository.ts` (`economySnapshotOf` exportado), `server/src/modules/economy/economy.service.ts` (reusa o helper), `server/src/modules/missions/missions.service.ts` (envia `economy.snapshot` ao pagar a recompensa), `server/tests/unit/missions.service.test.ts` (2 testes novos).
@@ -263,3 +268,8 @@ Resultado: eventos persistentes ligados à sessão; compilação Editor/WebGL pa
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-tutorial-online.log`, serviço Railway `webgl`.
 Descrição: gerar o build Unity WebGL com o commit `211110e` e republicar a saída estática no Railway antes de considerar a alteração disponível em produção.
 Resultado: build WebGL concluído com Unity batchmode, saída atualizada em 10/09/2026 10:47 (21,644,879 bytes) e publicada no serviço Railway `webgl` (deploy `8690bf73-c96e-4566-80e2-5b51d30accb8`). Log final: `Exiting batchmode successfully now!`, código 0.
+## EM ANDAMENTO 2026-09-10 — Codex (avatar remoto)
+Área: Unity client — representação visual dos outros jogadores.
+Arquivos/pastas: `client/Assets/Scripts/World/`, `client/Assets/Scripts/Network/`, `client/Assets/Scenes/` se necessário.
+Descrição: investigar por que o segundo jogador aparece como cápsula laranja e corrigir o avatar remoto para usar o mesmo personagem visual do jogador local, com nome e orientação coerentes.
+Escopo ampliado: após a alteração do cliente, gerar e publicar o build WebGL obrigatório em `client/Builds/WebGL/` e Railway `webgl`.
