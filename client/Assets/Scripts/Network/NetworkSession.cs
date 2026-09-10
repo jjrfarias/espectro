@@ -323,8 +323,10 @@ namespace Espectro.Network
         private void HandleTutorialSnapshot(TutorialSnapshotPayload snapshot)
         {
             if (snapshot == null || interactions == null) return;
+            // contracts/src/index.ts tutorialStepCodes tem 6 passos reais, não 4 — o clamp em 4
+            // cortava "fundiu_lingote"/"vendeu_lingote" do objetivo mostrado na tela.
             var completed = snapshot.completedSteps;
-            var stage = completed == null ? (snapshot.completed ? 4 : 0) : Mathf.Clamp(completed.Length, 0, 4);
+            var stage = completed == null ? (snapshot.completed ? 6 : 0) : Mathf.Clamp(completed.Length, 0, 6);
             interactions.ApplyRemoteTutorialStage(stage);
         }
 

@@ -24,7 +24,7 @@ namespace Espectro.Prototype
         private WorldInteractable current;
         private WorldInteractable dialogueTarget;
         private int dialogueLine;
-        private int questStage;
+        private int tutorialStage;
 
         private void Awake()
         {
@@ -43,15 +43,16 @@ namespace Espectro.Prototype
             dialogueText = body;
             objectiveText = objective;
             dialoguePanel.SetActive(false);
-            questStage = 0;
+            tutorialStage = 0;
             RefreshObjective();
         }
 
-        // Chamado pela sessão online quando o servidor confirma o tutorial persistente.
-        // Mantém o mesmo texto e a mesma leitura do modo local.
+        // Chamado pela sessão online quando o servidor confirma o tutorial persistente
+        // (tutorial.snapshot). tutorialStage é a contagem de completedSteps — 6 passos reais em
+        // contracts/src/index.ts tutorialStepCodes, não 4 (ver NetworkSession.HandleTutorialSnapshot).
         public void ApplyRemoteTutorialStage(int stage)
         {
-            questStage = Mathf.Clamp(stage, 0, 4);
+            tutorialStage = Mathf.Clamp(stage, 0, 6);
             RefreshObjective();
         }
 
@@ -107,7 +108,7 @@ namespace Espectro.Prototype
                 _ => null,
             };
             if (!string.IsNullOrEmpty(npcCode)) OnlineNpcTalkRequested?.Invoke(npcCode);
-            if (dialogueTarget.AdvanceToStage >= 0) questStage = dialogueTarget.AdvanceToStage;
+            if (dialogueTarget.AdvanceToStage >= 0) tutorialStage = dialogueTarget.AdvanceToStage;
             dialogueTarget.Complete();
             dialoguePanel.SetActive(false);
             DialogueActive = false;
@@ -122,7 +123,7 @@ namespace Espectro.Prototype
             var bestDistance = interactionRange * interactionRange;
             foreach (var candidate in WorldInteractable.Active)
             {
-                if (candidate == null || !candidate.CanInteract(questStage)) continue;
+                if (candidate == null || !candidate.CanInteract(tutorialStage)) continue;
                 var distance = (candidate.transform.position - player.transform.position).sqrMagnitude;
                 if (distance >= bestDistance) continue;
                 bestDistance = distance;
@@ -131,15 +132,20 @@ namespace Espectro.Prototype
             return nearest;
         }
 
+        // GDD-MVP.md §4 "Jornada da primeira sessão" (passos 5-10) e §13 (tutorialStepCodes em
+        // contracts/src/index.ts): falou_instrutora, derrotou_criatura, falou_minerador,
+        // extraiu_minerio, fundiu_lingote, vendeu_lingote — nessa ordem.
         private void RefreshObjective()
         {
-            objectiveText.text = questStage switch
+            objectiveText.text = tutorialStage switch
             {
-                0 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nFale com a Anciã Mira na praça",
-                1 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nEncontre a Lumina perto da forja",
-                2 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nLeve a Lumina até a entrada da mina",
-                3 => "CAPÍTULO I  •  O SUSSURRO SOB A MATA\nRetorne e conte à Anciã o que encontrou",
-                _ => "CAPÍTULO I  •  CONCLUÍDO\nO chamado sob as pedras foi respondido"
+                0 => "PRIMEIRA JORNADA\nFale com a Instrutora na praça",
+                1 => "PRIMEIRA JORNADA\nEnfrente uma criatura na floresta",
+                2 => "PRIMEIRA JORNADA\nFale com o Minerador perto da mina",
+                3 => "PRIMEIRA JORNADA\nExtraia minério de ferro na mina",
+                4 => "PRIMEIRA JORNADA\nFunda um lingote na forja com o Ferreiro",
+                5 => "PRIMEIRA JORNADA\nVenda o lingote ao Comerciante",
+                _ => "PRIMEIRA JORNADA  •  CONCLUÍDA\nConsulte o mural com o Cronista"
             };
         }
     }
