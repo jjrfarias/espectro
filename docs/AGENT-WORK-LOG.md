@@ -9,9 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Polimento visual contínuo (pedido do usuário) — legibilidade do HUD de combate (texto de alvo/mensagens soltos sobre o céu claro, sem fundo).
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Ainda não toco em `NetworkUI.cs`/`ThirdPersonCamera.cs`/`PrototypePlayerController.cs` (checar reservas do Codex antes).
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não toquei em `NetworkUI.cs`/`ThirdPersonCamera.cs`/`PrototypePlayerController.cs` (câmera/movimento seguia "EM ANDAMENTO" do Codex no momento).
+Resultado: texto de estado da sessão, nível/XP, alvo, mensagens de resultado e "VOCÊ CAIU" agora têm um fundo escuro semi-transparente atrás (antes eram texto branco solto direto sobre a cena 3D — ilegível contra o céu claro do screenshot que o usuário mandou). O fundo de mensagem/morte só aparece quando há texto pra mostrar (`messageBackdrop`/`deathBackdrop` seguem o mesmo `SetActive` do texto). Corrigido durante a implementação: o fundo de morte precisou de seu próprio toggle (`deathBackdrop.SetActive`) em vez do antigo `deathText.gameObject.SetActive`, senão o texto reaparecia mas o fundo ficava permanentemente escondido. Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.731.565 bytes) republicado no serviço Railway `webgl` — deploy `d64ea204-5dcd-49bf-9bc3-df45851bb273`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Build WebGL + republicação no Railway — publicar as duas UIs novas (Atributos, Comerciante/poção + barras de progresso) pro usuário conseguir ver, já que compilar os scripts não gera um build jogável.
