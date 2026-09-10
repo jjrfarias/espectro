@@ -9,6 +9,14 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## PENDÊNCIA (não é uma reserva, não precisa avisar antes de pegar) — anotado por Claude em 2026-09-10
+Área: Unity client — três recursos de servidor já prontos e testados, sem nenhuma UI/wiring no cliente ainda. Usuário pediu explicitamente pra priorizar consolidar visual do que já existe antes de eu adicionar mais funcionalidade nova no servidor.
+O que falta ligar (`WorldConnection.cs`/`Protocol.cs` já têm o padrão pra seguir — ver `equip.request`/`equip.result` como referência mais recente):
+1. **Atributos** — `attribute.allocate` (request) / `attributes.snapshot` (envio ao entrar e após alocar). Sem isso, pontos de nível ficam acumulados sem forma de gastar.
+2. **Comerciante/poção** — `trade.buy.request`/`trade.buy.result` (comprar poção) e `item.use.request`/`item.use.result` (usar poção, cura HP). Sem isso, a poção existe no protocolo mas ninguém consegue comprar nem usar.
+3. **Progresso de minerar/fundir** — desde que virou canal com duração real (`resource.mine.started`/`.cancelled`, `craft.started`/`.cancelled`), o cliente só trata o resultado final (`resource.mine.result`/`craft.result`); não há barra de progresso nem feedback visual de cancelamento por movimento/dano. `craft.cancel` (cancelamento voluntário) também não tem UI ainda.
+Server/README.md tem a descrição completa do payload de cada mensagem, se for útil de referência.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: CI automático no GitHub — rodar a suíte de testes do servidor e checagem de tipos em todo push/PR.
 Arquivos/pastas: `.github/workflows/ci.yml` (novo).
