@@ -72,7 +72,10 @@ namespace Espectro.Network
         private Button toolToggleButton;
         private Text toolToggleLabel;
         private Text minePromptText;
+        private GameObject minePromptBackdrop;
+        private GameObject contextPromptBackdrop;
         private Text messageText;
+        private GameObject messageBackdrop;
         private string equippedTool; // null = nada equipado.
         private const float MiningRangeUnits = 2.75f; // Espelha MINING_RANGE_UNITS em economy.constants.ts.
         private string nearestAvailableNodeId;
@@ -260,6 +263,7 @@ namespace Espectro.Network
         public void ShowMessage(string message)
         {
             messageText.text = message;
+            messageBackdrop.SetActive(!string.IsNullOrEmpty(message));
             messageUntil = Time.unscaledTime + 4f;
         }
 
@@ -283,16 +287,20 @@ namespace Espectro.Network
             {
                 var resourceCode = nodeState[nearestAvailableNodeId].resourceCode;
                 var label = ResourceLabels.TryGetValue(resourceCode, out var name) ? name : resourceCode;
-                minePromptText.gameObject.SetActive(true);
+                minePromptBackdrop.SetActive(true);
                 minePromptText.text = $"Pressione M para minerar ({label})";
                 if (Input.GetKeyDown(KeyCode.M)) MineRequested?.Invoke(nearestAvailableNodeId);
             }
             else
             {
-                minePromptText.gameObject.SetActive(false);
+                minePromptBackdrop.SetActive(false);
             }
 
-            if (Time.unscaledTime > messageUntil) messageText.text = "";
+            if (Time.unscaledTime > messageUntil && messageText.text != "")
+            {
+                messageText.text = "";
+                messageBackdrop.SetActive(false);
+            }
 
             if (miningProgressRoot.activeSelf)
                 miningProgressFill.fillAmount = Mathf.Clamp01((Time.unscaledTime - miningProgressStart) / miningProgressDuration);
@@ -331,7 +339,7 @@ namespace Espectro.Network
                 else if (forgeExists && forgeNear) forgeOpen = !forgeOpen;
             }
 
-            contextPromptText.gameObject.SetActive(merchantPromptActive || forgePromptActive);
+            contextPromptBackdrop.SetActive(merchantPromptActive || forgePromptActive);
             if (merchantPromptActive) contextPromptText.text = "Pressione E para negociar com o Comerciante";
             else if (forgePromptActive) contextPromptText.text = "Pressione E para usar a Forja";
 
@@ -504,11 +512,15 @@ namespace Espectro.Network
                 () => CraftCancelRequested?.Invoke());
             craftProgressRoot.SetActive(false);
 
-            minePromptText = Label(panel.transform, "Dica de Mineracao", "", 26, new Vector2(0.5f, 0.45f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
-            minePromptText.gameObject.SetActive(false);
-            contextPromptText = Label(panel.transform, "Dica de Interacao NPC", "", 26, new Vector2(0.5f, 0.38f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
-            contextPromptText.gameObject.SetActive(false);
-            messageText = Label(panel.transform, "Mensagem de Economia", "", 24, new Vector2(0.5f, 0.28f), Vector2.zero, new Vector2(800f, 45f), TextAnchor.MiddleCenter);
+            minePromptBackdrop = Backdrop(panel.transform, new Vector2(0.5f, 0.45f), Vector2.zero, new Vector2(700f, 50f));
+            minePromptText = Label(minePromptBackdrop.transform, "Dica de Mineracao", "", 26, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
+            minePromptBackdrop.SetActive(false);
+            contextPromptBackdrop = Backdrop(panel.transform, new Vector2(0.5f, 0.38f), Vector2.zero, new Vector2(700f, 50f));
+            contextPromptText = Label(contextPromptBackdrop.transform, "Dica de Interacao NPC", "", 26, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
+            contextPromptBackdrop.SetActive(false);
+            messageBackdrop = Backdrop(panel.transform, new Vector2(0.5f, 0.28f), Vector2.zero, new Vector2(800f, 45f));
+            messageText = Label(messageBackdrop.transform, "Mensagem de Economia", "", 24, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(800f, 45f), TextAnchor.MiddleCenter);
+            messageBackdrop.SetActive(false);
 
             RelayoutContext(true, true, false);
         }
@@ -585,6 +597,14 @@ namespace Espectro.Network
             image.fillAmount = 0f;
             image.raycastTarget = false;
             return image;
+        }
+
+        // Fundo semi-transparente atrás de texto solto sobre a cena 3D (mesma correção aplicada
+        // em NetworkCombatController.cs — sem isso o texto branco fica ilegível dependendo do
+        // fundo atrás dele, ex.: céu claro).
+        private static GameObject Backdrop(Transform parent, Vector2 anchor, Vector2 position, Vector2 size)
+        {
+            return Panel(parent, "Fundo de Texto", anchor, position, size + new Vector2(24f, 10f), new Color(0.02f, 0.03f, 0.03f, 0.55f));
         }
 
         private static void Divider(Transform parent, Vector2 anchor, Vector2 position, float width)
