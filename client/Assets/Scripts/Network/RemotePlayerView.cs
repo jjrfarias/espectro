@@ -14,6 +14,9 @@ namespace Espectro.Network
         private Vector3 targetPosition;
         private float targetFacingY;
         private Transform nameBillboard;
+        private Animator animator;
+        private Vector3 previousPosition;
+        private static readonly int SpeedParam = Animator.StringToHash("Speed");
 
         public string CharacterId { get; private set; }
 
@@ -34,6 +37,7 @@ namespace Espectro.Network
                 model.name = "Aventureiro";
                 model.transform.localPosition = Vector3.zero;
                 model.transform.localRotation = Quaternion.identity;
+                view.animator = model.GetComponentInChildren<Animator>();
             }
             else
             {
@@ -70,6 +74,7 @@ namespace Espectro.Network
             ApplySnapshot(data);
             transform.position = targetPosition;
             transform.rotation = Quaternion.Euler(0f, targetFacingY, 0f);
+            previousPosition = targetPosition;
         }
 
         private void Update()
@@ -77,6 +82,13 @@ namespace Espectro.Network
             var t = 1f - Mathf.Exp(-Smoothing * Time.deltaTime);
             transform.position = Vector3.Lerp(transform.position, targetPosition, t);
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, targetFacingY, 0f), t);
+
+            if (animator != null)
+            {
+                var speed = Vector3.Distance(transform.position, previousPosition) / Mathf.Max(Time.deltaTime, 0.001f);
+                animator.SetFloat(SpeedParam, speed, 0.12f, Time.deltaTime);
+                previousPosition = transform.position;
+            }
 
             if (nameBillboard != null && Camera.main != null)
             {
@@ -96,6 +108,15 @@ namespace Espectro.Network
             canvasRect.sizeDelta = new Vector2(320f, 60f);
             nameBillboard = canvasObject.transform;
 
+            var plate = new GameObject("Fundo", typeof(RectTransform), typeof(Image));
+            plate.transform.SetParent(canvasObject.transform, false);
+            var plateRect = (RectTransform)plate.transform;
+            plateRect.anchorMin = new Vector2(0.08f, 0.1f);
+            plateRect.anchorMax = new Vector2(0.92f, 0.9f);
+            plateRect.offsetMin = Vector2.zero;
+            plateRect.offsetMax = Vector2.zero;
+            plate.GetComponent<Image>().color = new Color(0.03f, 0.07f, 0.09f, 0.82f);
+
             var textObject = new GameObject("Texto", typeof(RectTransform), typeof(Text));
             textObject.transform.SetParent(canvasObject.transform, false);
             var textRect = (RectTransform)textObject.transform;
@@ -107,7 +128,8 @@ namespace Espectro.Network
             text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = 42;
             text.alignment = TextAnchor.MiddleCenter;
-            text.color = Color.white;
+            text.color = new Color(1f, 0.82f, 0.38f);
+            text.fontStyle = FontStyle.Bold;
             text.text = characterName;
         }
     }

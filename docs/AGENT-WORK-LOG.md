@@ -281,7 +281,8 @@ Arquivos/pastas: `client/Assets/Scripts/World/`, `client/Assets/Scripts/Network/
 Descrição: investigar por que o segundo jogador aparece como cápsula laranja e corrigir o avatar remoto para usar o mesmo personagem visual do jogador local, com nome e orientação coerentes.
 Escopo ampliado: após a alteração do cliente, gerar e publicar o build WebGL obrigatório em `client/Builds/WebGL/` e Railway `webgl`.
 Resultado: `RemotePlayerView` agora instancia `EspectroModels/Adventurers/Aventureiro`, com fallback procedural apenas se o prefab não existir. Build Unity WebGL concluído com código 0 (`WebGL.data` atualizado às 11:08) e publicado no Railway; deploy `1f455e80-2372-4961-84c0-7c817ed33b02`.
-## EM ANDAMENTO 2026-09-10 — Codex (animação e identificação do avatar remoto)
+## CONCLUÍDO 2026-09-10 — Codex (animação e identificação do avatar remoto)
 Área: Unity client — apresentação visual de jogadores remotos.
 Arquivos/pastas: `client/Assets/Scripts/Network/RemotePlayerView.cs`, build WebGL e Railway `webgl`.
 Descrição: adicionar estado de caminhada/parado ao Animator remoto e melhorar a placa de nome para leitura durante o multiplayer.
+Resultado: avatar remoto usa parâmetro `Speed` do Animator para caminhada/parado e placa de nome com fundo escuro, texto âmbar em negrito. Build WebGL concluído com código 0 e publicado no Railway; deploy `223f1d2b-5014-483a-9bbf-7b08ae14d34e`.
