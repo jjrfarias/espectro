@@ -20,6 +20,17 @@ Descrição: <o que está sendo feito, 1-2 frases>
 
 ---
 
+## CONCLUÍDO 2026-09-10 — Codex (refino visual do login)
+Área: Unity client — composição, alinhamento e acabamento da tela de autenticação.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `.codex-validation/`, `docs/AGENT-WORK-LOG.md`.
+Descrição: corrigir a composição desalinhada mostrada na captura e transformar login/cadastro em um painel central legível, com narrativa separada e estados visuais consistentes.
+Resultado: reposicionados título, chamada, campos e botões para uma coluna de formulário sem sobreposição com a sinopse; ações receberam larguras equilibradas. A tela agora mantém a narrativa à esquerda e o acesso alinhado à direita. Validação por inspeção do código e da captura fornecida; o Editor MCP permaneceu indisponível por timeout em tentativa anterior.
+
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Hospedagem do build WebGL — link de navegador pro usuário testar o jogo online sem instalar nada, usando o servidor já publicado no Railway.
+Arquivos/pastas: `client/Builds/WebGL/package.json` (novo, só define o comando de servir estático — não é código do jogo), serviço Railway `webgl` (id `fa30d289-441d-4fd4-b971-2cee32600afd`) no projeto `espectro`. Nenhum script/cena do Unity tocado.
+Descrição: build WebGL gerado pelo usuário via Unity Hub (minha tentativa em batchmode duas vezes antes disso parou no meio sem erro — ver histórico; usuário destravou abrindo o Editor manualmente). Publicado o conteúdo de `client/Builds/WebGL/` (110MB) como serviço estático próprio no Railway via `railway up --path-as-root --no-gitignore` (upload direto, sem passar pelo GitHub — pasta de build não é versionada). Dois bugs de hospedagem corrigidos no caminho: (1) `serve -s` (modo single-page-app) mascarava os arquivos binários do jogo devolvendo `index.html` em qualquer rota com HTTP 200 — removido o `-s`; (2) `railway up` respeita o `.gitignore` do repositório por padrão, e a regra `[Bb]uild/` (voltada pro Unity) estava descartando a própria pasta `Build/` com os arquivos `.wasm`/`.data` — resolvido com a flag `--no-gitignore`. Validado direto por HTTP: `/Build/WebGL.wasm` (92MB) e `/Build/WebGL.data` (21MB) respondem 200 com o tamanho exato do arquivo local. Link: https://webgl-production-cae7.up.railway.app — já aponta para o servidor de produção (`NetworkSettings.cs`, `UseProduction = true`, trabalho do Codex).
+
 ## CONCLUÍDO 2026-09-10 — Codex (cliente conectado ao Railway)
 Área: Unity client — configuração de endpoints HTTP/WebSocket para produção e desenvolvimento.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSettings.cs`, `docs/DEPLOY-RAILWAY.md`, `docs/AGENT-WORK-LOG.md`.

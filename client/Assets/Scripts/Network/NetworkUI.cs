@@ -76,19 +76,19 @@ namespace Espectro.Network
             var story = CreateLabel(panelTransform, "Historia", "Em O Berço, cada trilha guarda uma memória.\nAtravesse a Mata dos Sussurros, descubra as ruínas\ne escolha o que o seu personagem vai proteger.", 22, new Vector2(-470f, 55f), new Vector2(560f, 210f));
             story.alignment = TextAnchor.UpperLeft;
             story.color = new Color(0.78f, 0.86f, 0.84f);
-            var title = CreateLabel(panelTransform, "Titulo", "ESPECTRO", 56, new Vector2(270f, 285f), new Vector2(620f, 80f));
+            var title = CreateLabel(panelTransform, "Titulo", "ESPECTRO", 56, new Vector2(330f, 285f), new Vector2(560f, 80f));
             title.color = new Color(0.96f, 0.72f, 0.34f);
             var subtitle = CreateLabel(panelTransform, "Subtitulo", "O BERÇO", 22, new Vector2(270f, 238f), new Vector2(620f, 40f));
             subtitle.color = new Color(0.72f, 0.82f, 0.76f);
-            CreateLabel(panelTransform, "Prompt", "Entre para continuar sua jornada", 24, new Vector2(270f, 190f), new Vector2(620f, 45f));
-            emailField = CreateInputField(panelTransform, "Campo Email", "e-mail", false, new Vector2(0f, 140f));
-            passwordField = CreateInputField(panelTransform, "Campo Senha", "senha", true, new Vector2(0f, 60f));
+            CreateLabel(panelTransform, "Prompt", "Entre para continuar sua jornada", 24, new Vector2(330f, 190f), new Vector2(560f, 45f));
+            emailField = CreateInputField(panelTransform, "Campo Email", "e-mail", false, new Vector2(330f, 115f));
+            passwordField = CreateInputField(panelTransform, "Campo Senha", "senha", true, new Vector2(330f, 35f));
             authStatus = CreateLabel(panelTransform, "Status", "", 20, new Vector2(270f, -38f), new Vector2(620f, 48f));
             authStatus.color = new Color(1f, 0.55f, 0.5f);
 
-            CreateButton(panelTransform, "Botao Entrar", "ENTRAR NO BERÇO", new Vector2(110f, -115f), new Vector2(300f, 68f),
+            CreateButton(panelTransform, "Botao Entrar", "ENTRAR NO BERÇO", new Vector2(170f, -115f), new Vector2(270f, 68f),
                 () => LoginSubmitted?.Invoke(emailField.text, passwordField.text));
-            CreateButton(panelTransform, "Botao Criar Conta", "CRIAR CONTA", new Vector2(430f, -115f), new Vector2(300f, 68f),
+            CreateButton(panelTransform, "Botao Criar Conta", "CRIAR CONTA", new Vector2(470f, -115f), new Vector2(270f, 68f),
                 () => RegisterSubmitted?.Invoke(emailField.text, passwordField.text));
         }
 
