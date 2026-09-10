@@ -321,3 +321,7 @@ Resultado: refresh token persistido em PlayerPrefs, restauração automática e 
 Área: Unity client — tela de autenticação e bloqueio visual do modo local.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/NetworkCombatController.cs`, build WebGL/Railway.
 Descrição: remover o atalho de teste local durante o login, impedir a aparência do mundo atrás da autenticação e adicionar a ação visual de recuperação de senha.
+## CONCLUÍDO 2026-09-10 — Codex (correção da tela de login em produção)
+Área: Unity client — tela de autenticação e bloqueio visual do modo local.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/NetworkCombatController.cs`, build WebGL/Railway.
+Resultado: removido o atalho offline durante a autenticação, fundo opaco e botão visual “ESQUECI A SENHA” (endpoint de e-mail ainda pendente no servidor). Build Unity concluído com código 0 (`WebGL.data` 12:02) e publicado no Railway; deploy `4386b633-4805-4a8d-b589-4b7ec9da4a92`.
