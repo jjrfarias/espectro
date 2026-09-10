@@ -7,9 +7,11 @@
     "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "tsc -p .",
     "start": "node --env-file=.env dist/index.js",
+    "start:prod": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "migrate": "node-pg-migrate --migrations-dir migrations --tsconfig tsconfig.json --tsx --envPath .env",
+    "migrate:prod": "node-pg-migrate up --migrations-dir migrations --tsconfig tsconfig.json --tsx",
     "migrate:create": "node-pg-migrate create --migrations-dir migrations"
   },
   "dependencies": {
