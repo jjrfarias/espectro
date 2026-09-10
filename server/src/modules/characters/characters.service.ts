@@ -1,4 +1,4 @@
-import type { Equipment, ItemCode } from "@espectro/contracts";
+import type { Equipment, ItemCode, NpcCode, TutorialStepCode } from "@espectro/contracts";
 import { pool } from "../../persistence/db.js";
 import { maxHp, type CharacterAttributes } from "../combat/formulas.js";
 
@@ -36,6 +36,10 @@ export interface CharacterCombatState extends CharacterRow {
   metallurgySkillLevel: number;
   metallurgySkillXp: number;
   equipment: Equipment;
+  // GDD §13/§4: NPCs conversados e passos do tutorial já concluídos.
+  talkedNpcs: NpcCode[];
+  tutorialStepsCompleted: TutorialStepCode[];
+  tutorialRewardClaimed: boolean;
 }
 
 export class CharacterError extends Error {
@@ -120,6 +124,9 @@ interface CombatStateRow extends CharacterRow {
   inventory: Array<{ itemCode: ItemCode; quantity: number }> | null;
   main_hand_item_code: ItemCode | null;
   tool_item_code: ItemCode | null;
+  talked_npcs: NpcCode[] | null;
+  tutorial_steps_completed: TutorialStepCode[] | null;
+  tutorial_reward_claimed_at: string | null;
 }
 
 /**
@@ -137,7 +144,10 @@ export async function getCharacterCombatStateByAccountId(accountId: string): Pro
        coalesce(me.level, 1) as metallurgy_level, coalesce(me.xp, 0) as metallurgy_xp,
        (select json_agg(json_build_object('itemCode', item_code, 'quantity', quantity))
           from inventory_items where character_id = c.id and quantity > 0) as inventory,
-       eq.main_hand_item_code, eq.tool_item_code
+       eq.main_hand_item_code, eq.tool_item_code,
+       (select json_agg(npc_code) from character_npc_talks where character_id = c.id) as talked_npcs,
+       (select json_agg(step_code) from character_tutorial_steps where character_id = c.id) as tutorial_steps_completed,
+       c.tutorial_reward_claimed_at
      from characters c
      join character_attributes a on a.character_id = c.id
      left join character_skills sw on sw.character_id = c.id and sw.skill_code = $2
@@ -174,6 +184,9 @@ export async function getCharacterCombatStateByAccountId(accountId: string): Pro
     metallurgySkillLevel: row.metallurgy_level,
     metallurgySkillXp: row.metallurgy_xp,
     equipment: { mainHand: row.main_hand_item_code, tool: row.tool_item_code },
+    talkedNpcs: row.talked_npcs ?? [],
+    tutorialStepsCompleted: row.tutorial_steps_completed ?? [],
+    tutorialRewardClaimed: row.tutorial_reward_claimed_at !== null,
   };
 }
 

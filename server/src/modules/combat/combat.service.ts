@@ -3,6 +3,7 @@ import { pool } from "../../persistence/db.js";
 import { persistPosition } from "../characters/characters.service.js";
 import { sendEnvelope } from "../../transport/envelope.js";
 import { cancelMining } from "../economy/economy.service.js";
+import { completeTutorialStep } from "../missions/missions.service.js";
 import { defaultInstance, type ConnectedCharacter } from "../world/instance.js";
 import { distanceBetween, moveToward, type Vector3 } from "../world/movement.js";
 import type { EnemyState } from "./enemy-instance.js";
@@ -113,6 +114,13 @@ export async function resolveAttack(character: ConnectedCharacter, targetId: str
   } finally {
     pendingCharacters.delete(character.characterId);
     pendingTargets.delete(enemy.id);
+  }
+
+  if (targetDied) {
+    // GDD §4 passo 6: "derrotar uma criatura na floresta".
+    void completeTutorialStep(character, "derrotou_criatura").catch((error: unknown) => {
+      console.error("Falha ao registrar passo do tutorial (derrotou_criatura):", error);
+    });
   }
 
   return {

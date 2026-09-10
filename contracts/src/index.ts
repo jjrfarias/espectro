@@ -45,6 +45,7 @@ export const errorCodes = [
   "INSUFFICIENT_COINS",
   "ITEM_NOT_USABLE",
   "NO_ACTIVE_CHANNEL",
+  "FORGE_LOCKED",
 ] as const;
 export type ErrorCode = (typeof errorCodes)[number];
 
@@ -379,6 +380,47 @@ export const chatMessagePayloadSchema = z.object({
 });
 export type ChatMessagePayload = z.infer<typeof chatMessagePayloadSchema>;
 
+// GDD §13: cinco NPCs com diálogo roteirizado (sem IA generativa). O conteúdo das falas é do
+// cliente — o servidor só registra que a conversa aconteceu, pra progressão do tutorial (§4) e,
+// no caso do Ferreiro, pra liberar a forja.
+export const npcCodes = ["instrutora", "minerador", "ferreiro", "comerciante", "cronista"] as const;
+export type NpcCode = (typeof npcCodes)[number];
+
+// GDD §4 "Jornada da primeira sessão", passos 5-10 (os que dependem de uma ação confirmável pelo
+// servidor — os passos 1-4 e 11 não têm uma ação de servidor correspondente pra marcar).
+export const tutorialStepCodes = [
+  "falou_instrutora",
+  "derrotou_criatura",
+  "falou_minerador",
+  "extraiu_minerio",
+  "fundiu_lingote",
+  "vendeu_lingote",
+] as const;
+export type TutorialStepCode = (typeof tutorialStepCodes)[number];
+
+// servidor -> cliente: progresso do tutorial do próprio personagem — privado, como o
+// economy.snapshot. Enviado ao entrar e após qualquer passo mudar (conversa com NPC, primeira
+// morte/extração/fundição/venda).
+export const tutorialSnapshotPayloadSchema = z.object({
+  completedSteps: z.array(z.enum(tutorialStepCodes)),
+  completed: z.boolean(),
+  rewardClaimed: z.boolean(),
+});
+export type TutorialSnapshotPayload = z.infer<typeof tutorialSnapshotPayloadSchema>;
+
+// cliente -> servidor: registra que o personagem conversou com um NPC (o diálogo em si é local ao cliente).
+export const npcTalkRequestPayloadSchema = z.object({
+  npcCode: z.enum(npcCodes),
+});
+export type NpcTalkRequestPayload = z.infer<typeof npcTalkRequestPayloadSchema>;
+
+// servidor -> cliente: confirma a conversa e devolve o progresso do tutorial atualizado.
+export const npcTalkResultPayloadSchema = z.object({
+  npcCode: z.enum(npcCodes),
+  tutorial: tutorialSnapshotPayloadSchema,
+});
+export type NpcTalkResultPayload = z.infer<typeof npcTalkResultPayloadSchema>;
+
 export const clientMessageSchemas = {
   "world.join": worldJoinPayloadSchema,
   "movement.input": movementInputPayloadSchema,
@@ -392,6 +434,7 @@ export const clientMessageSchemas = {
   "attribute.allocate": attributeAllocateRequestPayloadSchema,
   "trade.buy.request": buyRequestPayloadSchema,
   "item.use.request": useItemRequestPayloadSchema,
+  "npc.talk.request": npcTalkRequestPayloadSchema,
 } as const;
 export type ClientMessageType = keyof typeof clientMessageSchemas;
 
@@ -412,6 +455,8 @@ export const serverMessageSchemas = {
   "attributes.snapshot": attributesSnapshotPayloadSchema,
   "trade.buy.result": buyResultPayloadSchema,
   "item.use.result": useItemResultPayloadSchema,
+  "npc.talk.result": npcTalkResultPayloadSchema,
+  "tutorial.snapshot": tutorialSnapshotPayloadSchema,
   error: errorPayloadSchema,
 } as const;
 export type ServerMessageType = keyof typeof serverMessageSchemas;

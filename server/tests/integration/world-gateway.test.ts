@@ -32,6 +32,9 @@ const characterRow = {
   metallurgySkillLevel: 1,
   metallurgySkillXp: 0,
   equipment: { mainHand: "espada_simples", tool: "picareta_simples" },
+  talkedNpcs: ["ferreiro"] as string[],
+  tutorialStepsCompleted: [] as string[],
+  tutorialRewardClaimed: false,
 };
 
 // A regressão que este arquivo cobre: `ws` começa a decodificar frames assim que o socket é

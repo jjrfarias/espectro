@@ -6,11 +6,12 @@ import { defaultInstance, type ConnectedCharacter } from "../world/instance.js";
 import { distanceBetween } from "../world/movement.js";
 import { addItem, applyLedgerEntry, persistSkill, removeItem, setEquipment } from "./economy.repository.js";
 import { recordEvent } from "../world/events.repository.js";
+import { completeTutorialStep, hasTalkedTo } from "../missions/missions.service.js";
 import type { CraftingChannelState, MiningChannelState } from "./channel-state.js";
 import { buyPrices, type CraftingRecipe, craftingRecipes, equippableItemsBySlot, METALLURGY_SKILL_XP_PER_CRAFT, MINING_RANGE_UNITS, MINING_SKILL_XP_PER_EXTRACTION, miningDefinitions, POTION_HEAL_AMOUNT, sellPrices, skillAdjustedDurationMs } from "./economy.constants.js";
 
 export type MineFailureCode = "NODE_NOT_FOUND" | "NODE_DEPLETED" | "OUT_OF_RANGE" | "ON_COOLDOWN" | "INCAPACITATED" | "TOOL_NOT_EQUIPPED";
-export type CraftFailureCode = "UNKNOWN_RECIPE" | "INSUFFICIENT_ITEMS" | "ON_COOLDOWN" | "INCAPACITATED";
+export type CraftFailureCode = "UNKNOWN_RECIPE" | "INSUFFICIENT_ITEMS" | "ON_COOLDOWN" | "INCAPACITATED" | "FORGE_LOCKED";
 export type SellFailureCode = "ITEM_NOT_SELLABLE" | "INSUFFICIENT_ITEMS" | "ON_COOLDOWN" | "INCAPACITATED";
 export type EquipFailureCode = "ITEM_NOT_EQUIPPABLE" | "INSUFFICIENT_ITEMS";
 export type BuyFailureCode = "ITEM_NOT_BUYABLE" | "INSUFFICIENT_COINS" | "ON_COOLDOWN" | "INCAPACITATED" | "INVENTORY_FULL";
@@ -137,6 +138,9 @@ async function completeMining(character: ConnectedCharacter, channel: MiningChan
     },
     character.outboundSequence,
   );
+  void completeTutorialStep(character, "extraiu_minerio").catch((error: unknown) => {
+    console.error("Falha ao registrar passo do tutorial (extraiu_minerio):", error);
+  });
 }
 
 /**
@@ -145,6 +149,9 @@ async function completeMining(character: ConnectedCharacter, channel: MiningChan
  */
 export async function startCrafting(character: ConnectedCharacter, recipeCode: RecipeCode): Promise<CraftStartResult> {
   if (character.incapacitatedUntil !== null) return { ok: false, code: "INCAPACITATED" };
+  // GDD §13: "Ferreiro: libera a forja e explica metalurgia" — sem conversar com ele, a forja
+  // fica travada. Personagens criados antes deste corte já têm essa conversa retroativa (migração 007).
+  if (!hasTalkedTo(character, "ferreiro")) return { ok: false, code: "FORGE_LOCKED" };
 
   const recipe = craftingRecipes[recipeCode];
   if (!recipe) return { ok: false, code: "UNKNOWN_RECIPE" };
@@ -280,6 +287,9 @@ async function completeCrafting(character: ConnectedCharacter, channel: Crafting
     },
     character.outboundSequence,
   );
+  void completeTutorialStep(character, "fundiu_lingote").catch((error: unknown) => {
+    console.error("Falha ao registrar passo do tutorial (fundiu_lingote):", error);
+  });
 }
 
 /** Libera um canal de mineração ou fundição na desconexão, sem enviar nenhuma mensagem. */
@@ -357,6 +367,14 @@ export async function sellItem(
     character.inventory.set(itemCode, Math.max(0, (character.inventory.get(itemCode) ?? 0) - quantity));
   } finally {
     pendingCharacters.delete(character.characterId);
+  }
+
+  // GDD §4 passo 10: "vender o lingote ao comerciante" — só lingotes contam pro tutorial, não
+  // minério/couro (mesmo raciocínio de "uma mesma ação não pode conceder XP mais de uma vez").
+  if (itemCode === "lingote_ferro" || itemCode === "lingote_cobre") {
+    void completeTutorialStep(character, "vendeu_lingote").catch((error: unknown) => {
+      console.error("Falha ao registrar passo do tutorial (vendeu_lingote):", error);
+    });
   }
 
   return {

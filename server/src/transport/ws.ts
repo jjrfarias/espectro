@@ -10,6 +10,7 @@ import { PLAYER_DEATH_INCAPACITATION_SECONDS } from "../modules/combat/enemy-def
 import { allocateAttributePoint } from "../modules/combat/attributes.service.js";
 import { abandonActiveChannel, buyItem, cancelCrafting, cancelMining, equipItem, sellItem, startCrafting, startMining, useItem } from "../modules/economy/economy.service.js";
 import { sendChatMessage } from "../modules/chat/chat.service.js";
+import { talkToNpc, tutorialSnapshotOf } from "../modules/missions/missions.service.js";
 import { type ConnectedCharacter, defaultInstance } from "../modules/world/instance.js";
 import { applyMovement, clampDeltaSeconds } from "../modules/world/movement.js";
 import { FixedWindowRateLimiter } from "../modules/world/rate-limiter.js";
@@ -112,6 +113,9 @@ async function handleConnection(socket: WebSocket, request: FastifyRequest): Pro
     metallurgySkillLevel: characterState.metallurgySkillLevel,
     metallurgySkillXp: characterState.metallurgySkillXp,
     activeChannel: null,
+    talkedNpcs: new Set(characterState.talkedNpcs),
+    tutorialStepsCompleted: new Set(characterState.tutorialStepsCompleted),
+    tutorialRewardClaimed: characterState.tutorialRewardClaimed,
     chatRateLimiter: new FixedWindowRateLimiter(env.CHAT_MAX_MESSAGES_PER_10S, 10_000),
   };
 
@@ -138,6 +142,7 @@ function handleMessage(raw: RawData, character: ConnectedCharacter): void {
       replySnapshot(character);
       replyEconomySnapshot(character);
       replyAttributesSnapshot(character);
+      replyTutorialSnapshot(character);
     }
     return;
   }
@@ -362,6 +367,22 @@ function handleMessage(raw: RawData, character: ConnectedCharacter): void {
       console.error("Falha ao persistir alocação de atributo:", error);
       replyError(character, "PERSISTENCE_FAILED", "Não foi possível alocar o ponto de atributo. Tente novamente.", true);
     });
+    return;
+  }
+
+  if (message.type === "npc.talk.request") {
+    if (!isJoined) {
+      replyError(character, "NOT_IN_WORLD", "Envie world.join antes de conversar com um NPC.", true);
+      return;
+    }
+    const payload = message.payload as { npcCode: Parameters<typeof talkToNpc>[1] };
+    void talkToNpc(character, payload.npcCode).then((result) => {
+      character.outboundSequence += 1;
+      sendEnvelope(character.socket, "npc.talk.result", result, character.outboundSequence);
+    }).catch((error: unknown) => {
+      console.error("Falha ao registrar conversa com NPC:", error);
+      replyError(character, "PERSISTENCE_FAILED", "Não foi possível registrar a conversa. Tente novamente.", true);
+    });
   }
 }
 
@@ -394,6 +415,8 @@ function describeCraftFailure(code: string): string {
       return "Você já está ocupado com outra ação (minerando ou fundindo).";
     case "INCAPACITATED":
       return "Você está incapacitado.";
+    case "FORGE_LOCKED":
+      return "Fale com o Ferreiro para liberar a forja antes de fundir.";
     default:
       return "Não foi possível fundir.";
   }
@@ -502,6 +525,11 @@ function replyAttributesSnapshot(character: ConnectedCharacter): void {
     { attributes: character.attributes, unspentPoints: character.unspentAttributePoints, maxHp: character.maxHp },
     character.outboundSequence,
   );
+}
+
+function replyTutorialSnapshot(character: ConnectedCharacter): void {
+  character.outboundSequence += 1;
+  sendEnvelope(character.socket, "tutorial.snapshot", tutorialSnapshotOf(character), character.outboundSequence);
 }
 
 function extractToken(request: FastifyRequest): string | null {

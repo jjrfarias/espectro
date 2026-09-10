@@ -1,4 +1,4 @@
-import type { Equipment, ItemCode } from "@espectro/contracts";
+import type { Equipment, ItemCode, NpcCode, TutorialStepCode } from "@espectro/contracts";
 import type { WebSocket } from "ws";
 import type { CharacterAttributes } from "../combat/formulas.js";
 import { createInitialEnemies, type EnemyState } from "../combat/enemy-instance.js";
@@ -44,6 +44,11 @@ export interface ConnectedCharacter {
   metallurgySkillXp: number;
   /** GDD §10/§11: extração e fundição levam tempo; só um canal ativo por vez (ver channel-state.ts). */
   activeChannel: ActiveChannel | null;
+
+  // GDD §13/§4: NPCs e progresso do tutorial.
+  talkedNpcs: Set<NpcCode>;
+  tutorialStepsCompleted: Set<TutorialStepCode>;
+  tutorialRewardClaimed: boolean;
 
   chatRateLimiter: FixedWindowRateLimiter;
 }

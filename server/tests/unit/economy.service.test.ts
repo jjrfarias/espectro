@@ -1,3 +1,4 @@
+import { tutorialStepCodes } from "@espectro/contracts";
 import type { WebSocket } from "ws";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -82,6 +83,13 @@ function makeCharacter(overrides: Partial<ConnectedCharacter> = {}): ConnectedCh
     metallurgySkillLevel: 1,
     metallurgySkillXp: 0,
     activeChannel: null,
+    talkedNpcs: new Set(["ferreiro"]),
+    // Pré-marcados como concluídos por padrão: minerar/fundir/vender também disparam
+    // completeTutorialStep, que abriria sua própria conexão de banco (mesmo mock de pool) se
+    // algum passo ainda não estivesse marcado — colidindo com as asserções de transação deste
+    // arquivo, que são sobre a ação de economia, não o tutorial (esse tem describe própria abaixo).
+    tutorialStepsCompleted: new Set(tutorialStepCodes),
+    tutorialRewardClaimed: true,
     chatRateLimiter: new FixedWindowRateLimiter(5, 10_000),
     equipment: { mainHand: "espada_simples", tool: "picareta_simples" },
     ...overrides,
@@ -354,6 +362,16 @@ describe("economy.service", () => {
     it("rejects an unknown recipe", async () => {
       const result = await startCrafting(character, "receita_invalida" as never);
       expect(result).toEqual({ ok: false, code: "UNKNOWN_RECIPE" });
+      expect(mocks.connect).not.toHaveBeenCalled();
+    });
+
+    it("rejects crafting before talking to the Ferreiro (GDD §13: 'libera a forja')", async () => {
+      character.talkedNpcs.delete("ferreiro");
+      character.inventory.set("minerio_ferro", 5);
+
+      const result = await startCrafting(character, "lingote_ferro");
+
+      expect(result).toEqual({ ok: false, code: "FORGE_LOCKED" });
       expect(mocks.connect).not.toHaveBeenCalled();
     });
 

@@ -70,6 +70,13 @@ describe("resolveAttack persistence", () => {
       metallurgySkillXp: 0,
       lastMineAt: 0,
       lastCraftAt: 0,
+      talkedNpcs: new Set(),
+      // Pré-marcado como concluído: um golpe fatal também dispara completeTutorialStep, que abriria
+      // sua própria conexão de banco (via o mesmo mock de pool) se o passo ainda não estivesse
+      // marcado — o que colidiria com as asserções de contagem de connect/release deste arquivo,
+      // que são sobre a transação de resolveAttack, não a do tutorial.
+      tutorialStepsCompleted: new Set(["derrotou_criatura"]),
+      tutorialRewardClaimed: false,
       chatRateLimiter: new FixedWindowRateLimiter(5, 10_000),
       equipment: { mainHand: "espada_simples", tool: "picareta_simples" },
     };
