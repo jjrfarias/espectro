@@ -4,7 +4,7 @@ import { sendEnvelope, sendError } from "../../transport/envelope.js";
 import { applySkillXp } from "../combat/formulas.js";
 import { defaultInstance, type ConnectedCharacter } from "../world/instance.js";
 import { distanceBetween } from "../world/movement.js";
-import { addItem, applyLedgerEntry, persistSkill, removeItem, setEquipment } from "./economy.repository.js";
+import { addItem, applyLedgerEntry, economySnapshotOf, persistSkill, removeItem, setEquipment } from "./economy.repository.js";
 import { recordEvent } from "../world/events.repository.js";
 import { completeTutorialStep, hasTalkedTo } from "../missions/missions.service.js";
 import type { CraftingChannelState, MiningChannelState } from "./channel-state.js";
@@ -536,15 +536,7 @@ export function tickResourceNodes(): void {
   }
 }
 
-function snapshotOf(character: ConnectedCharacter) {
-  return {
-    coinBalance: character.coinBalance,
-    inventory: [...character.inventory.entries()]
-      .filter(([, quantity]) => quantity > 0)
-      .map(([itemCode, quantity]) => ({ itemCode, quantity })),
-    equipment: { mainHand: character.equipment.mainHand, tool: character.equipment.tool },
-  };
-}
+const snapshotOf = economySnapshotOf;
 
 function randomInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1));

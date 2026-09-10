@@ -1,6 +1,7 @@
-import type { Equipment, EquipmentSlot, ItemCode, InventoryItem } from "@espectro/contracts";
+import type { Equipment, EquipmentSlot, EconomySnapshotPayload, ItemCode, InventoryItem } from "@espectro/contracts";
 import type { PoolClient } from "pg";
 import { pool } from "../../persistence/db.js";
+import type { ConnectedCharacter } from "../world/instance.js";
 
 /**
  * Helpers de persistência da economia (Corte 3). GDD §9: "toda alteração de inventário é uma
@@ -121,4 +122,19 @@ export async function persistSkill(
      where character_id = $1 and skill_code = $2`,
     [characterId, skillCode, level, xp],
   );
+}
+
+/**
+ * Formato compartilhado do `economy.snapshot` — vive aqui (não em economy.service.ts) pra poder
+ * ser usado também por missions.service.ts (recompensa do tutorial altera coinBalance) sem criar
+ * um import circular entre os dois módulos de serviço.
+ */
+export function economySnapshotOf(character: ConnectedCharacter): EconomySnapshotPayload {
+  return {
+    coinBalance: character.coinBalance,
+    inventory: [...character.inventory.entries()]
+      .filter(([, quantity]) => quantity > 0)
+      .map(([itemCode, quantity]) => ({ itemCode, quantity })),
+    equipment: { mainHand: character.equipment.mainHand, tool: character.equipment.tool },
+  };
 }

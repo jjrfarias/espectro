@@ -192,6 +192,23 @@ describe("missions.service", () => {
       const [sentRaw] = vi.mocked(character.socket.send).mock.calls[0];
       const sent = JSON.parse(sentRaw as string);
       expect(sent).toMatchObject({ type: "tutorial.snapshot", payload: { completed: true, rewardClaimed: true } });
+      // Achado na validação de ponta a ponta da jornada completa: sem isto, o coinBalance
+      // aumentado pela recompensa só aparecia pro cliente na próxima ação de economia qualquer
+      // (comprar/vender/minerar), porque nenhuma outra mensagem carrega esse campo.
+      expect(character.socket.send).toHaveBeenCalledTimes(2);
+      const [economyRaw] = vi.mocked(character.socket.send).mock.calls[1];
+      const economySent = JSON.parse(economyRaw as string);
+      expect(economySent).toMatchObject({ type: "economy.snapshot", payload: { coinBalance: TUTORIAL_REWARD_COINS } });
+    });
+
+    it("does not send an economy.snapshot when a step completes without claiming the reward", async () => {
+      const character = makeCharacter();
+
+      await completeTutorialStep(character, "derrotou_criatura");
+
+      expect(character.socket.send).toHaveBeenCalledTimes(1);
+      const [sentRaw] = vi.mocked(character.socket.send).mock.calls[0];
+      expect(JSON.parse(sentRaw as string)).toMatchObject({ type: "tutorial.snapshot" });
     });
 
     it("never claims the reward twice even if called again after completion", async () => {

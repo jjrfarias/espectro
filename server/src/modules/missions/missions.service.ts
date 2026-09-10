@@ -2,6 +2,7 @@ import { tutorialStepCodes, type NpcCode, type NpcTalkResultPayload, type Tutori
 import { pool } from "../../persistence/db.js";
 import { sendEnvelope } from "../../transport/envelope.js";
 import type { ConnectedCharacter } from "../world/instance.js";
+import { economySnapshotOf } from "../economy/economy.repository.js";
 import { NPC_TUTORIAL_STEP, TUTORIAL_REWARD_COINS } from "./missions.constants.js";
 
 /**
@@ -90,6 +91,12 @@ export async function completeTutorialStep(character: ConnectedCharacter, stepCo
   if (character.socket.readyState === character.socket.OPEN) {
     character.outboundSequence += 1;
     sendEnvelope(character.socket, "tutorial.snapshot", tutorialSnapshotOf(character), character.outboundSequence);
+    // A recompensa (GDD §12) muda coinBalance, mas isso não é visível em nenhuma outra mensagem —
+    // sem isto, o saldo só apareceria certo na próxima ação de economia (comprar/vender/minerar).
+    if (rewardClaimed) {
+      character.outboundSequence += 1;
+      sendEnvelope(character.socket, "economy.snapshot", economySnapshotOf(character), character.outboundSequence);
+    }
   }
 }
 
