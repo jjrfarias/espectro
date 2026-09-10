@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Migrar Comerciante/Forja pro padrão de prompt contextual (princípio 2 de `REFERENCIAS-INTERFACE-JOGABILIDADE.md`), em vez de "seção aparece sozinha quando perto".
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Documentação — novo `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`, pedido explícito do usuário pra registrar referências de jogos (Zelda BOTW/TOTK, Palia, RuneScape clássico) que guiam decisões de interface/jogabilidade daqui pra frente, pra Claude E pro Codex.
 Arquivos/pastas: `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` (novo). Não mexe em código nem em `DIRECAO-ARTISTICA.md` (documento deixa explícito que não substitui a direção de arte do Codex, só trata de organização de interface/interação).
