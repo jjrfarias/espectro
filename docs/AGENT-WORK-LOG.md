@@ -12,14 +12,16 @@ volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou
 ## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Alcance/intervalo de ataque do cliente não bate com a regra real do servidor (achado do plano do Codex, linha "Disponibilidade de ataque não acompanha a regra real") — botão ATACAR fica clicável a até 25m (raio de seleção de alvo) mas o servidor só aceita a até 2,25m, e o debounce de 0,2s não reflete o intervalo real (0,7-1,5s por agilidade), convidando cliques que o servidor recusa.
 Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não toco em `NetworkSession.cs`/`NetworkUI.cs`/`Protocol.cs`/`WorldConnection.cs` (reserva ativa do Codex acima) nem inicio build/compile agora (Unity.exe rodando — build do Codex em andamento); só edito o arquivo fonte e aguardo o Editor livre pra validar.
+
+## CONCLUÍDO 2026-09-10 14:30 -03:00 — Codex (build de diagnóstico de fluidez)
 Área: build e publicação WebGL do instrumento de diagnóstico de movimento.
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-movement-diagnostics.log` e serviço Railway `webgl`.
-Descrição: compilar o cliente com `MovementDiagnostics.cs`, validar ausência de erros C# e publicar o WebGL para teste com `?diagnostics=1`. Não alterar scripts durante esta etapa.
+Resultado: build Unity concluída com retorno 0, sem `error CS`, WebGL com 114.777.362 bytes. Publicação Railway iniciada como `55b1465b-8dd3-4175-8caa-87fb80b43e27`; status posterior confirmado `webgl: Online` em `https://webgl-production-cae7.up.railway.app`. Painel disponível em `?diagnostics=1`.
 
-## EM ANDAMENTO 2026-09-10 14:22 -03:00 — Codex (diagnóstico de fluidez: etapa 0)
+## CONCLUÍDO 2026-09-10 14:22 -03:00 — Codex (diagnóstico de fluidez: etapa 0)
 Área: Unity client — instrumentação de movimento, câmera e frame time, conforme `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` §"0. Diagnóstico antes de outra correção do tremor".
 Arquivos/pastas: novo `client/Assets/Scripts/Diagnostics/MovementDiagnostics.cs` e `.meta`; somente logs locais de diagnóstico sob `client/Logs/` se gerados durante validação. Não editar `NetworkSession.cs`, `NetworkUI.cs`, `Protocol.cs` ou `WorldConnection.cs`.
-Descrição: medir separadamente posição do CharacterController, raiz visual, câmera, Animator, frame time e possíveis correções de rede antes de aplicar outra alteração de jogabilidade. Build/publicação serão reservados em entrada separada somente depois de validar e decidir correção.
+Resultado: instrumento de leitura criado sem alterar movimento, câmera ou Animator. Em build de desenvolvimento, `?diagnostics=1` mostra FPS, velocidade pretendida/aplicada/enviada, parâmetro do Animator, correção que acontece após `Update`, deslocamento da câmera e offset do modelo. F8 alterna o painel. A coleta da cena com o tremor permanece como próxima etapa antes de mudar a mecânica.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Comentário de revisão sobre o "Plano de evolução" do Codex em `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` — pedido do usuário ("você concorda... tem algo a acrescentar?"). Só acrescentou uma seção nova ao final do documento, sem alterar nada do que o Codex já tinha escrito.
