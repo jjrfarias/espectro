@@ -19,6 +19,9 @@ namespace Espectro.Prototype
         [SerializeField] private float sprintFieldOfView = 67f;
 
         private Vector3 velocity;
+        private Vector3 lookPointVelocity;
+        private Vector3 smoothedLookPoint;
+        private bool hasSmoothedLookPoint;
         private Camera cameraComponent;
         private PrototypePlayerController player;
         private Vector2 previousTouchPosition;
@@ -80,6 +83,8 @@ namespace Espectro.Prototype
         private void OnEnable()
         {
             velocity = Vector3.zero;
+            lookPointVelocity = Vector3.zero;
+            hasSmoothedLookPoint = false;
             SnapToTarget();
         }
 
@@ -90,7 +95,14 @@ namespace Espectro.Prototype
                 return;
             }
 
-            var lookPoint = target.position + Vector3.up * lookHeight;
+            var rawLookPoint = target.position + Vector3.up * lookHeight;
+            if (!hasSmoothedLookPoint)
+            {
+                smoothedLookPoint = rawLookPoint;
+                hasSmoothedLookPoint = true;
+            }
+            smoothedLookPoint = Vector3.SmoothDamp(smoothedLookPoint, rawLookPoint, ref lookPointVelocity, 0.08f);
+            var lookPoint = smoothedLookPoint;
             var rotation = Quaternion.Euler(pitch, yaw, 0f);
             var direction = rotation * Vector3.back;
             var desiredDistance = distance;
