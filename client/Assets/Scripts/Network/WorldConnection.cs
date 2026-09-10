@@ -36,6 +36,15 @@ namespace Espectro.Network
         public event Action<EquipResultPayload> EquipResultReceived;
         public event Action<TutorialSnapshotPayload> TutorialSnapshotReceived;
         public event Action<NpcTalkResultPayload> NpcTalkResultReceived;
+        public event Action<AttributesSnapshotPayload> AttributesSnapshotReceived;
+        public event Action<BuyResultPayload> BuyResultReceived;
+        public event Action<UseItemResultPayload> UseItemResultReceived;
+        // GDD §10/§11: minerar/fundir agora levam tempo real — Started chega antes do Result (ou
+        // de um Cancelled, se movimento/dano/cancelamento voluntário interromper no meio).
+        public event Action<MineStartedPayload> MineStartedReceived;
+        public event Action<MineCancelledPayload> MineCancelledReceived;
+        public event Action<CraftStartedPayload> CraftStartedReceived;
+        public event Action<CraftCancelledPayload> CraftCancelledReceived;
         public event Action Disconnected;
 
         private readonly ConcurrentQueue<string> incoming = new();
@@ -207,6 +216,53 @@ namespace Espectro.Network
             Send(JsonUtility.ToJson(envelope));
         }
 
+        public void SendAttributeAllocateRequest(string attribute)
+        {
+            var envelope = new AttributeAllocateRequestEnvelope
+            {
+                requestId = Guid.NewGuid().ToString(),
+                sequence = ++outboundSequence,
+                sentAt = NowIso(),
+                payload = new AttributeAllocateRequestPayload { attribute = attribute },
+            };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
+        public void SendBuyRequest(string itemCode, int quantity)
+        {
+            var envelope = new BuyRequestEnvelope
+            {
+                requestId = Guid.NewGuid().ToString(),
+                sequence = ++outboundSequence,
+                sentAt = NowIso(),
+                payload = new BuyRequestPayload { itemCode = itemCode, quantity = quantity },
+            };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
+        public void SendUseItemRequest(string itemCode)
+        {
+            var envelope = new UseItemRequestEnvelope
+            {
+                requestId = Guid.NewGuid().ToString(),
+                sequence = ++outboundSequence,
+                sentAt = NowIso(),
+                payload = new UseItemRequestPayload { itemCode = itemCode },
+            };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
+        public void SendCraftCancelRequest()
+        {
+            var envelope = new CraftCancelRequestEnvelope
+            {
+                requestId = Guid.NewGuid().ToString(),
+                sequence = ++outboundSequence,
+                sentAt = NowIso(),
+            };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
         private void Send(string json)
         {
             if (isClosed) return;
@@ -264,6 +320,27 @@ namespace Espectro.Network
                     break;
                 case "tutorial.snapshot":
                     TutorialSnapshotReceived?.Invoke(JsonUtility.FromJson<TutorialSnapshotEnvelope>(json).payload);
+                    break;
+                case "attributes.snapshot":
+                    AttributesSnapshotReceived?.Invoke(JsonUtility.FromJson<AttributesSnapshotEnvelope>(json).payload);
+                    break;
+                case "trade.buy.result":
+                    BuyResultReceived?.Invoke(JsonUtility.FromJson<BuyResultEnvelope>(json).payload);
+                    break;
+                case "item.use.result":
+                    UseItemResultReceived?.Invoke(JsonUtility.FromJson<UseItemResultEnvelope>(json).payload);
+                    break;
+                case "resource.mine.started":
+                    MineStartedReceived?.Invoke(JsonUtility.FromJson<MineStartedEnvelope>(json).payload);
+                    break;
+                case "resource.mine.cancelled":
+                    MineCancelledReceived?.Invoke(JsonUtility.FromJson<MineCancelledEnvelope>(json).payload);
+                    break;
+                case "craft.started":
+                    CraftStartedReceived?.Invoke(JsonUtility.FromJson<CraftStartedEnvelope>(json).payload);
+                    break;
+                case "craft.cancelled":
+                    CraftCancelledReceived?.Invoke(JsonUtility.FromJson<CraftCancelledEnvelope>(json).payload);
                     break;
                 default:
                     Debug.LogWarning($"[WorldConnection] Tipo de mensagem desconhecido: {peek?.type}");

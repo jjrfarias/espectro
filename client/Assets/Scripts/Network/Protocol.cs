@@ -437,10 +437,233 @@ namespace Espectro.Network
         public EquipResultPayload payload;
     }
 
+    // GDD §13/§4: cinco NPCs com diálogo roteirizado (texto fica no cliente) e progresso do
+    // tutorial. server/README.md, seção "NPCs e progresso do tutorial", tem o payload exato.
+    [Serializable] public class TutorialSnapshotPayload { public string[] completedSteps; public bool completed; public bool rewardClaimed; }
+    [Serializable] public class TutorialSnapshotEnvelope { public int v; public string type; public string requestId; public int sequence; public string sentAt; public TutorialSnapshotPayload payload; }
+
     [Serializable] public class NpcTalkRequestPayload { public string npcCode; }
     [Serializable] public class NpcTalkRequestEnvelope { public int v = 1; public string type = "npc.talk.request"; public string requestId; public int sequence; public string sentAt; public NpcTalkRequestPayload payload; }
-    [Serializable] public class NpcTalkResultPayload { public string npcCode; public string tutorialStep; public bool alreadyTalked; }
+    // Corrigido pra bater com o servidor: o payload real aninha o progresso em "tutorial", não
+    // campos soltos "tutorialStep"/"alreadyTalked" (que nunca existiram na resposta do servidor —
+    // ficavam sempre com o valor padrão do C#, silenciosamente, porque JsonUtility ignora campos
+    // desconhecidos do JSON em vez de dar erro).
+    [Serializable] public class NpcTalkResultPayload { public string npcCode; public TutorialSnapshotPayload tutorial; }
     [Serializable] public class NpcTalkResultEnvelope { public int v; public string type; public string requestId; public int sequence; public string sentAt; public NpcTalkResultPayload payload; }
-    [Serializable] public class TutorialSnapshotPayload { public string[] completedSteps; public bool rewardClaimed; }
-    [Serializable] public class TutorialSnapshotEnvelope { public int v; public string type; public string requestId; public int sequence; public string sentAt; public TutorialSnapshotPayload payload; }
+
+    // GDD §6: pontos de atributo ganhos ao subir de nível (attribute.allocate já existe no
+    // servidor desde 10/09/2026; sem UI/wiring no cliente até agora).
+    [Serializable]
+    public class AttributesDto
+    {
+        public int strength;
+        public int agility;
+        public int vitality;
+        public int resistance;
+    }
+
+    [Serializable]
+    public class AttributesSnapshotPayload
+    {
+        public AttributesDto attributes;
+        public int unspentPoints;
+        public int maxHp;
+    }
+
+    [Serializable]
+    public class AttributesSnapshotEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public AttributesSnapshotPayload payload;
+    }
+
+    [Serializable]
+    public class AttributeAllocateRequestPayload
+    {
+        public string attribute; // "strength" | "agility" | "vitality" | "resistance"
+    }
+
+    [Serializable]
+    public class AttributeAllocateRequestEnvelope
+    {
+        public int v = 1;
+        public string type = "attribute.allocate";
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public AttributeAllocateRequestPayload payload;
+    }
+
+    // GDD §8/§12: comprar do comerciante (hoje só a poção) e usar um item consumível (cura HP).
+    [Serializable]
+    public class BuyRequestPayload
+    {
+        public string itemCode;
+        public int quantity;
+    }
+
+    [Serializable]
+    public class BuyRequestEnvelope
+    {
+        public int v = 1;
+        public string type = "trade.buy.request";
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public BuyRequestPayload payload;
+    }
+
+    [Serializable]
+    public class BuyResultPayload
+    {
+        public string itemCode;
+        public int quantityBought;
+        public int coinsSpent;
+        public EconomySnapshotPayload economy;
+    }
+
+    [Serializable]
+    public class BuyResultEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public BuyResultPayload payload;
+    }
+
+    [Serializable]
+    public class UseItemRequestPayload
+    {
+        public string itemCode;
+    }
+
+    [Serializable]
+    public class UseItemRequestEnvelope
+    {
+        public int v = 1;
+        public string type = "item.use.request";
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public UseItemRequestPayload payload;
+    }
+
+    [Serializable]
+    public class UseItemResultPayload
+    {
+        public string itemCode;
+        public int hp;
+        public int maxHp;
+        public EconomySnapshotPayload economy;
+    }
+
+    [Serializable]
+    public class UseItemResultEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public UseItemResultPayload payload;
+    }
+
+    // GDD §10/§11: minerar/fundir levam tempo real (não resolvem mais na hora — ver
+    // server/README.md, seção "Canais de mineração e fundição"). `resource.mine.request` e
+    // `craft.request` continuam existindo (acima); agora a resposta chega em duas partes: um
+    // "started" com a duração, e só depois o "result" (ou um "cancelled" se for interrompido).
+    [Serializable]
+    public class MineStartedPayload
+    {
+        public string nodeId;
+        public string resourceCode;
+        public int durationMs;
+    }
+
+    [Serializable]
+    public class MineStartedEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public MineStartedPayload payload;
+    }
+
+    [Serializable]
+    public class MineCancelledPayload
+    {
+        public string nodeId;
+        public string reason; // "moved" | "damaged"
+    }
+
+    [Serializable]
+    public class MineCancelledEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public MineCancelledPayload payload;
+    }
+
+    [Serializable]
+    public class CraftStartedPayload
+    {
+        public string recipeCode;
+        public int durationMs;
+    }
+
+    [Serializable]
+    public class CraftStartedEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public CraftStartedPayload payload;
+    }
+
+    [Serializable]
+    public class CraftCancelRequestPayload
+    {
+    }
+
+    [Serializable]
+    public class CraftCancelRequestEnvelope
+    {
+        public int v = 1;
+        public string type = "craft.cancel";
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public CraftCancelRequestPayload payload = new();
+    }
+
+    [Serializable]
+    public class CraftCancelledPayload
+    {
+        public string recipeCode;
+        public int refundedQuantity;
+    }
+
+    [Serializable]
+    public class CraftCancelledEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public CraftCancelledPayload payload;
+    }
 }
