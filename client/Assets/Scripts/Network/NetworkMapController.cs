@@ -172,18 +172,24 @@ namespace Espectro.Network
             rootRect.offsetMin = rootRect.offsetMax = Vector2.zero;
 
             // Minimapa: canto inferior direito, livre (economia ocupa o superior direito, combate
-            // o superior/central, dica de controles o inferior esquerdo).
-            var minimapBackground = Panel(root.transform, "Fundo Minimapa", new Vector2(1f, 0f), new Vector2(-24f, 24f), new Vector2(220f, 220f), new Color(0.04f, 0.05f, 0.045f, 0.85f));
+            // o superior/central, dica de controles o inferior esquerdo). Moldura dupla (borda
+            // dourada + fundo escuro) pra parecer um elemento de HUD de verdade, não um retângulo cru.
+            var accent = new Color(0.72f, 0.56f, 0.28f, 0.9f);
+            var minimapFrame = Panel(root.transform, "Moldura Minimapa", new Vector2(1f, 0f), new Vector2(-22f, 22f), new Vector2(228f, 228f), accent);
+            var minimapBackground = Panel(minimapFrame.transform, "Fundo Minimapa", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(220f, 220f), new Color(0.05f, 0.075f, 0.06f, 0.95f));
             minimapArea = (RectTransform)minimapBackground.transform;
-            Label(root.transform, "Dica do Mapa", "N: mapa completo", 16, new Vector2(1f, 0f), new Vector2(-24f, 250f), new Vector2(220f, 24f), TextAnchor.MiddleCenter).color = new Color(1f, 1f, 1f, 0.65f);
-            playerArrow = CreatePlayerArrow(minimapArea, 14f);
+            Label(root.transform, "Dica do Mapa", "N — MAPA COMPLETO", 14, new Vector2(1f, 0f), new Vector2(-22f, 256f), new Vector2(228f, 22f), TextAnchor.MiddleCenter).color = new Color(0.85f, 0.88f, 0.83f, 0.75f);
+            playerArrow = CreatePlayerArrow(minimapArea, 16f);
 
             fullMapPanel = (RectTransform)Panel(root.transform, "Painel Mapa Completo", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(720f, 760f), new Color(0.02f, 0.02f, 0.02f, 0.95f)).transform;
             fullMapPanel.gameObject.SetActive(false);
-            Label(fullMapPanel, "Titulo Mapa", "O BERÇO", 30, new Vector2(0.5f, 1f), new Vector2(0f, -18f), new Vector2(600f, 40f), TextAnchor.MiddleCenter);
-            var fullMapBackground = Panel(fullMapPanel, "Fundo Mapa Completo", new Vector2(0.5f, 0.5f), new Vector2(0f, -10f), new Vector2(640f, 640f), new Color(0.09f, 0.13f, 0.09f, 1f));
+            var mapTitle = Label(fullMapPanel, "Titulo Mapa", "O BERÇO", 30, new Vector2(0.5f, 1f), new Vector2(0f, -18f), new Vector2(600f, 40f), TextAnchor.MiddleCenter);
+            mapTitle.color = new Color(0.85f, 0.7f, 0.4f);
+            mapTitle.fontStyle = FontStyle.Bold;
+            var fullMapFrame = Panel(fullMapPanel, "Moldura Mapa Completo", new Vector2(0.5f, 0.5f), new Vector2(0f, -10f), new Vector2(648f, 648f), accent);
+            var fullMapBackground = Panel(fullMapFrame.transform, "Fundo Mapa Completo", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(640f, 640f), new Color(0.09f, 0.13f, 0.09f, 1f));
             fullMapArea = (RectTransform)fullMapBackground.transform;
-            fullMapPlayerArrow = CreatePlayerArrow(fullMapArea, 16f);
+            fullMapPlayerArrow = CreatePlayerArrow(fullMapArea, 18f);
             BuildLegend(fullMapPanel);
         }
 
@@ -205,13 +211,22 @@ namespace Espectro.Network
 
         private static RectTransform CreatePlayerArrow(RectTransform area, float size)
         {
+            // Anel dourado atrás + núcleo branco na frente — destaca o próprio jogador em meio
+            // aos pontos de jogadores/inimigos/recursos, todos círculos menores e sem anel.
+            var ring = new GameObject("Voce (Anel)", typeof(RectTransform), typeof(Image));
+            ring.transform.SetParent(area, false);
+            var ringRect = (RectTransform)ring.transform;
+            ringRect.sizeDelta = new Vector2(size * 1.7f, size * 1.7f);
+            ring.GetComponent<Image>().color = new Color(0.85f, 0.68f, 0.32f, 0.9f);
+            ring.GetComponent<Image>().raycastTarget = false;
+
             var go = new GameObject("Voce", typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(area, false);
+            go.transform.SetParent(ring.transform, false);
             var rect = (RectTransform)go.transform;
             rect.sizeDelta = new Vector2(size, size);
             go.GetComponent<Image>().color = Color.white;
             go.GetComponent<Image>().raycastTarget = false;
-            return rect;
+            return ringRect;
         }
 
         private static RectTransform Rect(GameObject item, Transform parent, Vector2 anchor, Vector2 position, Vector2 size)
