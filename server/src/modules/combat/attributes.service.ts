@@ -56,3 +56,36 @@ export async function allocateAttributePoint(
     payload: { attributes: character.attributes, unspentPoints: character.unspentAttributePoints, maxHp: character.maxHp },
   };
 }
+
+// GDD §6: "todos os atributos começam em 5".
+const BASE_ATTRIBUTE_VALUE = 5;
+
+/**
+ * GDD §6: "permite redistribuição gratuita durante o teste, falando com a instrutora". Devolve
+ * todos os pontos já alocados (a diferença de cada atributo pro valor inicial) pra unspentPoints
+ * e reseta os quatro pro valor inicial — sempre bem-sucedido, mesmo sem nada pra redistribuir
+ * (não há "erro" possível aqui, diferente de allocateAttributePoint).
+ */
+export async function respecAttributes(character: ConnectedCharacter): Promise<AllocateAttributeSuccess> {
+  const result = await pool.query<{ strength: number; agility: number; vitality: number; resistance: number; unspent_points: number }>(
+    `update character_attributes
+     set unspent_points = unspent_points + (strength - $2) + (agility - $2) + (vitality - $2) + (resistance - $2),
+         strength = $2, agility = $2, vitality = $2, resistance = $2
+     where character_id = $1
+     returning strength, agility, vitality, resistance, unspent_points`,
+    [character.characterId, BASE_ATTRIBUTE_VALUE],
+  );
+  const row = result.rows[0];
+  if (!row) throw new Error(`Personagem ${character.characterId} sem linha em character_attributes ao redistribuir.`);
+
+  character.attributes = {
+    strength: row.strength,
+    agility: row.agility,
+    vitality: row.vitality,
+    resistance: row.resistance,
+  };
+  character.unspentAttributePoints = row.unspent_points;
+  character.maxHp = maxHp(row.vitality);
+
+  return { attributes: character.attributes, unspentPoints: character.unspentAttributePoints, maxHp: character.maxHp };
+}

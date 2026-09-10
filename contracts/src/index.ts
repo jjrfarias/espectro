@@ -178,6 +178,12 @@ export const attributeAllocateRequestPayloadSchema = z.object({
 });
 export type AttributeAllocateRequestPayload = z.infer<typeof attributeAllocateRequestPayloadSchema>;
 
+// cliente -> servidor: redistribuição gratuita (GDD §6: "permite redistribuição gratuita durante
+// o teste, falando com a instrutora") — devolve todos os pontos já alocados pra unspentPoints e
+// reseta os quatro atributos pro valor inicial. Resposta reaproveita attributes.snapshot.
+export const attributeRespecRequestPayloadSchema = z.object({});
+export type AttributeRespecRequestPayload = z.infer<typeof attributeRespecRequestPayloadSchema>;
+
 // Corte 3 (GDD-MVP.md §9-§12): inventário, mineração, metalurgia e venda ao comerciante.
 export const itemCodes = [
   "espada_simples",
@@ -432,6 +438,7 @@ export const clientMessageSchemas = {
   "chat.send": chatSendPayloadSchema,
   "equip.request": equipRequestPayloadSchema,
   "attribute.allocate": attributeAllocateRequestPayloadSchema,
+  "attribute.respec": attributeRespecRequestPayloadSchema,
   "trade.buy.request": buyRequestPayloadSchema,
   "item.use.request": useItemRequestPayloadSchema,
   "npc.talk.request": npcTalkRequestPayloadSchema,

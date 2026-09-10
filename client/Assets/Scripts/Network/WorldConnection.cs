@@ -228,6 +228,19 @@ namespace Espectro.Network
             Send(JsonUtility.ToJson(envelope));
         }
 
+        // GDD §6/§13: redistribuição gratuita — resposta chega em AttributesSnapshotReceived,
+        // mesmo evento de SendAttributeAllocateRequest (o servidor reaproveita attributes.snapshot).
+        public void SendAttributeRespecRequest()
+        {
+            var envelope = new AttributeRespecRequestEnvelope
+            {
+                requestId = Guid.NewGuid().ToString(),
+                sequence = ++outboundSequence,
+                sentAt = NowIso(),
+            };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
         public void SendBuyRequest(string itemCode, int quantity)
         {
             var envelope = new BuyRequestEnvelope

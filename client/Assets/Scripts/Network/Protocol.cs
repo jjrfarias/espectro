@@ -498,6 +498,25 @@ namespace Espectro.Network
         public AttributeAllocateRequestPayload payload;
     }
 
+    // GDD §6/§13: "permite redistribuição gratuita durante o teste, falando com a instrutora" —
+    // devolve todos os pontos já alocados e reseta os 4 atributos pro valor inicial (5). Resposta
+    // reaproveita AttributesSnapshotEnvelope (mesmo formato de attribute.allocate).
+    [Serializable]
+    public class AttributeRespecRequestPayload
+    {
+    }
+
+    [Serializable]
+    public class AttributeRespecRequestEnvelope
+    {
+        public int v = 1;
+        public string type = "attribute.respec";
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public AttributeRespecRequestPayload payload = new();
+    }
+
     // GDD §8/§12: comprar do comerciante (hoje só a poção) e usar um item consumível (cura HP).
     [Serializable]
     public class BuyRequestPayload

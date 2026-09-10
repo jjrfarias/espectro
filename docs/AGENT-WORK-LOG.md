@@ -9,10 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
-Área: Redistribuição gratuita de atributos (GDD §6/§13) — última peça de gameplay do servidor ainda faltando. Servidor já implementado; agora ligando o encanamento de rede do cliente (não visual, mesmo padrão de antes).
-Arquivos/pastas: `contracts/src/index.ts`, `server/src/modules/combat/attributes.service.ts`, `server/src/transport/ws.ts`, `server/tests/unit/attributes.service.test.ts`; `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/WorldConnection.cs` (só DTOs/eventos/métodos de envio, sem UI).
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Redistribuição gratuita de atributos (GDD §6/§13) — última peça de gameplay do servidor ainda faltando. Servidor + encanamento de rede do cliente (não visual, mesmo padrão de antes).
+Arquivos/pastas: `contracts/src/index.ts` (`attribute.respec`), `server/src/modules/combat/attributes.service.ts` (`respecAttributes`), `server/src/transport/ws.ts` (handler), `server/tests/unit/attributes.service.test.ts` (3 testes novos), `server/README.md`; `client/Assets/Scripts/Network/Protocol.cs`/`WorldConnection.cs` (`AttributeRespecRequestEnvelope`, `SendAttributeRespecRequest` — sem UI).
 Descrição: "redistribuição gratuita durante o teste, falando com a instrutora" — devolve todos os pontos de atributo já alocados pra não-gastos, resetando os 4 pro valor inicial (5).
+Resultado: `attribute.respec` (sem payload) reseta os 4 atributos pra 5 numa única query atômica, somando a diferença de cada um ao `unspentPoints` já existente; reaproveita `attributes.snapshot` como resposta (mesmo formato de `attribute.allocate`). Sempre bem-sucedido, até sem nada alocado (no-op inofensivo, sem código de erro). Testado: `npx tsc --noEmit` limpo em contracts/server; suíte completa 14 arquivos, 121 testes passando (3 novos). Compilação C# do cliente validada em batchmode (0 `error CS`). Validado ponta a ponta em 10/09/2026 contra servidor real + Postgres: personagem com atributos desequilibrados (8/5/7/6, 2 pontos livres) volta pra 5/5/5/5 com 8 pontos livres e `maxHp` recalculado; redistribuir de novo sem nada alocado não muda nada. **Com isto, a última peça de gameplay do servidor pedida pelo GDD-MVP está fechada** — resta só UI/visual (Codex) pros recursos já com encanamento de rede pronto (ver pendência mais abaixo).
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Validação — teste de carga com ~30 jogadores simultâneos contra o servidor de produção (GDD §20, critério de aceite 9, nunca demonstrado).
@@ -40,7 +41,7 @@ Resultado: `Protocol.cs` ganhou DTOs/envelopes pra `attribute.allocate`/`attribu
 
 ## PENDÊNCIA (não é uma reserva, não precisa avisar antes de pegar) — atualizado por Claude em 2026-09-10
 Área: Unity client — UI/HUD pra três recursos de servidor cujo encanamento de rede já está pronto (ver entrada "encanamento de rede/protocolo" acima), mas sem nenhuma tela ainda:
-1. **Atributos** — `WorldConnection.SendAttributeAllocateRequest(string attribute)` e o evento `AttributesSnapshotReceived` já existem. Falta um botão/tela pra gastar pontos de nível.
+1. **Atributos** — `WorldConnection.SendAttributeAllocateRequest(string attribute)`, `SendAttributeRespecRequest()` (redistribuição gratuita, GDD §6/§13) e o evento `AttributesSnapshotReceived` já existem. Falta um botão/tela pra gastar pontos de nível e um botão de redistribuir.
 2. **Comerciante/poção** — `SendBuyRequest`/`SendUseItemRequest` e os eventos `BuyResultReceived`/`UseItemResultReceived` já existem. Falta UI de comprar poção e um botão de usar.
 3. **Progresso de minerar/fundir** — `MineStartedReceived`/`MineCancelledReceived`/`CraftStartedReceived`/`CraftCancelledReceived` e `SendCraftCancelRequest` já existem. Falta barra de progresso e feedback visual de cancelamento (movimento/dano cancelam mineração automaticamente no servidor; fundição só cancela por `craft.cancel` voluntário ou desconexão).
 Server/README.md tem a descrição completa do payload de cada mensagem, se for útil de referência.

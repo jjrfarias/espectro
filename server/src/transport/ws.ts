@@ -7,7 +7,7 @@ import { getCharacterCombatStateByAccountId, persistPosition } from "../modules/
 import { resolveAttack } from "../modules/combat/combat.service.js";
 import { maxHp } from "../modules/combat/formulas.js";
 import { PLAYER_DEATH_INCAPACITATION_SECONDS } from "../modules/combat/enemy-definitions.js";
-import { allocateAttributePoint } from "../modules/combat/attributes.service.js";
+import { allocateAttributePoint, respecAttributes } from "../modules/combat/attributes.service.js";
 import { abandonActiveChannel, buyItem, cancelCrafting, cancelMining, equipItem, sellItem, startCrafting, startMining, useItem } from "../modules/economy/economy.service.js";
 import { sendChatMessage } from "../modules/chat/chat.service.js";
 import { talkToNpc, tutorialSnapshotOf } from "../modules/missions/missions.service.js";
@@ -366,6 +366,21 @@ function handleMessage(raw: RawData, character: ConnectedCharacter): void {
     }).catch((error: unknown) => {
       console.error("Falha ao persistir alocação de atributo:", error);
       replyError(character, "PERSISTENCE_FAILED", "Não foi possível alocar o ponto de atributo. Tente novamente.", true);
+    });
+    return;
+  }
+
+  if (message.type === "attribute.respec") {
+    if (!isJoined) {
+      replyError(character, "NOT_IN_WORLD", "Envie world.join antes de redistribuir atributos.", true);
+      return;
+    }
+    void respecAttributes(character).then((payload) => {
+      character.outboundSequence += 1;
+      sendEnvelope(character.socket, "attributes.snapshot", payload, character.outboundSequence);
+    }).catch((error: unknown) => {
+      console.error("Falha ao persistir redistribuição de atributos:", error);
+      replyError(character, "PERSISTENCE_FAILED", "Não foi possível redistribuir os atributos. Tente novamente.", true);
     });
     return;
   }

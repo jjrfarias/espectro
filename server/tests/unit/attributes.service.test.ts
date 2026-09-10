@@ -1,6 +1,6 @@
 import type { WebSocket } from "ws";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { allocateAttributePoint } from "../../src/modules/combat/attributes.service.js";
+import { allocateAttributePoint, respecAttributes } from "../../src/modules/combat/attributes.service.js";
 import type { ConnectedCharacter } from "../../src/modules/world/instance.js";
 import { FixedWindowRateLimiter } from "../../src/modules/world/rate-limiter.js";
 
@@ -93,5 +93,60 @@ describe("allocateAttributePoint", () => {
     expect(result).toEqual({ ok: false, code: "NO_UNSPENT_POINTS" });
     expect(character.attributes.strength).toBe(5);
     expect(character.unspentAttributePoints).toBe(0);
+  });
+});
+
+describe("respecAttributes", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it("resets every attribute to 5 and returns the spent points as unspent (GDD §6)", async () => {
+    const character = makeCharacter({
+      attributes: { strength: 8, agility: 5, vitality: 7, resistance: 6 },
+      unspentAttributePoints: 1,
+      maxHp: 170,
+    });
+    // 3 (strength) + 0 (agility) + 2 (vitality) + 1 (resistance) = 6 devolvidos, mais o 1 que já
+    // estava sem gastar.
+    mocks.query.mockResolvedValue({
+      rows: [{ strength: 5, agility: 5, vitality: 5, resistance: 5, unspent_points: 7 }],
+    });
+
+    const payload = await respecAttributes(character);
+
+    expect(payload).toEqual({
+      attributes: { strength: 5, agility: 5, vitality: 5, resistance: 5 },
+      unspentPoints: 7,
+      maxHp: 150,
+    });
+    expect(character.attributes).toEqual({ strength: 5, agility: 5, vitality: 5, resistance: 5 });
+    expect(character.unspentAttributePoints).toBe(7);
+    expect(character.maxHp).toBe(150);
+    const [sql, values] = mocks.query.mock.calls[0];
+    expect(sql).toContain("strength = $2");
+    expect(values).toEqual(["character-1", 5]);
+  });
+
+  it("is a harmless no-op when nothing was ever allocated", async () => {
+    const character = makeCharacter({ unspentAttributePoints: 0 });
+    mocks.query.mockResolvedValue({
+      rows: [{ strength: 5, agility: 5, vitality: 5, resistance: 5, unspent_points: 0 }],
+    });
+
+    const payload = await respecAttributes(character);
+
+    expect(payload).toEqual({
+      attributes: { strength: 5, agility: 5, vitality: 5, resistance: 5 },
+      unspentPoints: 0,
+      maxHp: 150,
+    });
+  });
+
+  it("throws if the character has no character_attributes row (data integrity bug, not a user-facing failure)", async () => {
+    const character = makeCharacter();
+    mocks.query.mockResolvedValue({ rows: [] });
+
+    await expect(respecAttributes(character)).rejects.toThrow(/sem linha em character_attributes/);
   });
 });
