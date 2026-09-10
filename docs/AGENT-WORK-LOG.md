@@ -9,6 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Validação — teste de carga com ~30 jogadores simultâneos contra o servidor de produção (GDD §20, critério de aceite 9, nunca demonstrado).
+Arquivos/pastas: script descartável local de carga (WebSocket); nenhum arquivo de produto tocado.
+Descrição: simular ~30 clientes conectados ao mesmo tempo (join, movimento, combate/mineração) e medir latência/erros/estabilidade do servidor real.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Infraestrutura Railway — demonstrar backup e restauração do Postgres de produção (GDD §20, critério de aceite 10, nunca demonstrado).
 Arquivos/pastas: infraestrutura Railway (proxy TCP temporário no serviço Postgres, removido ao final pelo usuário no painel — a remoção automática via ferramenta travou duas vezes sem motivo claro); nenhum arquivo do repositório tocado.
