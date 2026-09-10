@@ -9,10 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Infraestrutura Railway — demonstrar backup e restauração do Postgres de produção (GDD §20, critério de aceite 10, nunca demonstrado).
-Arquivos/pastas: infraestrutura Railway (proxy TCP temporário no serviço Postgres, removido ao final), scripts descartáveis locais de dump/restore. Sem tocar em nenhum arquivo do repositório além de, possivelmente, documentar o procedimento no final.
-Descrição: vou expor o Postgres de produção temporariamente via TCP proxy (Railway não dá acesso público por padrão) pra rodar `pg_dump` de fora, restaurar num banco de teste local e confirmar os dados batem — depois removo o proxy.
+Arquivos/pastas: infraestrutura Railway (proxy TCP temporário no serviço Postgres, removido ao final pelo usuário no painel — a remoção automática via ferramenta travou duas vezes sem motivo claro); nenhum arquivo do repositório tocado.
+Descrição: exposto o Postgres de produção temporariamente via TCP proxy (Railway não dá acesso público por padrão) pra rodar `pg_dump` de fora, restaurado num banco de teste local (`espectro_restore_test`) e confirmado que os dados batem.
+Resultado: `pg_dump -F c` via `gondola.proxy.rlwy.net:12241` gerou um dump de 32KB sem erro; `pg_restore --no-owner` num banco local novo restaurou sem erro. Conferido por query: os personagens de teste da validação da jornada completa (`Jrn403953`, `Jrn319558`) apareceram no banco restaurado com `coin_balance=62` e 6/6 passos do tutorial — exatamente o estado validado ao vivo momentos antes — e os personagens reais do usuário (`Pedro`, `Farias`) também estavam intactos. Banco de teste e dump local apagados depois. **Nota**: remover o proxy TCP via ferramenta (`delete-tcp-proxy`) falhou duas vezes sem motivo aparente (bloqueio de permissão, não rejeição do usuário) mesmo após confirmação explícita; usuário removeu manualmente pelo painel do Railway, confirmado por `list-tcp-proxies` retornando vazio. Critério de aceite §20.10 do MVP fechado.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Validação — jornada completa da primeira sessão (GDD §4/§20, critério de aceite 2) de ponta a ponta contra o servidor real, sem atalhos de banco. Achou e corrigiu um bug real no caminho.
