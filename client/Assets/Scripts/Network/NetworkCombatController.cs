@@ -43,6 +43,13 @@ namespace Espectro.Network
         private Vector3 confirmedPosition;
         private float nextAttackAt;
         private float messageUntil;
+        private GameObject levelUpBanner;
+        private CanvasGroup levelUpGroup;
+        private Text levelUpText;
+        private float levelUpTimer;
+        private const float LevelUpDuration = 2.6f;
+        private const float LevelUpScaleInDuration = 0.35f;
+        private const float LevelUpFadeOutDuration = 0.5f;
         private const float SelectionRange = 25f;
         // Espelha PLAYER_ATTACK_RANGE_UNITS em enemy-definitions.ts — sem isso o botão ATACAR
         // ficava clicável até 25m (raio de seleção de alvo), convidando cliques que o servidor
@@ -144,8 +151,19 @@ namespace Espectro.Network
             var message = result.targetDied
                 ? $"Inimigo derrotado · +{result.xpAwarded} XP"
                 : $"{result.damage:0} de dano";
-            if (result.leveledUp) message += $" · Nível {level}!";
             ShowMessage(message);
+            if (result.leveledUp) ShowLevelUp(level);
+        }
+
+        // "Suco" de jogo: subir de nível é o momento que mais dá vontade de continuar jogando —
+        // merece mais destaque que uma linha na mensagem padrão que some em 4s.
+        private void ShowLevelUp(int newLevel)
+        {
+            levelUpText.text = $"NÍVEL {newLevel}!";
+            levelUpTimer = LevelUpDuration;
+            levelUpBanner.transform.localScale = Vector3.zero;
+            levelUpGroup.alpha = 1f;
+            levelUpBanner.SetActive(true);
         }
 
         public void ApplyDamaged(CombatPlayerDamagedPayload result)
@@ -209,6 +227,18 @@ namespace Espectro.Network
             {
                 messageText.text = "";
                 messageBackdrop.SetActive(false);
+            }
+
+            if (levelUpTimer > 0f)
+            {
+                levelUpTimer -= Time.unscaledDeltaTime;
+                var elapsed = LevelUpDuration - levelUpTimer;
+                var scaleT = Mathf.Clamp01(elapsed / LevelUpScaleInDuration);
+                var eased = 1f - Mathf.Pow(1f - scaleT, 3f); // ease-out cúbico: cresce rápido, sem exagero.
+                levelUpBanner.transform.localScale = Vector3.one * eased;
+                var fadeStart = LevelUpDuration - LevelUpFadeOutDuration;
+                levelUpGroup.alpha = elapsed > fadeStart ? Mathf.Clamp01((LevelUpDuration - elapsed) / LevelUpFadeOutDuration) : 1f;
+                if (levelUpTimer <= 0f) levelUpBanner.SetActive(false);
             }
         }
 
@@ -321,7 +351,31 @@ namespace Espectro.Network
             deathBackdrop.SetActive(false);
             attackButton = MakeButton(battleHud.transform, "Atacar", "ATACAR [F]", new Vector2(1f, 0f), new Vector2(-35f, 340f), new Vector2(235f, 85f), Attack);
             targetButton = MakeButton(battleHud.transform, "Trocar Alvo", "ALVO [TAB]", new Vector2(1f, 0f), new Vector2(-35f, 440f), new Vector2(235f, 58f), SelectNext);
+            BuildLevelUpBanner(battleHud.transform);
             UpdateProgress();
+        }
+
+        private void BuildLevelUpBanner(Transform parent)
+        {
+            levelUpBanner = new GameObject("Banner de Nivel", typeof(RectTransform), typeof(CanvasGroup));
+            levelUpBanner.transform.SetParent(parent, false);
+            var rect = (RectTransform)levelUpBanner.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(900f, 220f);
+            levelUpGroup = levelUpBanner.GetComponent<CanvasGroup>();
+
+            var background = Panel(levelUpBanner.transform, "Fundo Nivel", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(900f, 220f), new Color(0.14f, 0.1f, 0.03f, 0.92f));
+            var border = Panel(levelUpBanner.transform, "Borda Nivel", new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(908f, 228f), new Color(0.96f, 0.72f, 0.34f, 0.55f));
+            border.transform.SetSiblingIndex(0); // atrás do fundo — só aparece como uma borda fina.
+
+            levelUpText = Label(background.transform, "Texto Nivel", "", 68, new Vector2(0.5f, 0.6f), Vector2.zero, new Vector2(880f, 110f), TextAnchor.MiddleCenter);
+            levelUpText.color = new Color(1f, 0.85f, 0.4f);
+            levelUpText.fontStyle = FontStyle.Bold;
+            var subtitle = Label(background.transform, "Subtitulo Nivel", "Continue evoluindo!", 24, new Vector2(0.5f, 0.28f), Vector2.zero, new Vector2(700f, 40f), TextAnchor.MiddleCenter);
+            subtitle.color = new Color(0.88f, 0.9f, 0.84f, 0.9f);
+            levelUpBanner.SetActive(false);
         }
 
         // Fundo semi-transparente atrás de texto solto sobre a cena 3D (céu claro, terreno) —

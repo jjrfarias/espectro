@@ -9,9 +9,15 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
-Área: "Suco" de jogo (efeitos procedurais, sem depender de arte nova) — pedido do usuário: o jogo já está online com gente entrando, quer algo que cative visualmente sem esbarrar no Codex. Primeiro item escolhido: banner de "subiu de nível" chamativo (hoje é só uma linha de texto que some em 4s).
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não edito `NetworkSession.cs`/`PrototypePlayerController.cs` (reserva ativa do Codex acima) nem compilo/buildo agora (build dele em andamento) — só edito o arquivo fonte e aguardo o Editor livre.
+## EM ANDAMENTO 2026-09-10 15:50 -03:00 — Codex (impacto visual de golpe)
+Área: apresentação visual confirmada de dano no inimigo.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
+Descrição: enriquecer `ShowHit` com flash e arco de golpe procedural, sem alterar regras de combate nem a HUD reservada por Claude.
+
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: "Suco" de jogo (efeitos procedurais, sem depender de arte nova) — pedido do usuário: o jogo já está online com gente entrando, quer algo que cative visualmente sem esbarrar no Codex. Primeiro item escolhido: banner de "subiu de nível" chamativo (hoje era só uma linha de texto que some em 4s).
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não editei `NetworkSession.cs`/`PrototypePlayerController.cs` (reserva ativa do Codex na hora).
+Resultado: banner grande centralizado ("NÍVEL X!" + "Continue evoluindo!") com moldura dourada, entrada em escala ease-out e saída em fade, ~2,6s de duração — troca a linha de texto que antes só se anexava à mensagem padrão. Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.797.787 bytes, já inclui o trabalho concorrente do Codex em `NetworkEnemyView.cs`) republicado no serviço Railway `webgl` — deploy `5f06055a-83e9-4daf-98ec-7b3b97961025`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 15:42 -03:00 — Codex (build corretiva de cadência)
 Área: build e publicação WebGL da remoção do pulso de movimento.
