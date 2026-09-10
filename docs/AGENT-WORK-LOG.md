@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: UI de comerciante/poção e barra de progresso de minerar/fundir — continuação do pedido "melhorar toda a mecânica de jogabilidade" (visual, escopo excepcional pedido pelo usuário).
+Arquivos/pastas previstos: novos `client/Assets/Scripts/Network/NetworkMerchantController.cs` (ou nome similar) e ajustes em `NetworkSession.cs`/`NetworkEconomyController.cs` para barra de progresso; sem mexer em `combat`, `map`, `tutorial` (fora do escopo).
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: UI de atributos online (visual) — primeiro item de "melhorar a mecânica de jogabilidade" pedido pelo usuário, escopo excepcionalmente visual (normalmente domínio do Codex, ver `game-project-ai-division-of-labor`; usuário pediu explicitamente ajuda no visual desta vez).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkAttributesController.cs` (novo — controller presentation-only, mesmo padrão de `NetworkEconomyController.cs`), `client/Assets/Scripts/Network/NetworkSession.cs` (criação/assinatura do controller, `SetActive` nos 5 pontos do ciclo de vida, `RequestAttributeAllocate`/`RequestAttributeRespec`/`HandleAttributesSnapshot`).
