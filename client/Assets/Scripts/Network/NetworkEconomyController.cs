@@ -77,6 +77,8 @@ namespace Espectro.Network
         private Text messageText;
         private GameObject messageBackdrop;
         private string equippedTool; // null = nada equipado.
+        private int displayedCoinBalance = -1; // -1 = ainda não recebeu o primeiro snapshot.
+        private int targetCoinBalance;
         private const float MiningRangeUnits = 2.75f; // Espelha MINING_RANGE_UNITS em economy.constants.ts.
         private string nearestAvailableNodeId;
         private float messageUntil;
@@ -147,7 +149,15 @@ namespace Espectro.Network
         public void ApplyEconomy(EconomySnapshotPayload economy)
         {
             if (economy == null) return;
-            coinText.text = $"MOEDAS: {economy.coinBalance}";
+            // "Suco" de jogo: o número de moedas conta até o novo valor em vez de trocar na hora
+            // (ver Update()) — dá uma sensação de recompensa a cada venda/mineração/fundição. A
+            // primeira vez (entrar no mundo) mostra o valor direto, sem contar a partir de 0.
+            targetCoinBalance = economy.coinBalance;
+            if (displayedCoinBalance < 0)
+            {
+                displayedCoinBalance = targetCoinBalance;
+                coinText.text = $"MOEDAS: {displayedCoinBalance}";
+            }
             inventory.Clear();
             foreach (var item in economy.inventory ?? Array.Empty<InventoryItemDto>())
                 inventory[item.itemCode] = item.quantity;
@@ -306,6 +316,19 @@ namespace Espectro.Network
                 miningProgressFill.fillAmount = Mathf.Clamp01((Time.unscaledTime - miningProgressStart) / miningProgressDuration);
             if (craftProgressRoot.activeSelf)
                 craftProgressFill.fillAmount = Mathf.Clamp01((Time.unscaledTime - craftProgressStart) / craftProgressDuration);
+
+            if (displayedCoinBalance != targetCoinBalance)
+            {
+                var diff = targetCoinBalance - displayedCoinBalance;
+                var step = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(diff) * 6f * Time.unscaledDeltaTime));
+                displayedCoinBalance += Mathf.Clamp(diff, -step, step);
+                coinText.text = $"MOEDAS: {displayedCoinBalance}";
+                coinText.transform.localScale = Vector3.one * (1f + 0.08f * Mathf.Sin(Time.unscaledTime * 28f));
+            }
+            else if (coinText.transform.localScale != Vector3.one)
+            {
+                coinText.transform.localScale = Vector3.one;
+            }
 
             UpdateNpcContext();
         }
