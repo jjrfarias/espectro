@@ -85,7 +85,17 @@ namespace Espectro.Prototype
             }
 
             dialogueTarget.Interact(player);
-            var npcCode = dialogueTarget.DisplayName == "Instrutora" ? "instrutora" : dialogueTarget.DisplayName == "Minerador" ? "minerador" : null;
+            // GDD §13: os cinco NPCs do tutorial produtivo (contracts/src/index.ts npcCodes) —
+            // identificados pelo nome de exibição, mesmo padrão já usado pra Instrutora/Minerador.
+            var npcCode = dialogueTarget.DisplayName switch
+            {
+                "Instrutora" => "instrutora",
+                "Minerador" => "minerador",
+                "Ferreiro" => "ferreiro",
+                "Comerciante" => "comerciante",
+                "Cronista" => "cronista",
+                _ => null,
+            };
             if (!string.IsNullOrEmpty(npcCode)) OnlineNpcTalkRequested?.Invoke(npcCode);
             if (dialogueTarget.AdvanceToStage >= 0) questStage = dialogueTarget.AdvanceToStage;
             dialogueTarget.Complete();
