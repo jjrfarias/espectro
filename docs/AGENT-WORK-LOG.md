@@ -9,9 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
-Área: Comentário de revisão sobre o "Plano de evolução" do Codex em `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` — pedido do usuário ("você concorda... tem algo a acrescentar?"). Só acrescenta uma seção nova ao final do documento, não altera nada do que o Codex já escreveu.
-Arquivos/pastas: `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`.
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Comentário de revisão sobre o "Plano de evolução" do Codex em `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` — pedido do usuário ("você concorda... tem algo a acrescentar?"). Só acrescentou uma seção nova ao final do documento, sem alterar nada do que o Codex já tinha escrito.
+Arquivos/pastas: `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`. Aproveitei o commit pra também gravar o "Plano de evolução" do Codex, que estava havia um tempo só na working tree local (não commitado, embora a reserva documental dele já estivesse marcada CONCLUÍDO).
+Resultado: concordância geral registrada com a ordem de prioridade do plano; confirmações cruzadas de três pontos do diagnóstico do Codex com o que fiz nesta sessão (colisão da tecla E entre `InteractionController`/`NetworkEconomyController`, o fallback de `UpdateNpcContext` ser proposital e não uma pendência, o encolhimento de morte do monstro ser um remendo assumido); atualização de que a criação de personagem com raça/gênero já foi entregue (falta só a metade visual, do Codex); indicação do script de teste de carga já existente pra reaproveitar; e uma ressalva de sequenciamento pra etapa 0 do plano (testes baratos antes da instrumentação pesada).
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Criação de personagem — raça (Humano/Elfo/Anão/Orc) e gênero (Masculino/Feminino), pedido explícito do usuário ("padrão de um MMORPG"). GDD-MVP diz "sem classe fixa"; confirmado com o usuário que isto é sobre as 4 raças de `ESPECTRO-VISAO.md` §9 ("raça não é classe" — cultura/aparência/costumes, não trava progressão), não é um sistema de classes.
