@@ -50,6 +50,10 @@ namespace Espectro.Network
         private const float LevelUpDuration = 2.6f;
         private const float LevelUpScaleInDuration = 0.35f;
         private const float LevelUpFadeOutDuration = 0.5f;
+        private Image[] damageFlashBars;
+        private float damageFlashTimer;
+        private const float DamageFlashDuration = 0.45f;
+        private const float DamageFlashPeakAlpha = 0.55f;
         private const float SelectionRange = 25f;
         // Espelha PLAYER_ATTACK_RANGE_UNITS em enemy-definitions.ts — sem isso o botão ATACAR
         // ficava clicável até 25m (raio de seleção de alvo), convidando cliques que o servidor
@@ -171,6 +175,7 @@ namespace Espectro.Network
             if (!online || result == null) return;
             SetHealth(result.hp, result.maxHp);
             ShowMessage(result.died ? "Você caiu. Aguarde o retorno a O Berço." : $"Você recebeu {result.damage:0} de dano.");
+            damageFlashTimer = DamageFlashDuration;
         }
 
         public void ShowMessage(string message)
@@ -239,6 +244,13 @@ namespace Espectro.Network
                 var fadeStart = LevelUpDuration - LevelUpFadeOutDuration;
                 levelUpGroup.alpha = elapsed > fadeStart ? Mathf.Clamp01((LevelUpDuration - elapsed) / LevelUpFadeOutDuration) : 1f;
                 if (levelUpTimer <= 0f) levelUpBanner.SetActive(false);
+            }
+
+            if (damageFlashTimer > 0f)
+            {
+                damageFlashTimer = Mathf.Max(0f, damageFlashTimer - Time.unscaledDeltaTime);
+                var alpha = (damageFlashTimer / DamageFlashDuration) * DamageFlashPeakAlpha;
+                foreach (var bar in damageFlashBars) bar.color = new Color(0.75f, 0.05f, 0.05f, alpha);
             }
         }
 
@@ -352,7 +364,38 @@ namespace Espectro.Network
             attackButton = MakeButton(battleHud.transform, "Atacar", "ATACAR [F]", new Vector2(1f, 0f), new Vector2(-35f, 340f), new Vector2(235f, 85f), Attack);
             targetButton = MakeButton(battleHud.transform, "Trocar Alvo", "ALVO [TAB]", new Vector2(1f, 0f), new Vector2(-35f, 440f), new Vector2(235f, 58f), SelectNext);
             BuildLevelUpBanner(battleHud.transform);
+            BuildDamageFlash(battleHud.transform);
             UpdateProgress();
+        }
+
+        // "Suco" de jogo: hoje tomar dano só muda a barra de vida, sem nenhum impacto na tela.
+        // Quatro barras finas nas bordas (não um degradê — sem sprite/shader disponível aqui)
+        // piscam vermelho e desvanecem, sem cobrir o centro da tela onde fica o HUD/alvo.
+        private void BuildDamageFlash(Transform parent)
+        {
+            const float thickness = 90f;
+            damageFlashBars = new[]
+            {
+                EdgeBar(parent, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -thickness), Vector2.zero), // topo
+                EdgeBar(parent, new Vector2(0f, 0f), new Vector2(1f, 0f), Vector2.zero, new Vector2(0f, thickness)), // baixo
+                EdgeBar(parent, new Vector2(0f, 0f), new Vector2(0f, 1f), Vector2.zero, new Vector2(thickness, 0f)), // esquerda
+                EdgeBar(parent, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-thickness, 0f), Vector2.zero), // direita
+            };
+        }
+
+        private static Image EdgeBar(Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
+        {
+            var item = new GameObject("Borda de Dano", typeof(RectTransform), typeof(Image));
+            item.transform.SetParent(parent, false);
+            var rect = (RectTransform)item.transform;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = offsetMin;
+            rect.offsetMax = offsetMax;
+            var image = item.GetComponent<Image>();
+            image.color = new Color(0.75f, 0.05f, 0.05f, 0f);
+            image.raycastTarget = false;
+            return image;
         }
 
         private void BuildLevelUpBanner(Transform parent)
