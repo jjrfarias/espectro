@@ -347,6 +347,7 @@ namespace Espectro.Network
                 SetGameplayActive(true);
                 economy.SetActive(true);
                 map.SetActive(true);
+                attributesController.SetActive(true);
             }
             if (player != null) player.enabled = alive;
             if (!alive) ResetMovement();
