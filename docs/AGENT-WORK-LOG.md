@@ -303,3 +303,7 @@ Resultado: avatar remoto usa parâmetro `Speed` do Animator para caminhada/parad
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/Network/NetworkUI.cs`, build WebGL/Railway.
 Descrição: iniciar sempre na tela online e preencher o e-mail usado anteriormente.
 Resultado: alterações aplicadas e compilação de scripts validada; o Unity travou no empacotamento Bee e foi encerrado, portanto nenhum build novo foi publicado nesta etapa.
+## CONCLUÍDO 2026-09-10 — Codex (sessão online lembrada)
+Área: Unity client — autenticação e entrada.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/Network/NetworkUI.cs`, build WebGL/Railway.
+Resultado: refresh token persistido em PlayerPrefs, restauração automática e e-mail lembrado. Build Unity concluído com código 0 (`WebGL.data` 11:50) e publicado no Railway; deploy `3d03b24c-4614-47b1-aa2a-83435797d3ef`.
