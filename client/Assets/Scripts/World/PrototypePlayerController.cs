@@ -18,7 +18,6 @@ namespace Espectro.Prototype
         private float verticalVelocity;
         private Vector3 planarVelocity;
         private Vector3 appliedPlanarVelocity;
-        private Vector3 pendingServerCorrection;
         private Vector3 safePosition;
 
         public Vector2 MobileInput { get; set; }
@@ -35,14 +34,6 @@ namespace Espectro.Prototype
         // rede (Espectro.Network) enviar como movement.input sem duplicar a leitura de input.
         public Vector2 LastMoveInput { get; private set; }
         public float FacingYDegrees => transform.eulerAngles.y;
-
-        // A sessão de rede fornece somente um erro horizontal recente. Ele é consumido dentro
-        // deste único passo de CharacterController.Move, para não competir com o Update local.
-        public void QueueServerCorrection(Vector3 horizontalError)
-        {
-            horizontalError.y = 0f;
-            pendingServerCorrection = Vector3.ClampMagnitude(horizontalError, 2.5f);
-        }
 
         private void Awake()
         {
@@ -64,7 +55,6 @@ namespace Espectro.Prototype
             LastWorldVelocity = Vector3.zero;
             planarVelocity = Vector3.zero;
             appliedPlanarVelocity = Vector3.zero;
-            pendingServerCorrection = Vector3.zero;
             verticalVelocity = -2f;
             safePosition = transform.position;
         }
@@ -124,9 +114,7 @@ namespace Espectro.Prototype
 
             var velocity = planarVelocity;
             velocity.y = verticalVelocity;
-            var correctionStep = Vector3.ClampMagnitude(pendingServerCorrection, 3f * Time.deltaTime);
-            pendingServerCorrection -= correctionStep;
-            controller.Move(velocity * Time.deltaTime + correctionStep);
+            controller.Move(velocity * Time.deltaTime);
             var appliedVelocity = controller.velocity;
             appliedPlanarVelocity = new Vector3(appliedVelocity.x, 0f, appliedVelocity.z);
             LastWorldVelocity = appliedPlanarVelocity;

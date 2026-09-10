@@ -350,17 +350,13 @@ namespace Espectro.Network
             {
                 var error = serverPosition - player.transform.position;
                 error.y = 0f;
-                // Erro grande geralmente significa respawn, atraso excepcional ou posição
-                // inválida: reposiciona de uma vez. Erros usuais são consumidos pelo próprio
-                // controlador no próximo Update, sem um segundo Move no LateUpdate.
+                // Divergência grande geralmente significa respawn, atraso excepcional ou posição
+                // inválida. Posições próximas ficam com a previsão local para não puxar o jogador
+                // para trás a cada snapshot atrasado.
                 if (error.magnitude > 5.5f)
                 {
                     PlacePlayer(serverPosition.x, serverPosition.z, snapshot.self.facingY);
                     ResetMovement();
-                }
-                else if (error.magnitude > 0.85f)
-                {
-                    player.QueueServerCorrection(error);
                 }
             }
             if (firstSnapshot)
@@ -613,7 +609,6 @@ namespace Espectro.Network
             if (player != null)
             {
                 player.MobileInput = Vector2.zero;
-                player.QueueServerCorrection(Vector3.zero);
             }
         }
 

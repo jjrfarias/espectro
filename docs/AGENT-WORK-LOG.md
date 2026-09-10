@@ -13,15 +13,15 @@ volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou
 Área: "Suco" de jogo (efeitos procedurais, sem depender de arte nova) — pedido do usuário: o jogo já está online com gente entrando, quer algo que cative visualmente sem esbarrar no Codex. Primeiro item escolhido: banner de "subiu de nível" chamativo (hoje é só uma linha de texto que some em 4s).
 Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não edito `NetworkSession.cs`/`PrototypePlayerController.cs` (reserva ativa do Codex acima) nem compilo/buildo agora (build dele em andamento) — só edito o arquivo fonte e aguardo o Editor livre.
 
-## EM ANDAMENTO 2026-09-10 15:42 -03:00 — Codex (build corretiva de cadência)
+## CONCLUÍDO 2026-09-10 15:42 -03:00 — Codex (build corretiva de cadência)
 Área: build e publicação WebGL da remoção do pulso de movimento.
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-movement-pulse-fix.log` e Railway `webgl`.
-Descrição: compilar e publicar imediatamente a correção da regressão de passos interrompidos.
+Resultado: build concluída com retorno 0, sem `error CS`, 114.793.448 bytes. Publicação Railway `a35c477e-6657-46bb-8b5b-f37b6da99448` confirmada com `webgl: Online`.
 
-## EM ANDAMENTO 2026-09-10 15:40 -03:00 — Codex (correção do pulso de movimento)
+## CONCLUÍDO 2026-09-10 15:40 -03:00 — Codex (correção do pulso de movimento)
 Área: regressão de cadência após reconciliação de rede.
 Arquivos/pastas: `client/Assets/Scripts/World/PrototypePlayerController.cs`, `client/Assets/Scripts/Network/NetworkSession.cs`.
-Descrição: retirar a correção contínua de snapshots que puxa o jogador para trás em pulsos; preservar somente o reposicionamento de divergência grande.
+Resultado: retirada a correção contínua baseada em snapshots atrasados; o cliente mantém previsão local fluida e só reposiciona em divergência maior que 5,5 unidades. Usuário confirmou que a cadência voltou ao normal.
 
 ## CONCLUÍDO 2026-09-10 15:55 -03:00 — Codex (build da reconciliação de movimento)
 Área: build e publicação WebGL da remoção do segundo `CharacterController.Move`.
