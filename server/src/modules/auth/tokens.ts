@@ -27,3 +27,13 @@ export function generateRefreshToken(): { token: string; hash: string; expiresAt
   const expiresAt = new Date(Date.now() + env.JWT_REFRESH_TTL_DAYS * 24 * 60 * 60 * 1000);
   return { token, hash: hashRefreshToken(token), expiresAt };
 }
+
+export const PASSWORD_RESET_TTL_MINUTES = 30;
+
+// Mesmo formato/hash do refresh token (sha256 do valor opaco) — só o nome muda pra deixar claro
+// que é um token de uso único e vida curta, não uma sessão.
+export function generatePasswordResetToken(): { token: string; hash: string; expiresAt: Date } {
+  const token = randomBytes(32).toString("base64url");
+  const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MINUTES * 60 * 1000);
+  return { token, hash: hashRefreshToken(token), expiresAt };
+}

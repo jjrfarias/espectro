@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Fechar pendências do plano do Codex em `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` que são minhas (servidor/protocolo/não-visual) — pedido explícito do usuário ("finalize o que estiver pendente nesse arquivo, nessa única rodada, com todas as permissões"). Dois itens: (1) recuperação de senha real no servidor [pronto, ver arquivos abaixo], (2) logout do cliente não revoga a sessão no servidor.
+Arquivos/pastas: `server/migrations/008_password_reset.ts` (novo), `server/src/modules/auth/tokens.ts`, `auth.service.ts`, `auth.routes.ts`, `server/tests/unit/auth.routes.test.ts` (novo, 9 testes). Agora `client/Assets/Scripts/Network/ApiClient.cs` e `NetworkSession.cs` pro logout chamar `/auth/logout` de verdade. Não toco em `NetworkCombatController.cs`/`PlayerAttackFeedback.cs` (reserva ativa do Codex acima).
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: "Suco" de jogo — contador de moedas animado (antes o número trocava na hora, sem transição, mesmo ganhando/perdendo uma quantia grande).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`. Não toquei em `NetworkCombatController.cs` (reserva ativa do Codex na hora, arco de ataque).
