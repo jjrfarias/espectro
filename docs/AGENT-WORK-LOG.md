@@ -257,3 +257,8 @@ Resultado: `InteractionController.ApplyRemoteTutorialStage(int)` adicionado para
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/UI/InteractionController.cs`, `.codex-validation/csharp/`.
 Descrição: consumir `tutorial.snapshot`, aplicar estágio remoto no HUD e enviar `npc.talk.request` ao concluir conversa com Instrutora/Minerador.
 Resultado: eventos persistentes ligados à sessão; compilação Editor/WebGL passou com 31 scripts. Build WebGL obrigatório pendente para esta alteração.
+## CONCLUÍDO 2026-09-10 — Codex (build WebGL do tutorial persistente)
+Área: Unity client/build — geração e publicação da integração online do tutorial.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-tutorial-online.log`, serviço Railway `webgl`.
+Descrição: gerar o build Unity WebGL com o commit `211110e` e republicar a saída estática no Railway antes de considerar a alteração disponível em produção.
+Resultado: build WebGL concluído com Unity batchmode, saída atualizada em 10/09/2026 10:47 (21,644,879 bytes) e publicada no serviço Railway `webgl` (deploy `8690bf73-c96e-4566-80e2-5b51d30accb8`). Log final: `Exiting batchmode successfully now!`, código 0.
