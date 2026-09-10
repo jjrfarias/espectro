@@ -289,7 +289,7 @@ namespace Espectro.Network
                 var label = ResourceLabels.TryGetValue(resourceCode, out var name) ? name : resourceCode;
                 minePromptBackdrop.SetActive(true);
                 minePromptText.text = $"Pressione M para minerar ({label})";
-                if (Input.GetKeyDown(KeyCode.M)) MineRequested?.Invoke(nearestAvailableNodeId);
+                if (!NetworkChatController.InputFocused && Input.GetKeyDown(KeyCode.M)) MineRequested?.Invoke(nearestAvailableNodeId);
             }
             else
             {
@@ -333,7 +333,7 @@ namespace Espectro.Network
             var merchantPromptActive = merchantExists && merchantNear && !merchantOpen;
             var forgePromptActive = forgeExists && forgeNear && !forgeOpen && !merchantPromptActive;
 
-            if (Input.GetKeyDown(KeyCode.E))
+            if (!NetworkChatController.InputFocused && Input.GetKeyDown(KeyCode.E))
             {
                 if (merchantExists && merchantNear) merchantOpen = !merchantOpen;
                 else if (forgeExists && forgeNear) forgeOpen = !forgeOpen;

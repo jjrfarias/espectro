@@ -691,4 +691,43 @@ namespace Espectro.Network
         public string sentAt;
         public CraftCancelledPayload payload;
     }
+
+    // GDD §2/§9: chat local — alcança só quem está na mesma instância do remetente, sem canais
+    // globais nem sussurro no MVP (contracts/src/index.ts).
+    [Serializable]
+    public class ChatSendRequestPayload
+    {
+        public string content;
+    }
+
+    [Serializable]
+    public class ChatSendRequestEnvelope
+    {
+        public int v = 1;
+        public string type = "chat.send";
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public ChatSendRequestPayload payload;
+    }
+
+    [Serializable]
+    public class ChatMessagePayload
+    {
+        public string characterId;
+        public string characterName;
+        public string content;
+        public string sentAt;
+    }
+
+    [Serializable]
+    public class ChatMessageEnvelope
+    {
+        public int v;
+        public string type;
+        public string requestId;
+        public int sequence;
+        public string sentAt;
+        public ChatMessagePayload payload;
+    }
 }

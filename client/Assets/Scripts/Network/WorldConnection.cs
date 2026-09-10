@@ -45,6 +45,7 @@ namespace Espectro.Network
         public event Action<MineCancelledPayload> MineCancelledReceived;
         public event Action<CraftStartedPayload> CraftStartedReceived;
         public event Action<CraftCancelledPayload> CraftCancelledReceived;
+        public event Action<ChatMessagePayload> ChatMessageReceived;
         public event Action Disconnected;
 
         private readonly ConcurrentQueue<string> incoming = new();
@@ -276,6 +277,18 @@ namespace Espectro.Network
             Send(JsonUtility.ToJson(envelope));
         }
 
+        public void SendChatMessage(string content)
+        {
+            var envelope = new ChatSendRequestEnvelope
+            {
+                requestId = Guid.NewGuid().ToString(),
+                sequence = ++outboundSequence,
+                sentAt = NowIso(),
+                payload = new ChatSendRequestPayload { content = content },
+            };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
         private void Send(string json)
         {
             if (isClosed) return;
@@ -354,6 +367,9 @@ namespace Espectro.Network
                     break;
                 case "craft.cancelled":
                     CraftCancelledReceived?.Invoke(JsonUtility.FromJson<CraftCancelledEnvelope>(json).payload);
+                    break;
+                case "chat.message":
+                    ChatMessageReceived?.Invoke(JsonUtility.FromJson<ChatMessageEnvelope>(json).payload);
                     break;
                 default:
                     Debug.LogWarning($"[WorldConnection] Tipo de mensagem desconhecido: {peek?.type}");

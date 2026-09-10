@@ -98,7 +98,7 @@ namespace Espectro.Network
         {
             // N, não M: M já abre/mineira o veio de recurso em NetworkEconomyController — as duas
             // teclas dispararem juntas faria minerar e abrir/fechar o mapa ao mesmo tempo.
-            if (Input.GetKeyDown(KeyCode.N) && root.activeSelf)
+            if (!NetworkChatController.InputFocused && Input.GetKeyDown(KeyCode.N) && root.activeSelf)
             {
                 fullMapOpen = !fullMapOpen;
                 fullMapPanel.gameObject.SetActive(fullMapOpen);

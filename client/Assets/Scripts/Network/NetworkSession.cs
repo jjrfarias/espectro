@@ -15,6 +15,7 @@ namespace Espectro.Network
         private NetworkEconomyController economy;
         private NetworkAttributesController attributesController;
         private NetworkMapController map;
+        private NetworkChatController chat;
         private WorldConnection connection;
         private PrototypePlayerController player;
         private InteractionController interactions;
@@ -74,6 +75,9 @@ namespace Espectro.Network
             combat.AttributesToggleRequested += attributesController.ToggleExpanded;
             map = NetworkMapController.Create(player);
             map.transform.SetParent(transform, false);
+            chat = NetworkChatController.Create();
+            chat.transform.SetParent(transform, false);
+            chat.MessageSubmitted += RequestChatMessage;
             // O jogo inicia sempre no fluxo online; o mundo não é exibido como
             // fallback offline antes da autenticação.
             BeginOnline();
@@ -122,6 +126,7 @@ namespace Espectro.Network
             economy.SetActive(false);
             attributesController.SetActive(false);
             map.SetActive(false);
+            chat.SetActive(false);
             EnsureAuthUi();
             ShowAuth();
             ui.SetAuthStatus("");
@@ -167,6 +172,7 @@ namespace Espectro.Network
             economy.SetActive(false);
             attributesController.SetActive(false);
             map.SetActive(false);
+            chat.SetActive(false);
             SetGameplayActive(true);
         }
 
@@ -296,6 +302,7 @@ namespace Espectro.Network
             pending.MineCancelledReceived += HandleMineCancelled;
             pending.CraftStartedReceived += HandleCraftStarted;
             pending.CraftCancelledReceived += HandleCraftCancelled;
+            pending.ChatMessageReceived += HandleChatMessage;
             pending.AttributesSnapshotReceived += HandleAttributesSnapshot;
             pending.TutorialSnapshotReceived += HandleTutorialSnapshot;
             pending.NpcTalkResultReceived += HandleNpcTalkResult;
@@ -357,6 +364,7 @@ namespace Espectro.Network
                 SetGameplayActive(true);
                 economy.SetActive(true);
                 map.SetActive(true);
+                chat.SetActive(true);
                 attributesController.SetActive(true);
             }
             if (player != null) player.enabled = alive;
@@ -432,6 +440,13 @@ namespace Espectro.Network
                 connection.SendCraftCancelRequest();
         }
 
+        // Sem checar `alive`: conversar não deveria ficar bloqueado por estar caído em combate.
+        private void RequestChatMessage(string content)
+        {
+            if (joined && connection != null && connection.IsOpen)
+                connection.SendChatMessage(content);
+        }
+
         private void RequestAttributeAllocate(string attribute)
         {
             if (joined && alive && connection != null && connection.IsOpen)
@@ -465,6 +480,8 @@ namespace Espectro.Network
         private void HandleCraftStarted(CraftStartedPayload result) => economy.ApplyCraftStarted(result);
 
         private void HandleCraftCancelled(CraftCancelledPayload result) => economy.ApplyCraftCancelled(result);
+
+        private void HandleChatMessage(ChatMessagePayload result) => chat.ApplyChatMessage(result);
 
         private void HandleAttributesSnapshot(AttributesSnapshotPayload result) => attributesController.ApplyAttributes(result);
 
@@ -507,6 +524,7 @@ namespace Espectro.Network
             economy.SetActive(false);
             attributesController.SetActive(false);
             map.SetActive(false);
+            chat.SetActive(false);
             if (!wasJoined)
             {
                 FailConnection("Conexão encerrada antes de entrar no mundo.");
@@ -542,6 +560,7 @@ namespace Espectro.Network
             economy.SetActive(false);
             attributesController.SetActive(false);
             map.SetActive(false);
+            chat.SetActive(false);
             EnsureAuthUi();
             ShowAuth();
             ui.SetAuthStatus(message);
@@ -568,6 +587,7 @@ namespace Espectro.Network
             connection.MineCancelledReceived -= HandleMineCancelled;
             connection.CraftStartedReceived -= HandleCraftStarted;
             connection.CraftCancelledReceived -= HandleCraftCancelled;
+            connection.ChatMessageReceived -= HandleChatMessage;
             connection.AttributesSnapshotReceived -= HandleAttributesSnapshot;
             connection.Disconnected -= HandleDisconnected;
             connection.Dispose();

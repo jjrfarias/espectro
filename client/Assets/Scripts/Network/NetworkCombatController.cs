@@ -183,8 +183,10 @@ namespace Espectro.Network
             if (!online) return;
             if (selected == null || !selected.IsAlive || HorizontalDistance(selected) > SelectionRange)
                 SelectNearest();
-            if (Input.GetKeyDown(KeyCode.Tab)) SelectNext();
-            if (Input.GetMouseButtonDown(0) &&
+            // Sem isto, digitar no chat (ex.: a letra F ou Tab pra trocar de campo) atacaria ou
+            // trocaria de alvo sem querer.
+            if (!NetworkChatController.InputFocused && Input.GetKeyDown(KeyCode.Tab)) SelectNext();
+            if (!NetworkChatController.InputFocused && Input.GetMouseButtonDown(0) &&
                 (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
             {
                 var camera = Camera.main;
@@ -194,7 +196,7 @@ namespace Espectro.Network
                     if (view != null && view.IsAlive && HorizontalDistance(view) <= SelectionRange) Select(view);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.F)) Attack();
+            if (!NetworkChatController.InputFocused && Input.GetKeyDown(KeyCode.F)) Attack();
             var hasTarget = selected != null && selected.IsAlive;
             var inAttackRange = hasTarget && HorizontalDistance(selected) <= AttackRangeUnits;
             attackButton.interactable = alive && inAttackRange && Time.unscaledTime >= nextAttackAt;
