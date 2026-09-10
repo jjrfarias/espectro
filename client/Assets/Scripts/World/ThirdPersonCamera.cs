@@ -94,8 +94,18 @@ namespace Espectro.Prototype
             var rotation = Quaternion.Euler(pitch, yaw, 0f);
             var direction = rotation * Vector3.back;
             var desiredDistance = distance;
-            if (Physics.SphereCast(lookPoint, collisionRadius, direction, out var hit, distance, ~0, QueryTriggerInteraction.Ignore))
-                desiredDistance = Mathf.Max(minDistance * 0.45f, hit.distance - collisionRadius);
+            // Ignora o CharacterController do próprio jogador; quando a esfera
+            // começa dentro dele, a câmera recebia uma distância variável a cada
+            // giro e produzia o tremor visível ao trocar de direção.
+            var hits = Physics.SphereCastAll(lookPoint, collisionRadius, direction, distance, ~0, QueryTriggerInteraction.Ignore);
+            var nearest = float.PositiveInfinity;
+            foreach (var candidate in hits)
+            {
+                if (candidate.collider == null || (target != null && candidate.collider.transform.IsChildOf(target))) continue;
+                if (candidate.distance < nearest) nearest = candidate.distance;
+            }
+            if (!float.IsPositiveInfinity(nearest))
+                desiredDistance = Mathf.Max(minDistance * 0.45f, nearest - collisionRadius);
             var desired = lookPoint + direction * desiredDistance;
             transform.position = Vector3.SmoothDamp(transform.position, desired, ref velocity, smoothTime);
             if (trauma > 0f)

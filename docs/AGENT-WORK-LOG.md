@@ -325,3 +325,7 @@ Descrição: remover o atalho de teste local durante o login, impedir a aparênc
 Área: Unity client — tela de autenticação e bloqueio visual do modo local.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/NetworkCombatController.cs`, build WebGL/Railway.
 Resultado: removido o atalho offline durante a autenticação, fundo opaco e botão visual “ESQUECI A SENHA” (endpoint de e-mail ainda pendente no servidor). Build Unity concluído com código 0 (`WebGL.data` 12:02) e publicado no Railway; deploy `4386b633-4805-4a8d-b589-4b7ec9da4a92`.
+## EM ANDAMENTO 2026-09-10 — Codex (estabilidade de câmera e movimento)
+Área: Unity client — controle do personagem e câmera em colisões/troca de direção.
+Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, `client/Assets/Scripts/World/PrototypePlayerController.cs`, build WebGL/Railway.
+Descrição: eliminar tremor causado pela câmera colidindo com o próprio personagem e suavizar correções de posição.
