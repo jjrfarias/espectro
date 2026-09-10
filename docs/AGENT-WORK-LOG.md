@@ -9,9 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
-Área: "Suco" de jogo — flash vermelho nas bordas da tela ao tomar dano (hoje só a barra de vida muda).
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`.
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: "Suco" de jogo — flash vermelho nas bordas da tela ao tomar dano (antes só a barra de vida mudava).
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`.
+Resultado: quatro barras finas (90px) nas bordas da tela piscam vermelho e desvanecem em ~0,45s ao receber `combat.player_damaged`; sem cobrir o centro (HUD/alvo continuam legíveis). Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.800.771 bytes, já inclui o trabalho concorrente do Codex em `NetworkEnemyView.cs`) republicado no serviço Railway `webgl` — deploy `31d5b7cc-e8f8-49b6-8110-c06739e3ce23`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 15:50 -03:00 — Codex (impacto visual de golpe)
 Área: apresentação visual confirmada de dano no inimigo.
