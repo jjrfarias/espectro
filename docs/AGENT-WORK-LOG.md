@@ -9,6 +9,16 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## CONCLUÍDO 2026-09-10 15:35 -03:00 — Codex (build do bloqueio de movimento no chat)
+Área: build e publicação WebGL do ajuste de foco de chat.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-chat-input.log` e serviço Railway `webgl`.
+Resultado: build concluída com retorno 0, sem `error CS`, 114.793.596 bytes. Publicação Railway iniciada como `ec317108-5c94-49bf-9f60-95994cfd4d61`; status posterior confirmado `webgl: Online` em produção.
+
+## CONCLUÍDO 2026-09-10 15:32 -03:00 — Codex (foco de chat bloqueia movimento)
+Área: entrada do jogador local durante digitação no chat.
+Arquivos/pastas: `client/Assets/Scripts/World/PrototypePlayerController.cs`; build/publicação serão reservados depois da validação.
+Resultado: enquanto `NetworkChatController.InputFocused` estiver ativo, teclado e input móvel retornam zero para o controlador. Ao sair do campo, os comandos voltam a funcionar normalmente. Build e publicação validadas acima.
+
 ## CONCLUÍDO 2026-09-10 15:20 -03:00 — Codex (build da resposta de colisão)
 Área: build e publicação WebGL da correção de velocidade física do jogador.
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-collision-response.log` e serviço Railway `webgl`.

@@ -1,3 +1,4 @@
+using Espectro.Network;
 using UnityEngine;
 
 namespace Espectro.Prototype
@@ -74,8 +75,12 @@ namespace Espectro.Prototype
                 cameraTransform = Camera.main.transform;
             }
 
-            var keyboard = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            var input = MobileInput.sqrMagnitude > keyboard.sqrMagnitude ? MobileInput : keyboard;
+            var chatFocused = NetworkChatController.InputFocused;
+            var keyboard = chatFocused
+                ? Vector2.zero
+                : new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            var mobile = chatFocused ? Vector2.zero : MobileInput;
+            var input = mobile.sqrMagnitude > keyboard.sqrMagnitude ? mobile : keyboard;
             input = Vector2.ClampMagnitude(input, 1f);
             LastMoveInput = input;
 
