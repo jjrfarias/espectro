@@ -9,10 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Validação — teste de carga com ~30 jogadores simultâneos contra o servidor de produção (GDD §20, critério de aceite 9, nunca demonstrado).
-Arquivos/pastas: script descartável local de carga (WebSocket); nenhum arquivo de produto tocado.
-Descrição: simular ~30 clientes conectados ao mesmo tempo (join, movimento, combate/mineração) e medir latência/erros/estabilidade do servidor real.
+Arquivos/pastas: script descartável local de carga (WebSocket), apagado ao final; nenhum arquivo de produto tocado.
+Descrição: simular 30 clientes reais (HTTP + WebSocket) conectados ao mesmo tempo — registro, criação de personagem, entrar no mundo, mover e minerar com contenção de verdade nos mesmos 5 veios (GDD §10: "disputa leve, sem PvP") — contra o servidor de produção no Railway.
+Resultado: **30/30 clientes completaram o fluxo inteiro sem falha**, zero erros de WebSocket, servidor respondendo `/health` normalmente depois. Latências (via rede real até o Railway, não medição local): registro p50=749ms/p95=847ms (custo do scrypt, esperado), criar personagem p50=276ms, conectar ao mundo (`world.snapshot`) p50=1.4s/p95=1.7s sob os 30 joins simultâneos, resposta de mineração ~220ms consistente entre todos. Nenhum sinal de degradação sob a carga pedida pelo GDD ("30 jogadores de teste"). Critério de aceite §20.9 do MVP fechado (exceto a parte "desempenho no aparelho-alvo", que depende do cliente Unity/Codex, fora do meu escopo).
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Infraestrutura Railway — demonstrar backup e restauração do Postgres de produção (GDD §20, critério de aceite 10, nunca demonstrado).
@@ -280,3 +281,7 @@ Arquivos/pastas: `client/Assets/Scripts/World/`, `client/Assets/Scripts/Network/
 Descrição: investigar por que o segundo jogador aparece como cápsula laranja e corrigir o avatar remoto para usar o mesmo personagem visual do jogador local, com nome e orientação coerentes.
 Escopo ampliado: após a alteração do cliente, gerar e publicar o build WebGL obrigatório em `client/Builds/WebGL/` e Railway `webgl`.
 Resultado: `RemotePlayerView` agora instancia `EspectroModels/Adventurers/Aventureiro`, com fallback procedural apenas se o prefab não existir. Build Unity WebGL concluído com código 0 (`WebGL.data` atualizado às 11:08) e publicado no Railway; deploy `1f455e80-2372-4961-84c0-7c817ed33b02`.
+## EM ANDAMENTO 2026-09-10 — Codex (animação e identificação do avatar remoto)
+Área: Unity client — apresentação visual de jogadores remotos.
+Arquivos/pastas: `client/Assets/Scripts/Network/RemotePlayerView.cs`, build WebGL e Railway `webgl`.
+Descrição: adicionar estado de caminhada/parado ao Animator remoto e melhorar a placa de nome para leitura durante o multiplayer.
