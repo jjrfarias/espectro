@@ -63,7 +63,8 @@ namespace Espectro.Diagnostics
 
             var cameraDelta = gameplayCamera == null ? Vector3.zero : gameplayCamera.transform.position - previousCameraPosition;
             if (gameplayCamera != null) previousCameraPosition = gameplayCamera.transform.position;
-            var intendedSpeed = player != null ? player.CurrentSpeed : 0f;
+            var intendedSpeed = player != null ? player.DesiredSpeed : 0f;
+            var appliedSpeed = player != null ? player.CurrentSpeed : 0f;
             var actualVelocity = characterController != null ? characterController.velocity : Vector3.zero;
             var sentVelocity = player != null ? player.LastWorldVelocity : Vector3.zero;
             var animationSpeed = animator != null ? animator.GetFloat("Speed") : 0f;
@@ -74,7 +75,7 @@ namespace Espectro.Diagnostics
             GUI.Box(panel, "Diagnóstico de fluidez — F8 fecha");
             var values =
                 $"FPS: {frameRate:0}\n" +
-                $"Movimento pretendido: {intendedSpeed:0.00} u/s | CharacterController: {actualVelocity.magnitude:0.00} u/s\n" +
+                $"Movimento pretendido: {intendedSpeed:0.00} u/s | Aplicado: {appliedSpeed:0.00} u/s | CharacterController: {actualVelocity.magnitude:0.00} u/s\n" +
                 $"Velocidade enviada: {sentVelocity.magnitude:0.00} u/s | Animator Speed: {animationSpeed:0.00}\n" +
                 $"Correção após Update: {lateCorrection.magnitude:0.000} u/frame ({lateCorrection.x:0.000}, {lateCorrection.z:0.000})\n" +
                 $"Deslocamento da câmera: {cameraDelta.magnitude:0.000} u/frame\n" +

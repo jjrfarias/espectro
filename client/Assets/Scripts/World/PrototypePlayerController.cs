@@ -16,12 +16,17 @@ namespace Espectro.Prototype
         private Transform cameraTransform;
         private float verticalVelocity;
         private Vector3 planarVelocity;
+        private Vector3 appliedPlanarVelocity;
         private Vector3 safePosition;
 
         public Vector2 MobileInput { get; set; }
         public float SpeedLimit { get; set; } = float.PositiveInfinity;
         public Vector3 LastWorldVelocity { get; private set; }
-        public float CurrentSpeed => planarVelocity.magnitude;
+        // A intenção é usada para acelerar/desacelerar; a velocidade efetiva é usada por
+        // animação e câmera. Quando a colisão bloqueia o personagem, elas não devem continuar
+        // simulando uma corrida que não aconteceu.
+        public float DesiredSpeed => planarVelocity.magnitude;
+        public float CurrentSpeed => appliedPlanarVelocity.magnitude;
         public bool IsMoving => CurrentSpeed > 0.1f;
 
         // Espelha a intenção de movimento do quadro atual (câmera-relativa), para o cliente de
@@ -48,6 +53,7 @@ namespace Espectro.Prototype
         {
             LastWorldVelocity = Vector3.zero;
             planarVelocity = Vector3.zero;
+            appliedPlanarVelocity = Vector3.zero;
             verticalVelocity = -2f;
             safePosition = transform.position;
         }
@@ -105,7 +111,8 @@ namespace Espectro.Prototype
             velocity.y = verticalVelocity;
             controller.Move(velocity * Time.deltaTime);
             var appliedVelocity = controller.velocity;
-            LastWorldVelocity = new Vector3(appliedVelocity.x, 0f, appliedVelocity.z);
+            appliedPlanarVelocity = new Vector3(appliedVelocity.x, 0f, appliedVelocity.z);
+            LastWorldVelocity = appliedPlanarVelocity;
 
             if (controller.isGrounded && transform.position.y > -0.5f)
                 safePosition = transform.position;

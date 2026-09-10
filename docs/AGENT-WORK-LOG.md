@@ -9,10 +9,15 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 15:05 -03:00 — Codex (velocidade física e resposta de colisão)
+## CONCLUÍDO 2026-09-10 15:20 -03:00 — Codex (build da resposta de colisão)
+Área: build e publicação WebGL da correção de velocidade física do jogador.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-collision-response.log` e serviço Railway `webgl`.
+Resultado: build concluída com retorno 0, sem `error CS`, 114.793.433 bytes. Publicação Railway iniciada como `8a1bcd1b-e6bb-470a-a800-9830631f4bb0`; status posterior confirmado `webgl: Online` em produção.
+
+## CONCLUÍDO 2026-09-10 15:05 -03:00 — Codex (velocidade física e resposta de colisão)
 Área: fluidez do jogador local — velocidade real aplicada ao `CharacterController` para animação e câmera reagirem corretamente ao bloqueio por colisão.
 Arquivos/pastas: `client/Assets/Scripts/World/PrototypePlayerController.cs`, `client/Assets/Scripts/Diagnostics/MovementDiagnostics.cs`; build/publicação serão reservados separadamente depois da validação.
-Descrição: expor velocidade desejada e velocidade horizontal aplicada como conceitos distintos; fazer `CurrentSpeed` representar o deslocamento efetivo, evitando caminhada/zoom de corrida falsos contra uma parede, e mostrar ambas no diagnóstico. Não tocar nos arquivos de rede reservados por Claude.
+Resultado: `DesiredSpeed` preserva a intenção para aceleração; `CurrentSpeed` e a velocidade enviada representam somente o deslocamento horizontal aplicado pelo `CharacterController`. A animação e o FOV agora param quando uma colisão bloqueia o personagem. O painel de diagnóstico passou a exibir intenção e deslocamento aplicado separadamente. Build e publicação validadas acima.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Chat local — servidor já implementa tudo (`chat.send`/`chat.message`, moderação simples, alcança só a mesma instância), mas nenhum arquivo do cliente lia ou enviava essas mensagens. Achado do plano do Codex ("Chat/crônicas ainda não têm ligação na camada de cliente"), retomado depois que a reserva dele nos 4 arquivos de rede foi liberada.
