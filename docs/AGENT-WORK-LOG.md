@@ -9,6 +9,18 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Alcance/intervalo de ataque do cliente não bate com a regra real do servidor (achado do plano do Codex, linha "Disponibilidade de ataque não acompanha a regra real") — botão ATACAR fica clicável a até 25m (raio de seleção de alvo) mas o servidor só aceita a até 2,25m, e o debounce de 0,2s não reflete o intervalo real (0,7-1,5s por agilidade), convidando cliques que o servidor recusa.
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não toco em `NetworkSession.cs`/`NetworkUI.cs`/`Protocol.cs`/`WorldConnection.cs` (reserva ativa do Codex acima) nem inicio build/compile agora (Unity.exe rodando — build do Codex em andamento); só edito o arquivo fonte e aguardo o Editor livre pra validar.
+Área: build e publicação WebGL do instrumento de diagnóstico de movimento.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-movement-diagnostics.log` e serviço Railway `webgl`.
+Descrição: compilar o cliente com `MovementDiagnostics.cs`, validar ausência de erros C# e publicar o WebGL para teste com `?diagnostics=1`. Não alterar scripts durante esta etapa.
+
+## EM ANDAMENTO 2026-09-10 14:22 -03:00 — Codex (diagnóstico de fluidez: etapa 0)
+Área: Unity client — instrumentação de movimento, câmera e frame time, conforme `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` §"0. Diagnóstico antes de outra correção do tremor".
+Arquivos/pastas: novo `client/Assets/Scripts/Diagnostics/MovementDiagnostics.cs` e `.meta`; somente logs locais de diagnóstico sob `client/Logs/` se gerados durante validação. Não editar `NetworkSession.cs`, `NetworkUI.cs`, `Protocol.cs` ou `WorldConnection.cs`.
+Descrição: medir separadamente posição do CharacterController, raiz visual, câmera, Animator, frame time e possíveis correções de rede antes de aplicar outra alteração de jogabilidade. Build/publicação serão reservados em entrada separada somente depois de validar e decidir correção.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Comentário de revisão sobre o "Plano de evolução" do Codex em `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` — pedido do usuário ("você concorda... tem algo a acrescentar?"). Só acrescentou uma seção nova ao final do documento, sem alterar nada do que o Codex já tinha escrito.
 Arquivos/pastas: `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`. Aproveitei o commit pra também gravar o "Plano de evolução" do Codex, que estava havia um tempo só na working tree local (não commitado, embora a reserva documental dele já estivesse marcada CONCLUÍDO).
