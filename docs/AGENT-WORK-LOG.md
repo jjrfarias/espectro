@@ -20,6 +20,23 @@ Descrição: <o que está sendo feito, 1-2 frases>
 
 ---
 
+## CONCLUÍDO 2026-09-10 — Codex (login cinematográfico)
+Área: Unity client — acabamento da tela de login inspirado em menus clássicos de MMORPG.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `docs/AGENT-WORK-LOG.md`.
+Descrição: deixar o mundo visível sob uma camada de vinheta, criar contraste de painel/modal e reforçar moldura, marca e ações sem copiar artes de terceiros.
+Resultado: a camada de fundo ficou translúcida para revelar o Berço, e os botões ganharam paleta petróleo/âmbar com estados de hover e pressionado. A identidade visual agora se aproxima de um menu de MMORPG mantendo arte autoral do projeto.
+
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Novo build WebGL + republicação (retomada, Editor fechado pelo usuário) — pegar as mudanças do Codex (login refinado, commit `7c47662`) que ficaram de fora do build anterior.
+Arquivos/pastas: Editor Unity em batchmode, `client/Builds/WebGL/`, `client/Logs/`; republicação no serviço Railway `webgl` já existente. Sem tocar em nenhum script/cena.
+Descrição: usuário confirmou ter fechado o Editor (0 processos Unity.exe rodando) — retomando a tentativa que travava com o Editor aberto.
+Resultado: build concluído (`Builds/WebGL`, `WebGL.data` gravado 08:40, depois do commit `7c47662` das 08:31). Republicado no Railway (`railway up --path-as-root --no-gitignore`, mesmo comando validado antes); confirmado por HTTP que `/Build/WebGL.wasm` bate exato com o tamanho do arquivo novo (92.041.848 bytes). **Correção da nota anterior (`INTERROMPIDO`, logo abaixo)**: a causa real das duas "travadas" não era o Editor aberto — é que o wrapper do PowerShell usado pra rodar o Unity em batchmode retorna/"completa" antes do processo `Unity.exe` de fato terminar (ele continua rodando sozinho depois). Nas duas tentativas anteriores eu conferi o log logo após esse retorno prematuro e vi ele parado no meio, concluindo (errado) que tinha travado. Da terceira vez, esperei o processo `Unity.exe` realmente sumir do `tasklist` antes de checar — funcionou. Lição pra quem rodar Unity em batchmode via processo em background nesta máquina: **não confiar no "completed" do wrapper; verificar se `Unity.exe` ainda está no `tasklist` antes de concluir que travou ou terminou.**
+
+## INTERROMPIDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Novo build WebGL + republicação — pegar as mudanças do Codex (login refinado, commit `7c47662`) que ficaram de fora do build anterior (feito antes desse commit).
+Arquivos/pastas: tentativa via Editor Unity em batchmode (`client/Logs/build-webgl-claude2.log`), nada gravado em `client/Builds/WebGL/` (continua com o build antigo de 08:16). Reserva liberada, nada tocado.
+Descrição: com o Editor Unity aberto (3 processos ativos, provavelmente sessão do Codex), o batchmode travou de novo exatamente como nas duas tentativas anteriores desta sessão — para logo após "Package Manager: Done registering packages", antes de compilar scripts. Confirma que builds em batchmode não são confiáveis com o Editor aberto nesta máquina. Para o próximo build WebGL (ou qualquer build), fechar o Editor antes, ou pedir pro usuário gerar manualmente pelo Hub como da primeira vez.
+
 ## CONCLUÍDO 2026-09-10 — Codex (refino visual do login)
 Área: Unity client — composição, alinhamento e acabamento da tela de autenticação.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `.codex-validation/`, `docs/AGENT-WORK-LOG.md`.

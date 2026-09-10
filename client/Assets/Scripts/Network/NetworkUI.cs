@@ -120,7 +120,7 @@ namespace Espectro.Network
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
-            panel.GetComponent<Image>().color = new Color(0.025f, 0.055f, 0.075f, 0.98f);
+            panel.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.05f, 0.72f);
             return panel;
         }
 
@@ -193,8 +193,15 @@ namespace Espectro.Network
             rect.pivot = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = anchoredPosition;
             rect.sizeDelta = size;
-            item.GetComponent<Image>().color = new Color(0.14f, 0.42f, 0.62f, 0.95f);
-            item.GetComponent<Button>().onClick.AddListener(onClick);
+            var image = item.GetComponent<Image>();
+            image.color = new Color(0.10f, 0.30f, 0.34f, 0.96f);
+            var button = item.GetComponent<Button>();
+            var colors = button.colors;
+            colors.highlightedColor = new Color(0.82f, 0.58f, 0.24f, 1f);
+            colors.pressedColor = new Color(0.58f, 0.35f, 0.14f, 1f);
+            colors.selectedColor = colors.highlightedColor;
+            button.colors = colors;
+            button.onClick.AddListener(onClick);
 
             var textObject = new GameObject("Texto", typeof(RectTransform), typeof(Text));
             textObject.transform.SetParent(item.transform, false);
