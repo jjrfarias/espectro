@@ -19,12 +19,14 @@ namespace Espectro.Network
         };
 
         private GameObject panel;
+        private GameObject content;
         private Text unspentText;
         private Text maxHpText;
         private Button respecButton;
         private readonly System.Collections.Generic.Dictionary<string, Text> valueLabels = new();
         private readonly System.Collections.Generic.Dictionary<string, Button> allocateButtons = new();
         private int unspentPoints;
+        private bool expanded; // Recolhido por padrão — abre ao clicar na barra de vida (NetworkCombatController).
 
         public static NetworkAttributesController Create()
         {
@@ -43,7 +45,17 @@ namespace Espectro.Network
             return controller;
         }
 
-        public void SetActive(bool active) => panel.SetActive(active);
+        public void SetActive(bool active)
+        {
+            panel.SetActive(active);
+            content.SetActive(active && expanded);
+        }
+
+        public void ToggleExpanded()
+        {
+            expanded = !expanded;
+            content.SetActive(panel.activeSelf && expanded);
+        }
 
         public void ApplyAttributes(AttributesSnapshotPayload payload)
         {
@@ -74,12 +86,18 @@ namespace Espectro.Network
             full.offsetMin = full.offsetMax = Vector2.zero;
 
             var topLeft = new Vector2(0f, 1f);
-            var background = Panel(panel.transform, "Fundo Atributos", topLeft, new Vector2(30f, -170f), new Vector2(340f, 300f), new Color(0.05f, 0.05f, 0.045f, 0.9f));
-            unspentText = Label(background.transform, "Pontos Livres", "PONTOS LIVRES: 0", 22, topLeft, new Vector2(16f, -14f), new Vector2(310f, 32f), TextAnchor.MiddleLeft);
-            maxHpText = Label(background.transform, "HP Maximo", "HP MÁXIMO: 150", 16, topLeft, new Vector2(16f, -44f), new Vector2(310f, 26f), TextAnchor.MiddleLeft);
-            maxHpText.color = new Color(0.8f, 0.85f, 0.78f);
+            // Abaixo da barra de vida (y ~ -125..-225) e do texto de nível/XP (y ~ -260..-295) do
+            // NetworkCombatController — evita sobrepor os dois. Recolhido por padrão.
+            content = Panel(panel.transform, "Fundo Atributos", topLeft, new Vector2(28f, -310f), new Vector2(340f, 358f), new Color(0.05f, 0.055f, 0.06f, 0.93f));
+            var titleText = Label(content.transform, "Titulo Atributos", "ATRIBUTOS", 18, topLeft, new Vector2(16f, -12f), new Vector2(200f, 26f), TextAnchor.MiddleLeft);
+            titleText.color = new Color(0.85f, 0.7f, 0.4f);
+            titleText.fontStyle = FontStyle.Bold;
+            unspentText = Label(content.transform, "Pontos Livres", "PONTOS LIVRES: 0", 20, topLeft, new Vector2(16f, -40f), new Vector2(310f, 30f), TextAnchor.MiddleLeft);
+            maxHpText = Label(content.transform, "HP Maximo", "HP MÁXIMO: 150", 15, topLeft, new Vector2(16f, -68f), new Vector2(310f, 24f), TextAnchor.MiddleLeft);
+            maxHpText.color = new Color(0.75f, 0.8f, 0.73f);
+            var background = content;
 
-            var rowY = -84f;
+            var rowY = -104f;
             foreach (var (code, label) in Attributes)
             {
                 var row = new GameObject($"Linha {code}", typeof(RectTransform));

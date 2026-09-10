@@ -71,6 +71,7 @@ namespace Espectro.Network
             attributesController.transform.SetParent(transform, false);
             attributesController.AllocateRequested += RequestAttributeAllocate;
             attributesController.RespecRequested += RequestAttributeRespec;
+            combat.AttributesToggleRequested += attributesController.ToggleExpanded;
             map = NetworkMapController.Create(player);
             map.transform.SetParent(transform, false);
             // O jogo inicia sempre no fluxo online; o mundo não é exibido como

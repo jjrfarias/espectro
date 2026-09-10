@@ -13,6 +13,7 @@ namespace Espectro.Network
         public event Action OnlineRequested;
         public event Action LocalRequested;
         public event Action<string> AttackRequested;
+        public event Action AttributesToggleRequested;
 
         private readonly Dictionary<string, NetworkEnemyView> enemies = new();
         private readonly HashSet<string> present = new();
@@ -276,11 +277,17 @@ namespace Espectro.Network
             full.anchorMax = Vector2.one;
             full.offsetMin = full.offsetMax = Vector2.zero;
             var topLeft = new Vector2(0f, 1f);
-            var healthBackground = Panel(battleHud.transform, "Fundo Vida", topLeft, new Vector2(28f, -125f), new Vector2(360f, 80f), new Color(0.035f, 0.06f, 0.075f, 0.93f));
+            var healthBackground = Panel(battleHud.transform, "Fundo Vida", topLeft, new Vector2(28f, -125f), new Vector2(360f, 100f), new Color(0.035f, 0.06f, 0.075f, 0.93f));
+            healthBackground.GetComponent<Image>().raycastTarget = true;
+            var healthButton = healthBackground.AddComponent<Button>();
+            healthButton.targetGraphic = healthBackground.GetComponent<Image>();
+            healthButton.onClick.AddListener(() => AttributesToggleRequested?.Invoke());
             var bar = Panel(healthBackground.transform, "Vida", Vector2.zero, new Vector2(12f, 12f), new Vector2(336f, 10f), new Color(0.18f, 0.8f, 0.62f));
             healthFill = bar.GetComponent<Image>();
             healthText = Label(healthBackground.transform, "Valor Vida", "VIDA", 25, topLeft, new Vector2(12f, -5f), new Vector2(330f, 45f), TextAnchor.MiddleLeft);
-            progressText = Label(battleHud.transform, "Progresso", "", 22, topLeft, new Vector2(28f, -210f), new Vector2(430f, 35f), TextAnchor.MiddleLeft);
+            var attributesHint = Label(healthBackground.transform, "Dica Atributos", "▾ clique para ver atributos", 13, topLeft, new Vector2(12f, -62f), new Vector2(330f, 22f), TextAnchor.MiddleLeft);
+            attributesHint.color = new Color(0.6f, 0.68f, 0.65f);
+            progressText = Label(battleHud.transform, "Progresso", "", 22, topLeft, new Vector2(28f, -235f), new Vector2(430f, 35f), TextAnchor.MiddleLeft);
             targetText = Label(battleHud.transform, "Alvo", "", 25, new Vector2(0.5f, 1f), new Vector2(0f, -35f), new Vector2(620f, 55f), TextAnchor.MiddleCenter);
             messageText = Label(battleHud.transform, "Resultado", "", 25, new Vector2(0.5f, 0f), new Vector2(0f, 155f), new Vector2(1000f, 70f), TextAnchor.MiddleCenter);
             deathText = Label(battleHud.transform, "Morte", "", 34, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(900f, 130f), TextAnchor.MiddleCenter);
