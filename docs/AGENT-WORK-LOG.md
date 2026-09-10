@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Comentário de revisão sobre o "Plano de evolução" do Codex em `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md` — pedido do usuário ("você concorda... tem algo a acrescentar?"). Só acrescenta uma seção nova ao final do documento, não altera nada do que o Codex já escreveu.
+Arquivos/pastas: `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Criação de personagem — raça (Humano/Elfo/Anão/Orc) e gênero (Masculino/Feminino), pedido explícito do usuário ("padrão de um MMORPG"). GDD-MVP diz "sem classe fixa"; confirmado com o usuário que isto é sobre as 4 raças de `ESPECTRO-VISAO.md` §9 ("raça não é classe" — cultura/aparência/costumes, não trava progressão), não é um sistema de classes.
 Arquivos/pastas: `contracts/src/index.ts` (`raceCodes`/`genderCodes`), `server/src/modules/characters/characters.routes.ts` e `characters.service.ts` (guardado em `appearance_json`, coluna que já existia sem uso), `server/tests/unit/characters.routes.test.ts` (novo, 4 testes), `server/README.md`, `client/Assets/Scripts/Network/Protocol.cs`/`ApiClient.cs`/`NetworkSession.cs`/`NetworkUI.cs` (tela de criação ganhou 4 botões de raça + 2 de gênero, seleção única com realce, mesmo padrão de UI construída em código já usado no resto do cliente).
