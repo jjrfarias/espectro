@@ -103,6 +103,7 @@ namespace Espectro.Network
                 body.gameObject.SetActive(true);
                 body.localRotation = Quaternion.identity;
                 body.localPosition = Vector3.zero;
+                body.localScale = Vector3.one;
             }
             else if (wasAliveBefore && !IsAlive)
             {
@@ -151,11 +152,16 @@ namespace Espectro.Network
             {
                 if (dying)
                 {
+                    // Encolhe e afunda, sem rotação: o corpo é montado de várias partes fixas
+                    // (pernas, orelhas etc. em posições locais separadas, não um mesh único) —
+                    // girar o conjunto inteiro faz as pernas atravessarem o torso e parece que o
+                    // animal "se dobra"/gruda em vez de tombar. Encolher é seguro pra qualquer
+                    // geometria composta.
                     deathTimer = Mathf.Max(0f, deathTimer - Time.deltaTime);
                     var t = 1f - deathTimer / DeathDuration;
-                    var eased = t * t; // acelera pro fim, parece um tombo, não um giro constante.
-                    body.localRotation = Quaternion.Euler(0f, 0f, 82f * eased);
-                    body.localPosition = new Vector3(0f, -0.35f * eased, 0f);
+                    var eased = t * t; // acelera pro fim.
+                    body.localScale = Vector3.one * (1f - 0.92f * eased);
+                    body.localPosition = new Vector3(0f, -0.3f * eased, 0f);
                     if (deathTimer <= 0f)
                     {
                         dying = false;
