@@ -5,6 +5,7 @@ namespace Espectro.Prototype
 {
     public sealed class InteractionController : MonoBehaviour
     {
+        public static System.Action<string> OnlineNpcTalkRequested;
         [SerializeField] private PrototypePlayerController player;
         [SerializeField] private Button actionButton;
         [SerializeField] private Text actionLabel;
@@ -84,6 +85,8 @@ namespace Espectro.Prototype
             }
 
             dialogueTarget.Interact(player);
+            var npcCode = dialogueTarget.DisplayName == "Instrutora" ? "instrutora" : dialogueTarget.DisplayName == "Minerador" ? "minerador" : null;
+            if (!string.IsNullOrEmpty(npcCode)) OnlineNpcTalkRequested?.Invoke(npcCode);
             if (dialogueTarget.AdvanceToStage >= 0) questStage = dialogueTarget.AdvanceToStage;
             dialogueTarget.Complete();
             dialoguePanel.SetActive(false);

@@ -247,3 +247,8 @@ Resultado: `WorldConnection` agora envia conversa com NPC e despacha os dois eve
 Arquivos/pastas: `client/Assets/Scripts/UI/InteractionController.cs`, `docs/PRIMEIRO-ARCO.md`, `docs/AGENT-WORK-LOG.md`.
 Descrição: preparar o HUD para receber o estágio confirmado pelo servidor sem alterar o encanamento de rede reservado por Claude.
 Resultado: `InteractionController.ApplyRemoteTutorialStage(int)` adicionado para aplicar o estágio persistente no mesmo HUD do modo local; documentação atualizada. Compilação Editor/WebGL passou com 31 scripts. A ligação com `WorldConnection` aguarda a liberação da reserva de Claude.
+## CONCLUÍDO 2026-09-10 — Codex (quest persistente ligada ao cliente)
+Área: Unity client — sessão online, HUD de tutorial e conversas com NPC.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/UI/InteractionController.cs`, `.codex-validation/csharp/`.
+Descrição: consumir `tutorial.snapshot`, aplicar estágio remoto no HUD e enviar `npc.talk.request` ao concluir conversa com Instrutora/Minerador.
+Resultado: eventos persistentes ligados à sessão; compilação Editor/WebGL passou com 31 scripts. Build WebGL obrigatório pendente para esta alteração.

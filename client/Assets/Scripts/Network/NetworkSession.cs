@@ -16,6 +16,7 @@ namespace Espectro.Network
         private NetworkMapController map;
         private WorldConnection connection;
         private PrototypePlayerController player;
+        private InteractionController interactions;
         private ThirdPersonCamera gameplayCamera;
         private GameObject gameplayInterface;
         private string accessToken;
@@ -47,7 +48,7 @@ namespace Espectro.Network
         {
             player = FindAnyObjectByType<PrototypePlayerController>();
             gameplayCamera = FindAnyObjectByType<ThirdPersonCamera>();
-            var interactions = FindAnyObjectByType<InteractionController>();
+            interactions = FindAnyObjectByType<InteractionController>();
             gameplayInterface = interactions != null ? interactions.transform.root.gameObject : GameObject.Find("Interface");
             combat = NetworkCombatController.Create(player);
             combat.transform.SetParent(transform, false);
@@ -55,6 +56,7 @@ namespace Espectro.Network
             combat.LocalRequested += ReturnToLocal;
             combat.AttackRequested += RequestAttack;
             combat.SetLocalMode();
+            InteractionController.OnlineNpcTalkRequested += HandleOnlineNpcTalk;
             economy = NetworkEconomyController.Create(player);
             economy.transform.SetParent(transform, false);
             economy.MineRequested += RequestMine;
@@ -241,6 +243,8 @@ namespace Espectro.Network
             pending.CraftResultReceived += HandleCraftResult;
             pending.SellResultReceived += HandleSellResult;
             pending.EquipResultReceived += HandleEquipResult;
+            pending.TutorialSnapshotReceived += HandleTutorialSnapshot;
+            pending.NpcTalkResultReceived += HandleNpcTalkResult;
             pending.Disconnected += HandleDisconnected;
             combat.SetConnectingMode("Entrando no mundo...");
             try
@@ -256,6 +260,24 @@ namespace Espectro.Network
                     FailConnection("Não foi possível conectar ao mundo.");
                 Debug.LogWarning($"[NetworkSession] Entrada no mundo falhou: {ex.Message}");
             }
+        }
+
+        private void HandleTutorialSnapshot(TutorialSnapshotPayload snapshot)
+        {
+            if (snapshot == null || interactions == null) return;
+            var completed = snapshot.completedSteps;
+            var stage = completed == null ? (snapshot.completed ? 4 : 0) : Mathf.Clamp(completed.Length, 0, 4);
+            interactions.ApplyRemoteTutorialStage(stage);
+        }
+
+        private void HandleNpcTalkResult(NpcTalkResultPayload result)
+        {
+            if (result?.tutorial != null) HandleTutorialSnapshot(result.tutorial);
+        }
+
+        private void HandleOnlineNpcTalk(string npcCode)
+        {
+            if (joined && connection != null) connection.SendNpcTalkRequest(npcCode);
         }
 
         private void HandleSnapshot(WorldSnapshotPayload snapshot)
@@ -462,6 +484,7 @@ namespace Espectro.Network
         {
             destroyed = true;
             generation++;
+            InteractionController.OnlineNpcTalkRequested -= HandleOnlineNpcTalk;
             DisposeConnection();
             ClearRemotePlayers();
         }
