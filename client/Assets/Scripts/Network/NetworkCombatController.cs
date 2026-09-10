@@ -44,6 +44,10 @@ namespace Espectro.Network
         private float nextAttackAt;
         private float messageUntil;
         private const float SelectionRange = 25f;
+        // Espelha PLAYER_ATTACK_RANGE_UNITS em enemy-definitions.ts — sem isso o botão ATACAR
+        // ficava clicável até 25m (raio de seleção de alvo), convidando cliques que o servidor
+        // sempre recusava com OUT_OF_RANGE além de ~2,25m.
+        private const float AttackRangeUnits = 2.25f;
 
         public static NetworkCombatController Create(PrototypePlayerController player)
         {
@@ -192,10 +196,12 @@ namespace Espectro.Network
             }
             if (Input.GetKeyDown(KeyCode.F)) Attack();
             var hasTarget = selected != null && selected.IsAlive;
-            attackButton.interactable = alive && hasTarget && Time.unscaledTime >= nextAttackAt;
+            var inAttackRange = hasTarget && HorizontalDistance(selected) <= AttackRangeUnits;
+            attackButton.interactable = alive && inAttackRange && Time.unscaledTime >= nextAttackAt;
             targetButton.interactable = alive && enemies.Count > 0;
             targetText.text = hasTarget
                 ? $"{selected.DisplayName} · {Mathf.CeilToInt(selected.Hp)} / {Mathf.CeilToInt(selected.MaxHp)} PV · {HorizontalDistance(selected):0.0} m"
+                    + (inAttackRange ? "" : " · fora de alcance")
                 : "Procure lobos e javalis na floresta";
             if (Time.unscaledTime > messageUntil && messageText.text != "")
             {
@@ -213,7 +219,12 @@ namespace Espectro.Network
                 ShowMessage("Aproxime-se de um inimigo para selecionar um alvo.");
                 return;
             }
-            // Debounce de entrada; alcance e intervalo de ataque são validados pelo servidor.
+            if (HorizontalDistance(selected) > AttackRangeUnits)
+            {
+                ShowMessage("Aproxime-se mais do alvo para atacar.");
+                return;
+            }
+            // Debounce de entrada; o intervalo real de ataque (por agilidade) é validado pelo servidor.
             nextAttackAt = Time.unscaledTime + 0.2f;
             AttackRequested?.Invoke(selected.EnemyId);
         }
