@@ -9,6 +9,16 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## CONCLUÍDO 2026-09-10 15:55 -03:00 — Codex (build da reconciliação de movimento)
+Área: build e publicação WebGL da remoção do segundo `CharacterController.Move`.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-movement-reconciliation.log` e serviço Railway `webgl`.
+Resultado: build concluída com retorno 0, sem `error CS`. Publicação Railway iniciada como `18344ae4-d7e7-4f67-8b90-c595ea38856f`; status posterior confirmado `webgl: Online` em produção.
+
+## CONCLUÍDO 2026-09-10 15:45 -03:00 — Codex (reconciliação de movimento sem segundo Move)
+Área: movimento online do jogador local e reconciliação de snapshots.
+Arquivos/pastas: `client/Assets/Scripts/World/PrototypePlayerController.cs`, `client/Assets/Scripts/Network/NetworkSession.cs`; build/publicação serão reservados separadamente após validação.
+Resultado: `NetworkSession.LateUpdate` agora só transmite input. Snapshots enfileiram correção curta consumida pelo único `CharacterController.Move` do jogador; divergência maior que 5,5 unidades continua reposicionando com segurança. Build e publicação validadas acima.
+
 ## CONCLUÍDO 2026-09-10 15:35 -03:00 — Codex (build do bloqueio de movimento no chat)
 Área: build e publicação WebGL do ajuste de foco de chat.
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-chat-input.log` e serviço Railway `webgl`.

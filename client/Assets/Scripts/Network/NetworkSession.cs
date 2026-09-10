@@ -32,7 +32,6 @@ namespace Espectro.Network
         private float movementTimer;
         private Vector3 movementAccumulated;
         private Vector3 serverPosition;
-        private float serverSnapshotAt;
         private float joinStartedAt;
         private float serverSpeed = 6f;
         private readonly Dictionary<string, RemotePlayerView> remotePlayers = new();
@@ -104,16 +103,6 @@ namespace Espectro.Network
                 movementAccumulated = Vector3.zero;
             }
 
-            // Correção horizontal limitada. O terreno/gravidade continuam no cliente.
-            // A tolerância acomoda o intervalo de snapshots e a previsão ainda não confirmada.
-            var error = serverPosition - player.transform.position;
-            error.y = 0f;
-            if (Time.unscaledTime - serverSnapshotAt < 1f && error.magnitude > 0.85f)
-            {
-                var controller = player.GetComponent<CharacterController>();
-                if (controller != null && controller.enabled)
-                    controller.Move(error * Mathf.Min(1f, Time.deltaTime * 6f));
-            }
         }
 
         private void BeginOnline()
@@ -350,13 +339,29 @@ namespace Espectro.Network
             alive = snapshot.self.hp > 0;
             serverSpeed = snapshot.movementSpeed > 0 ? snapshot.movementSpeed : 6f;
             serverPosition = new Vector3(snapshot.self.position.x, snapshot.self.position.y, snapshot.self.position.z);
-            serverSnapshotAt = Time.unscaledTime;
             if (player != null) player.SpeedLimit = serverSpeed;
             if (firstSnapshot || (!wasAlive && alive))
             {
                 PlacePlayer(serverPosition.x, serverPosition.z, snapshot.self.facingY);
                 ResetMovement();
                 if (gameplayCamera != null && player != null) gameplayCamera.SetTarget(player.transform);
+            }
+            else if (alive && player != null)
+            {
+                var error = serverPosition - player.transform.position;
+                error.y = 0f;
+                // Erro grande geralmente significa respawn, atraso excepcional ou posição
+                // inválida: reposiciona de uma vez. Erros usuais são consumidos pelo próprio
+                // controlador no próximo Update, sem um segundo Move no LateUpdate.
+                if (error.magnitude > 5.5f)
+                {
+                    PlacePlayer(serverPosition.x, serverPosition.z, snapshot.self.facingY);
+                    ResetMovement();
+                }
+                else if (error.magnitude > 0.85f)
+                {
+                    player.QueueServerCorrection(error);
+                }
             }
             if (firstSnapshot)
             {
@@ -605,7 +610,11 @@ namespace Espectro.Network
         {
             movementTimer = 0f;
             movementAccumulated = Vector3.zero;
-            if (player != null) player.MobileInput = Vector2.zero;
+            if (player != null)
+            {
+                player.MobileInput = Vector2.zero;
+                player.QueueServerCorrection(Vector3.zero);
+            }
         }
 
         private void OnDestroy()
