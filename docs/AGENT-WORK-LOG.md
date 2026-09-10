@@ -292,3 +292,8 @@ Resultado: `RemotePlayerView` agora instancia `EspectroModels/Adventurers/Aventu
 Arquivos/pastas: `client/Assets/Scripts/Network/RemotePlayerView.cs`, build WebGL e Railway `webgl`.
 Descrição: adicionar estado de caminhada/parado ao Animator remoto e melhorar a placa de nome para leitura durante o multiplayer.
 Resultado: avatar remoto usa parâmetro `Speed` do Animator para caminhada/parado e placa de nome com fundo escuro, texto âmbar em negrito. Build WebGL concluído com código 0 e publicado no Railway; deploy `223f1d2b-5014-483a-9bbf-7b08ae14d34e`.
+## INTERROMPIDO 2026-09-10 — Codex (fluxo online e login lembrado)
+Área: Unity client — fluxo de entrada e autenticação.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/Network/NetworkUI.cs`, build WebGL/Railway.
+Descrição: iniciar sempre na tela online e preencher o e-mail usado anteriormente.
+Resultado: alterações aplicadas e compilação de scripts validada; o Unity travou no empacotamento Bee e foi encerrado, portanto nenhum build novo foi publicado nesta etapa.

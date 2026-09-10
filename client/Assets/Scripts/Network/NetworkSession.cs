@@ -65,7 +65,9 @@ namespace Espectro.Network
             economy.EquipRequested += RequestEquip;
             map = NetworkMapController.Create(player);
             map.transform.SetParent(transform, false);
-            SetGameplayActive(true);
+            // O jogo inicia sempre no fluxo online; o mundo não é exibido como
+            // fallback offline antes da autenticação.
+            BeginOnline();
         }
 
         private void Update()

@@ -82,12 +82,13 @@ namespace Espectro.Network
             subtitle.color = new Color(0.72f, 0.82f, 0.76f);
             CreateLabel(panelTransform, "Prompt", "Entre para continuar sua jornada", 24, new Vector2(330f, 190f), new Vector2(560f, 45f));
             emailField = CreateInputField(panelTransform, "Campo Email", "e-mail", false, new Vector2(330f, 115f));
+            emailField.text = PlayerPrefs.GetString("espectro.login.email", "");
             passwordField = CreateInputField(panelTransform, "Campo Senha", "senha", true, new Vector2(330f, 35f));
             authStatus = CreateLabel(panelTransform, "Status", "", 20, new Vector2(270f, -38f), new Vector2(620f, 48f));
             authStatus.color = new Color(1f, 0.55f, 0.5f);
 
             CreateButton(panelTransform, "Botao Entrar", "ENTRAR NO BERÇO", new Vector2(170f, -115f), new Vector2(270f, 68f),
-                () => LoginSubmitted?.Invoke(emailField.text, passwordField.text));
+                () => { PlayerPrefs.SetString("espectro.login.email", emailField.text.Trim()); PlayerPrefs.Save(); LoginSubmitted?.Invoke(emailField.text, passwordField.text); });
             CreateButton(panelTransform, "Botao Criar Conta", "CRIAR CONTA", new Vector2(470f, -115f), new Vector2(270f, 68f),
                 () => RegisterSubmitted?.Invoke(emailField.text, passwordField.text));
         }
