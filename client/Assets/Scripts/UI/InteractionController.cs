@@ -40,6 +40,14 @@ namespace Espectro.Prototype
             RefreshObjective();
         }
 
+        // Chamado pela sessão online quando o servidor confirma o tutorial persistente.
+        // Mantém o mesmo texto e a mesma leitura do modo local.
+        public void ApplyRemoteTutorialStage(int stage)
+        {
+            questStage = Mathf.Clamp(stage, 0, 4);
+            RefreshObjective();
+        }
+
         private void Update()
         {
             current = dialoguePanel.activeSelf ? dialogueTarget : FindNearest();

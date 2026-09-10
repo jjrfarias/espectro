@@ -242,3 +242,8 @@ Resultado: build Unity WebGL concluído com retorno 0; `WebGL.data` atualizado �
 Arquivos/pastas: `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/WorldConnection.cs`, `.codex-validation/csharp/`.
 Descrição: adicionar envelopes e eventos para `npc.talk.request`, `npc.talk.result` e `tutorial.snapshot`, preparando o HUD para consumir o progresso salvo no Railway.
 Resultado: `WorldConnection` agora envia conversa com NPC e despacha os dois eventos de tutorial; compilação Editor/WebGL passou com 31 scripts. A interação visual ainda usa o estágio local até a próxima ligação de `InteractionController` à sessão.
+## CONCLUÍDO 2026-09-10 — Codex (HUD de tutorial persistente)
+Área: Unity client — apresentação visual do progresso de missão.
+Arquivos/pastas: `client/Assets/Scripts/UI/InteractionController.cs`, `docs/PRIMEIRO-ARCO.md`, `docs/AGENT-WORK-LOG.md`.
+Descrição: preparar o HUD para receber o estágio confirmado pelo servidor sem alterar o encanamento de rede reservado por Claude.
+Resultado: `InteractionController.ApplyRemoteTutorialStage(int)` adicionado para aplicar o estágio persistente no mesmo HUD do modo local; documentação atualizada. Compilação Editor/WebGL passou com 31 scripts. A ligação com `WorldConnection` aguarda a liberação da reserva de Claude.
