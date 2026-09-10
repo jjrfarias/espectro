@@ -270,6 +270,7 @@ namespace Espectro.Network
             }
             // Debounce de entrada; o intervalo real de ataque (por agilidade) é validado pelo servidor.
             nextAttackAt = Time.unscaledTime + 0.2f;
+            PlayerAttackFeedback.Attach(player.transform).Play();
             AttackRequested?.Invoke(selected.EnemyId);
         }
 

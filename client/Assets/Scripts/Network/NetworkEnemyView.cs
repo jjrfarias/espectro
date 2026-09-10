@@ -28,6 +28,7 @@ namespace Espectro.Network
         private Material bodyMaterial;
         private Color bodyColor;
         private float hitRemaining;
+        private float impactRemaining;
         private bool selected;
         private bool hasSnapshot;
         private bool dying;
@@ -141,6 +142,7 @@ namespace Espectro.Network
                 return;
 
             hitRemaining = HitDuration;
+            impactRemaining = 0.18f;
             hitLabel.text = $"−{Mathf.CeilToInt(damage)}";
             hitLabel.gameObject.SetActive(true);
             // Deliberately does not subtract health or predict a kill.
@@ -198,6 +200,14 @@ namespace Espectro.Network
                 if (hitRemaining <= 0f)
                     hitLabel.gameObject.SetActive(false);
             }
+
+            if (impactRemaining > 0f)
+            {
+                impactRemaining = Mathf.Max(0f, impactRemaining - Time.deltaTime);
+                var kick = Mathf.Sin((1f - impactRemaining / 0.18f) * Mathf.PI) * 0.09f;
+                body.localScale = Vector3.one * (1f + kick);
+            }
+            else body.localScale = Vector3.one;
         }
 
         private void LateUpdate()

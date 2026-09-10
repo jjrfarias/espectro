@@ -34,15 +34,10 @@ Resultado: `GddNpcBootstrap.Install()` cria os 5 NPCs em `AfterSceneLoad` com `W
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`. Não toquei em `NetworkCombatController.cs` (reserva ativa do Codex na hora, arco de ataque).
 Resultado: MOEDAS agora conta até o novo valor (velocidade proporcional à diferença) com um pulso leve de escala enquanto conta, em vez de trocar na hora; a primeira leitura ao entrar no mundo continua mostrando o valor direto (sem contar a partir de 0). Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.804.360 bytes, já inclui o trabalho concorrente do Codex — `PlayerAttackFeedback.cs` novo) republicado no serviço Railway `webgl` — deploy `9f9ca2ed-2965-469a-bc25-b10d493386f0`, status `SUCCESS`.
 
-## EM ANDAMENTO 2026-09-10 16:12 -03:00 — Codex (build do arco de ataque)
-Área: build e publicação WebGL do efeito de ataque.
-Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-attack-feedback.log`, Railway `webgl`.
-Descrição: validar e publicar o arco visual do ataque local.
-
-## EM ANDAMENTO 2026-09-10 16:05 -03:00 — Codex (efeito do ataque do jogador)
-Área: apresentação do ataque local confirmado pelo input.
-Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`, novo `client/Assets/Scripts/World/PlayerAttackFeedback.cs` e `.meta`.
-Descrição: arco visual curto no avatar ao atacar; sem alterar posição, dano ou regras do servidor.
+## CONCLUÍDO 2026-09-10 — Codex (efeito do ataque do jogador), finalizado por Claude (Sonnet 5, Claude Code)
+Área: apresentação do ataque local confirmado pelo input, mais um "kick" de impacto no inimigo ao ser atingido. Código já estava pronto no working tree (não commitado) desde 16:05; usuário confirmou de novo "o Codex está parado, vamos avançar" — só validei compilação, buildei, publiquei e commitei o que ele já tinha escrito, sem reescrever nada.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs` (chama `PlayerAttackFeedback.Attach(player.transform).Play()` ao atacar), `client/Assets/Scripts/Network/NetworkEnemyView.cs` (squash/stretch curto de 0,18s no inimigo ao levar dano), novo `client/Assets/Scripts/World/PlayerAttackFeedback.cs` (arco de `LineRenderer` de 9 pontos, 0,18s, some com fade).
+Resultado: compilação batchmode real validada (`CompileScripts` + `Exiting batchmode successfully`, 0 `error CS`). Build WebGL publicado no Railway `webgl` — deploy `848644a6-67d2-438a-aacc-115f1de62127`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: "Suco" de jogo — flash vermelho nas bordas da tela ao tomar dano (antes só a barra de vida mudava).
