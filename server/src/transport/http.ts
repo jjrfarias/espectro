@@ -10,10 +10,15 @@ import { worldGateway } from "./ws.js";
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
   // Builds WebGL rodam sandboxadas no navegador: chamadas HTTP passam por fetch/XHR e o
-  // navegador aplica CORS (diferente do cliente nativo, que não passa por isso). Sem
-  // produção pública ainda (docs/ARQUITETURA-MVP.md §16), origem liberada geral por ora —
-  // revisar antes de qualquer teste fechado com jogadores reais.
-  await app.register(corsPlugin, { origin: true });
+  // navegador aplica CORS (diferente do cliente nativo, que não passa por isso). Origem
+  // restrita à lista abaixo agora que há teste público real (server/README.md, link WebGL) —
+  // sem cookies/sessão de navegador envolvidos (auth é Bearer token), então isto é reforço,
+  // não a única defesa, mas evita que qualquer site arbitrário chame a API em nome do usuário.
+  const allowedOrigins = [
+    "https://webgl-production-cae7.up.railway.app",
+    /^http:\/\/(127\.0\.0\.1|localhost):\d+$/,
+  ];
+  await app.register(corsPlugin, { origin: allowedOrigins });
   await app.register(websocketPlugin);
   await app.register(authRoutes);
   await app.register(characterRoutes);
