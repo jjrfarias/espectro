@@ -1,5 +1,9 @@
 # Coordenação entre agentes
 
+## Regra de publicação do cliente
+
+Toda alteração em `client/Assets/` que afete o jogo precisa ser seguida por um novo build WebGL do Unity e pela republicação do conteúdo de `client/Builds/WebGL/` no serviço Railway `webgl` antes de ser considerada disponível em produção. O build e a publicação devem ser registrados em `docs/AGENT-WORK-LOG.md`, incluindo resultado e link de teste.
+
 Mais de uma IA trabalha neste repositório ao mesmo tempo. O registro compartilhado é
 [`docs/AGENT-WORK-LOG.md`](docs/AGENT-WORK-LOG.md).
 

@@ -213,3 +213,8 @@ Descrição: objetos criados uma vez em `Corte0ProjectSetup.BuildScene` (NPC, pl
 Área: Unity client — visual/gráficos, mundo, personagem, controles, build web
 Arquivos/pastas: `client/Assets/Scripts/World/`, `client/Assets/Scripts/UI/`, `client/Assets/Editor/`, `client/Assets/Shaders/`, `client/Assets/Resources/EspectroModels/`
 Descrição: correção de eixo/escala dos pacotes Nature/Village, shader toon/cel-shaded (`Espectro/ToonLit`), controles desktop, build WebGL, flag de teste sem login.
+## CONCLUÍDO 2026-09-10 — Codex (build obrigatório de produção)
+Área: Unity client/build — publicação do HUD do primeiro arco.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-tutorial-production.log`, `AGENTS.md`, serviço Railway `webgl`.
+Descrição: registrar e executar o build obrigatório após alterações do cliente.
+Resultado: build Unity WebGL concluído com retorno 0; `WebGL.data` atualizado às 09:50 e publicado no Railway `webgl`. A regra permanente de publicação foi adicionada ao `AGENTS.md`.
