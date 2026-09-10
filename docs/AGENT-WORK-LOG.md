@@ -389,3 +389,7 @@ Resultado: ponto de seguimento suavizado para remover microtremores do Character
 Área: Unity client — câmera durante caminhada.
 Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
 Resultado: limitador suave de variação vertical aplicado; tentativa de build abortada pelo lock atual do projeto Unity (código 1), sem publicação desta versão.
+## INTERROMPIDO 2026-09-10 — Codex (tremor no visual do personagem)
+Área: Unity client — prefab/Animator do jogador local e remoto.
+Arquivos/pastas: `client/Assets/Scripts/World/AdventurerCharacterBootstrap.cs`, `client/Assets/Scripts/Network/RemotePlayerView.cs`.
+Resultado: root motion desativado nos dois avatares para impedir que a animação mova o transform junto do CharacterController. Build aguarda fechamento do Editor Unity, que mantém lock no projeto.

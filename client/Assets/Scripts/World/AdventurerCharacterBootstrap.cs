@@ -46,6 +46,7 @@ namespace Espectro.Prototype
             instance.transform.localRotation = Quaternion.identity;
 
             var animator = instance.GetComponent<Animator>();
+            if (animator != null) animator.applyRootMotion = false;
             var controller = player.GetComponent<PrototypePlayerController>();
             if (animator != null && controller != null)
             {

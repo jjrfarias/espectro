@@ -38,6 +38,7 @@ namespace Espectro.Network
                 model.transform.localPosition = Vector3.zero;
                 model.transform.localRotation = Quaternion.identity;
                 view.animator = model.GetComponentInChildren<Animator>();
+                if (view.animator != null) view.animator.applyRootMotion = false;
             }
             else
             {
