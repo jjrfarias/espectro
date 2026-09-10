@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Chat local — servidor já implementa tudo (`chat.send`/`chat.message`, moderação simples, alcança só a mesma instância), mas nenhum arquivo do cliente lê ou envia essas mensagens. Achado do plano do Codex ("Chat/crônicas ainda não têm ligação na camada de cliente"), retomado agora que a reserva dele nos 4 arquivos de rede foi liberada.
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/Protocol.cs`, `WorldConnection.cs`, `NetworkSession.cs`, novo `NetworkChatController.cs`. Crônicas/mural fica fora — a migração `004_world_events.ts` documenta que a UI do mural é "fora de escopo até o Corte 4", sem endpoint de leitura ainda.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Alcance/intervalo de ataque do cliente não bate com a regra real do servidor (achado do plano do Codex, linha "Disponibilidade de ataque não acompanha a regra real") — botão ATACAR ficava clicável a até 25m (raio de seleção de alvo) mas o servidor só aceita a até 2,25m, convidando cliques que o servidor recusa.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não toquei em `NetworkSession.cs`/`NetworkUI.cs`/`Protocol.cs`/`WorldConnection.cs` (reserva ativa do Codex na hora); esperei o Unity ficar livre (build de diagnóstico do Codex em andamento) antes de compilar/buildar.
