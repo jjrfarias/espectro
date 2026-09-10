@@ -9,6 +9,20 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: "Suco" de jogo — contador de moedas animado (hoje o número troca na hora, sem transição, mesmo ganhando/perdendo uma quantia grande).
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEconomyController.cs`. Não toco em `NetworkCombatController.cs` (reserva ativa do Codex acima, arco de ataque).
+
+## EM ANDAMENTO 2026-09-10 16:12 -03:00 — Codex (build do arco de ataque)
+Área: build e publicação WebGL do efeito de ataque.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-attack-feedback.log`, Railway `webgl`.
+Descrição: validar e publicar o arco visual do ataque local.
+
+## EM ANDAMENTO 2026-09-10 16:05 -03:00 — Codex (efeito do ataque do jogador)
+Área: apresentação do ataque local confirmado pelo input.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`, novo `client/Assets/Scripts/World/PlayerAttackFeedback.cs` e `.meta`.
+Descrição: arco visual curto no avatar ao atacar; sem alterar posição, dano ou regras do servidor.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: "Suco" de jogo — flash vermelho nas bordas da tela ao tomar dano (antes só a barra de vida mudava).
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkCombatController.cs`.
