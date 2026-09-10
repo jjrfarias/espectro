@@ -10,6 +10,7 @@ namespace Espectro.Network
     {
         private const float Smoothing = 12f;
         private const float HitDuration = 0.7f;
+        private const float DeathDuration = 0.6f;
         private static readonly Color SelectionColor = new Color(1f, 0.79f, 0.25f);
         private readonly List<Material> ownedMaterials = new();
         private readonly List<Mesh> ownedMeshes = new();
@@ -29,6 +30,9 @@ namespace Espectro.Network
         private float hitRemaining;
         private bool selected;
         private bool hasSnapshot;
+        private bool dying;
+        private float deathTimer;
+        private float idlePhase;
 
         public string EnemyId { get; private set; }
         public bool IsAlive { get; private set; }
@@ -50,6 +54,7 @@ namespace Espectro.Network
             view.CreateBody(boar);
             view.CreateBillboard();
             view.CreateSelectionRing(boar ? 1f : 0.9f);
+            view.idlePhase = UnityEngine.Random.value * 10f; // dessincroniza a respiração entre animais.
 
             // Explicit QueryTriggerInteraction.Collide allows mouse selection. This collider
             // never blocks the local CharacterController or alters authoritative movement.
@@ -73,6 +78,7 @@ namespace Espectro.Network
             if (hasSnapshot && movement.sqrMagnitude > 0.0025f)
                 targetRotation = Quaternion.LookRotation(movement, Vector3.up);
 
+            bool wasAliveBefore = hasSnapshot && IsAlive;
             bool respawned = hasSnapshot && !IsAlive && snapshot.alive;
             targetPosition = nextPosition;
             // Respawn and the first snapshot should not slide in from an unrelated position.
@@ -86,9 +92,28 @@ namespace Espectro.Network
             MaxHp = snapshot.maxHp;
             IsAlive = snapshot.alive;
             hasSnapshot = true;
-            body.gameObject.SetActive(IsAlive);
             billboard.gameObject.SetActive(IsAlive);
             selectionCollider.enabled = IsAlive;
+
+            // Tomba antes de sumir, em vez de desaparecer na hora — dá peso ao golpe final.
+            // Ver Update() pra animação; o corpo continua ativo durante ela.
+            if (respawned)
+            {
+                dying = false;
+                body.gameObject.SetActive(true);
+                body.localRotation = Quaternion.identity;
+                body.localPosition = Vector3.zero;
+            }
+            else if (wasAliveBefore && !IsAlive)
+            {
+                dying = true;
+                deathTimer = DeathDuration;
+            }
+            else if (!IsAlive && !dying)
+            {
+                body.gameObject.SetActive(false);
+            }
+
             if (!IsAlive || respawned)
             {
                 selected = false;
@@ -123,17 +148,45 @@ namespace Espectro.Network
         private void Update()
         {
             if (!IsAlive)
+            {
+                if (dying)
+                {
+                    deathTimer = Mathf.Max(0f, deathTimer - Time.deltaTime);
+                    var t = 1f - deathTimer / DeathDuration;
+                    var eased = t * t; // acelera pro fim, parece um tombo, não um giro constante.
+                    body.localRotation = Quaternion.Euler(0f, 0f, 82f * eased);
+                    body.localPosition = new Vector3(0f, -0.35f * eased, 0f);
+                    if (deathTimer <= 0f)
+                    {
+                        dying = false;
+                        body.gameObject.SetActive(false);
+                    }
+                }
                 return;
+            }
 
             float blend = 1f - Mathf.Exp(-Smoothing * Time.deltaTime);
             transform.position = Vector3.Lerp(transform.position, targetPosition, blend);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, blend);
+
+            // Respiração sutil — cosmético, aplicado só no corpo (não no transform que carrega a
+            // posição de rede), pra dar vida ao animal parado sem interferir na sincronização.
+            var bob = Mathf.Sin((Time.time + idlePhase) * 1.6f) * 0.035f;
+            body.localPosition = new Vector3(0f, bob, 0f);
+
+            if (selectionRing.enabled)
+            {
+                var pulse = 1f + 0.08f * Mathf.Sin(Time.time * 4f);
+                selectionRing.transform.localScale = Vector3.one * pulse;
+            }
 
             if (hitRemaining > 0f)
             {
                 hitRemaining = Mathf.Max(0f, hitRemaining - Time.deltaTime);
                 float progress = 1f - hitRemaining / HitDuration;
                 hitLabel.rectTransform.anchoredPosition = new Vector2(0f, 62f + 44f * progress);
+                // Cresce rápido ao aparecer e volta ao tamanho normal — dá mais peso ao número.
+                hitLabel.rectTransform.localScale = Vector3.one * (1f + 0.35f * Mathf.Sin(progress * Mathf.PI));
                 hitLabel.color = new Color(1f, 0.87f, 0.43f, 1f - progress);
                 bodyMaterial.color = Color.Lerp(bodyColor, Color.white, Mathf.Clamp01((hitRemaining - 0.5f) * 4f));
                 if (hitRemaining <= 0f)
