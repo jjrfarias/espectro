@@ -15,6 +15,12 @@ namespace Espectro.Network
         public event Action<string> CraftRequested;
         public event Action<string, int> SellRequested;
         public event Action<string, string> EquipRequested;
+        public event Action<string, int> BuyRequested;
+        public event Action<string> UseItemRequested;
+        public event Action CraftCancelRequested;
+
+        private const string PotionCode = "pocao";
+        private const int PotionBuyPrice = 15; // Espelha buyPrices.pocao em economy.constants.ts (só exibição).
 
         private static readonly (string Code, string Label)[] SellableItems =
         {
@@ -53,6 +59,22 @@ namespace Espectro.Network
         private string nearestAvailableNodeId;
         private float messageUntil;
 
+        private Text potionText;
+        private Button potionBuyButton;
+        private Button potionUseButton;
+
+        private GameObject miningProgressRoot;
+        private Image miningProgressFill;
+        private float miningProgressStart;
+        private float miningProgressDuration;
+
+        private GameObject craftProgressRoot;
+        private Image craftProgressFill;
+        private Text craftProgressLabel;
+        private float craftProgressStart;
+        private float craftProgressDuration;
+        private string craftInProgressRecipe;
+
         public static NetworkEconomyController Create(PrototypePlayerController player)
         {
             var root = new GameObject("Economia Online - Interface", typeof(RectTransform));
@@ -74,7 +96,13 @@ namespace Espectro.Network
         public void SetActive(bool active)
         {
             panel.SetActive(active);
-            if (!active) ClearNodes();
+            if (!active)
+            {
+                ClearNodes();
+                miningProgressRoot.SetActive(false);
+                craftProgressRoot.SetActive(false);
+                craftInProgressRecipe = null;
+            }
         }
 
         public void ApplyEconomy(EconomySnapshotPayload economy)
@@ -87,6 +115,54 @@ namespace Espectro.Network
             equippedTool = economy.equipment?.tool;
             RefreshInventoryRows();
             RefreshEquipmentDisplay(economy.equipment);
+            RefreshPotionDisplay();
+        }
+
+        public void ApplyBuyResult(BuyResultPayload result)
+        {
+            if (result == null) return;
+            ShowMessage($"Comprado: {result.quantityBought}x {DisplayName(result.itemCode)} por {result.coinsSpent} moedas");
+            ApplyEconomy(result.economy);
+        }
+
+        public void ApplyUseItemResult(UseItemResultPayload result)
+        {
+            if (result == null) return;
+            ShowMessage($"HP: {result.hp}/{result.maxHp}");
+            ApplyEconomy(result.economy);
+        }
+
+        public void ApplyMineStarted(MineStartedPayload payload)
+        {
+            if (payload == null) return;
+            miningProgressStart = Time.unscaledTime;
+            miningProgressDuration = Mathf.Max(0.01f, payload.durationMs / 1000f);
+            miningProgressRoot.SetActive(true);
+            miningProgressFill.fillAmount = 0f;
+        }
+
+        public void ApplyMineCancelled(MineCancelledPayload result)
+        {
+            miningProgressRoot.SetActive(false);
+            if (result != null) ShowMessage("Mineração cancelada");
+        }
+
+        public void ApplyCraftStarted(CraftStartedPayload payload)
+        {
+            if (payload == null) return;
+            craftInProgressRecipe = payload.recipeCode;
+            craftProgressStart = Time.unscaledTime;
+            craftProgressDuration = Mathf.Max(0.01f, payload.durationMs / 1000f);
+            craftProgressLabel.text = $"Fundindo {DisplayName(RecipeOutput(payload.recipeCode))}...";
+            craftProgressRoot.SetActive(true);
+            craftProgressFill.fillAmount = 0f;
+        }
+
+        public void ApplyCraftCancelled(CraftCancelledPayload result)
+        {
+            craftInProgressRecipe = null;
+            craftProgressRoot.SetActive(false);
+            if (result != null) ShowMessage($"Fundição cancelada: devolvido {result.refundedQuantity}x minério");
         }
 
         public void ApplyEquipResult(EquipResultPayload result)
@@ -98,6 +174,7 @@ namespace Espectro.Network
         public void ApplyMineResult(MineResultPayload result)
         {
             if (result == null) return;
+            miningProgressRoot.SetActive(false);
             var label = ResourceLabels.TryGetValue(result.resourceCode, out var name) ? name : result.resourceCode;
             ShowMessage($"+{result.quantityGained} minério de {label}");
             ApplyEconomy(result.economy);
@@ -106,6 +183,8 @@ namespace Espectro.Network
         public void ApplyCraftResult(CraftResultPayload result)
         {
             if (result == null) return;
+            craftInProgressRecipe = null;
+            craftProgressRoot.SetActive(false);
             ShowMessage($"+{result.producedQuantity} {DisplayName(result.producedItemCode)}");
             ApplyEconomy(result.economy);
         }
@@ -178,6 +257,11 @@ namespace Espectro.Network
             }
 
             if (Time.unscaledTime > messageUntil) messageText.text = "";
+
+            if (miningProgressRoot.activeSelf)
+                miningProgressFill.fillAmount = Mathf.Clamp01((Time.unscaledTime - miningProgressStart) / miningProgressDuration);
+            if (craftProgressRoot.activeSelf)
+                craftProgressFill.fillAmount = Mathf.Clamp01((Time.unscaledTime - craftProgressStart) / craftProgressDuration);
         }
 
         private void RefreshInventoryRows()
@@ -204,6 +288,15 @@ namespace Espectro.Network
 
         private static string DisplayName(string itemCode) =>
             ItemDisplayNames.TryGetValue(itemCode, out var label) ? label : itemCode;
+
+        private static string RecipeOutput(string recipeCode) => recipeCode; // recipeCode == itemCode produzido (lingote_ferro/lingote_cobre).
+
+        private void RefreshPotionDisplay()
+        {
+            var owned = inventory.TryGetValue(PotionCode, out var quantity) ? quantity : 0;
+            potionText.text = $"Poção: {owned}";
+            potionUseButton.interactable = owned > 0;
+        }
 
         private GameObject CreateMarker(SnapshotResourceNodeDto node)
         {
@@ -278,10 +371,58 @@ namespace Espectro.Network
             rowY -= 52f;
             MakeButton(background.transform, "Fundir Cobre", "FUNDIR COBRE", topRight, new Vector2(-16f, rowY - 8f), new Vector2(400f, 44f),
                 () => CraftRequested?.Invoke("lingote_cobre"));
+            rowY -= 52f;
 
-            minePromptText = Label(panel.transform, "Dica de Mineracao", "", 26, new Vector2(0.5f, 0.35f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
+            var potionRow = new GameObject("Linha Pocao", typeof(RectTransform));
+            potionRow.transform.SetParent(background.transform, false);
+            var potionRowRect = (RectTransform)potionRow.transform;
+            potionRowRect.anchorMin = potionRowRect.anchorMax = topRight;
+            potionRowRect.pivot = topRight;
+            potionRowRect.anchoredPosition = new Vector2(-16f, rowY - 8f);
+            potionRowRect.sizeDelta = new Vector2(400f, 42f);
+            potionText = Label(potionRow.transform, "Texto Pocao", "Poção: 0", 18, new Vector2(0f, 0.5f), Vector2.zero, new Vector2(120f, 40f), TextAnchor.MiddleLeft);
+            potionBuyButton = MakeButton(potionRow.transform, "Comprar Pocao", $"COMPRAR ({PotionBuyPrice})", new Vector2(0.55f, 0.5f), Vector2.zero, new Vector2(130f, 38f),
+                () => BuyRequested?.Invoke(PotionCode, 1));
+            potionUseButton = MakeButton(potionRow.transform, "Usar Pocao", "USAR", new Vector2(1f, 0.5f), Vector2.zero, new Vector2(90f, 38f),
+                () => UseItemRequested?.Invoke(PotionCode));
+            potionUseButton.interactable = false;
+            rowY -= 50f;
+
+            miningProgressRoot = Panel(panel.transform, "Barra de Mineracao", new Vector2(0.5f, 0.4f), Vector2.zero, new Vector2(400f, 26f), new Color(0.08f, 0.08f, 0.07f, 0.85f));
+            miningProgressFill = BuildFill(miningProgressRoot.transform, new Color(0.6f, 0.44f, 0.2f));
+            Label(miningProgressRoot.transform, "Texto Mineracao", "MINERANDO...", 14, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 26f), TextAnchor.MiddleCenter);
+            miningProgressRoot.SetActive(false);
+
+            craftProgressRoot = Panel(panel.transform, "Barra de Fundicao", new Vector2(0.5f, 0.33f), Vector2.zero, new Vector2(400f, 26f), new Color(0.08f, 0.08f, 0.07f, 0.85f));
+            craftProgressFill = BuildFill(craftProgressRoot.transform, new Color(0.55f, 0.3f, 0.15f));
+            craftProgressLabel = Label(craftProgressRoot.transform, "Texto Fundicao", "FUNDINDO...", 14, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 26f), TextAnchor.MiddleCenter);
+            MakeButton(craftProgressRoot.transform, "Cancelar Fundicao", "X", new Vector2(1f, 0.5f), new Vector2(-18f, 0f), new Vector2(30f, 22f),
+                () => CraftCancelRequested?.Invoke());
+            craftProgressRoot.SetActive(false);
+
+            minePromptText = Label(panel.transform, "Dica de Mineracao", "", 26, new Vector2(0.5f, 0.45f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
             minePromptText.gameObject.SetActive(false);
             messageText = Label(panel.transform, "Mensagem de Economia", "", 24, new Vector2(0.5f, 0.28f), Vector2.zero, new Vector2(800f, 45f), TextAnchor.MiddleCenter);
+        }
+
+        private static Image BuildFill(Transform parent, Color color)
+        {
+            var fillRoot = new GameObject("Preenchimento", typeof(RectTransform), typeof(Image));
+            var rect = (RectTransform)fillRoot.transform;
+            rect.SetParent(parent, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.pivot = new Vector2(0f, 0.5f);
+            var image = fillRoot.GetComponent<Image>();
+            image.color = color;
+            image.type = Image.Type.Filled;
+            image.fillMethod = Image.FillMethod.Horizontal;
+            image.fillOrigin = 0;
+            image.fillAmount = 0f;
+            image.raycastTarget = false;
+            return image;
         }
 
         private static RectTransform Rect(GameObject item, Transform parent, Vector2 anchor, Vector2 position, Vector2 size)

@@ -64,6 +64,9 @@ namespace Espectro.Network
             economy.CraftRequested += RequestCraft;
             economy.SellRequested += RequestSell;
             economy.EquipRequested += RequestEquip;
+            economy.BuyRequested += RequestBuy;
+            economy.UseItemRequested += RequestUseItem;
+            economy.CraftCancelRequested += RequestCraftCancel;
             attributesController = NetworkAttributesController.Create();
             attributesController.transform.SetParent(transform, false);
             attributesController.AllocateRequested += RequestAttributeAllocate;
@@ -286,6 +289,12 @@ namespace Espectro.Network
             pending.CraftResultReceived += HandleCraftResult;
             pending.SellResultReceived += HandleSellResult;
             pending.EquipResultReceived += HandleEquipResult;
+            pending.BuyResultReceived += HandleBuyResult;
+            pending.UseItemResultReceived += HandleUseItemResult;
+            pending.MineStartedReceived += HandleMineStarted;
+            pending.MineCancelledReceived += HandleMineCancelled;
+            pending.CraftStartedReceived += HandleCraftStarted;
+            pending.CraftCancelledReceived += HandleCraftCancelled;
             pending.AttributesSnapshotReceived += HandleAttributesSnapshot;
             pending.TutorialSnapshotReceived += HandleTutorialSnapshot;
             pending.NpcTalkResultReceived += HandleNpcTalkResult;
@@ -404,6 +413,24 @@ namespace Espectro.Network
                 connection.SendEquipRequest(slot, itemCode);
         }
 
+        private void RequestBuy(string itemCode, int quantity)
+        {
+            if (joined && alive && connection != null && connection.IsOpen)
+                connection.SendBuyRequest(itemCode, quantity);
+        }
+
+        private void RequestUseItem(string itemCode)
+        {
+            if (joined && alive && connection != null && connection.IsOpen)
+                connection.SendUseItemRequest(itemCode);
+        }
+
+        private void RequestCraftCancel()
+        {
+            if (joined && alive && connection != null && connection.IsOpen)
+                connection.SendCraftCancelRequest();
+        }
+
         private void RequestAttributeAllocate(string attribute)
         {
             if (joined && alive && connection != null && connection.IsOpen)
@@ -425,6 +452,18 @@ namespace Espectro.Network
         private void HandleSellResult(SellResultPayload result) => economy.ApplySellResult(result);
 
         private void HandleEquipResult(EquipResultPayload result) => economy.ApplyEquipResult(result);
+
+        private void HandleBuyResult(BuyResultPayload result) => economy.ApplyBuyResult(result);
+
+        private void HandleUseItemResult(UseItemResultPayload result) => economy.ApplyUseItemResult(result);
+
+        private void HandleMineStarted(MineStartedPayload result) => economy.ApplyMineStarted(result);
+
+        private void HandleMineCancelled(MineCancelledPayload result) => economy.ApplyMineCancelled(result);
+
+        private void HandleCraftStarted(CraftStartedPayload result) => economy.ApplyCraftStarted(result);
+
+        private void HandleCraftCancelled(CraftCancelledPayload result) => economy.ApplyCraftCancelled(result);
 
         private void HandleAttributesSnapshot(AttributesSnapshotPayload result) => attributesController.ApplyAttributes(result);
 
@@ -522,6 +561,12 @@ namespace Espectro.Network
             connection.CraftResultReceived -= HandleCraftResult;
             connection.SellResultReceived -= HandleSellResult;
             connection.EquipResultReceived -= HandleEquipResult;
+            connection.BuyResultReceived -= HandleBuyResult;
+            connection.UseItemResultReceived -= HandleUseItemResult;
+            connection.MineStartedReceived -= HandleMineStarted;
+            connection.MineCancelledReceived -= HandleMineCancelled;
+            connection.CraftStartedReceived -= HandleCraftStarted;
+            connection.CraftCancelledReceived -= HandleCraftCancelled;
             connection.AttributesSnapshotReceived -= HandleAttributesSnapshot;
             connection.Disconnected -= HandleDisconnected;
             connection.Dispose();
