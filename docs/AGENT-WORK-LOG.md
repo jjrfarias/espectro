@@ -9,9 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Correção de bug visual — usuário reportou (com screenshot) que os animais mortos ficam "grudados"/tortos em vez de tombar. Causa: a animação de queda rotaciona o corpo inteiro em Z, mas o corpo é montado de várias partes fixas (pernas, orelhas) em posições locais separadas, não um mesh único — girar o conjunto faz as pernas atravessarem o torso.
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
+Resultado: troquei a rotação de 82° por um encolher+afundar uniforme (`localScale` de 1 pra ~0.08 + leve descida), seguro pra qualquer geometria composta já que não depende de girar partes em posições fixas. `localScale` também resetado pra `Vector3.one` no respawn (não estava antes — só rotação/posição eram resetadas). Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.738.866 bytes) republicado no serviço Railway `webgl` — deploy `9ae2e674-fb99-489f-b756-f838ef26c7da`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Sensação de combate/monstros — pedido do usuário pra melhorar "movimentos de batalha" e "monstros" enquanto ele testa o build. Tudo procedural em código (o corpo dos animais já é geometria combinada, sem assets/rig importados) — sem mexer em `PrototypePlayerController.cs`/`ThirdPersonCamera.cs` (Codex "EM ANDAMENTO" lá).
