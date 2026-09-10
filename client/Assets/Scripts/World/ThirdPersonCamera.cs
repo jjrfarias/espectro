@@ -22,6 +22,8 @@ namespace Espectro.Prototype
         private Vector3 lookPointVelocity;
         private Vector3 smoothedLookPoint;
         private bool hasSmoothedLookPoint;
+        private float collisionDistance;
+        private float collisionDistanceVelocity;
         private Camera cameraComponent;
         private PrototypePlayerController player;
         private Vector2 previousTouchPosition;
@@ -118,6 +120,12 @@ namespace Espectro.Prototype
             }
             if (!float.IsPositiveInfinity(nearest))
                 desiredDistance = Mathf.Max(minDistance * 0.45f, nearest - collisionRadius);
+            if (collisionDistance <= 0f) collisionDistance = desiredDistance;
+            // A colisão pode alternar entre dois valores em frames consecutivos
+            // ao caminhar junto de uma parede; amortecer a distância evita pulso
+            // visual sem remover a proteção contra atravessar o cenário.
+            collisionDistance = Mathf.SmoothDamp(collisionDistance, desiredDistance, ref collisionDistanceVelocity, 0.16f);
+            desiredDistance = collisionDistance;
             var desired = lookPoint + direction * desiredDistance;
             transform.position = Vector3.SmoothDamp(transform.position, desired, ref velocity, smoothTime);
             if (trauma > 0f)
