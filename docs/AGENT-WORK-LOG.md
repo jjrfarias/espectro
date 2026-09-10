@@ -9,9 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Polimento visual contínuo — mesma correção de legibilidade (fundo atrás de texto solto sobre a cena) aplicada ao HUD de combate, agora no painel de economia (`minePromptText`, `contextPromptText`, `messageText` sem fundo).
-Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
+Resultado: os três textos que flutuam sobre a cena 3D (dica de mineração, prompt de NPC, mensagem de resultado) agora têm fundo escuro semi-transparente atrás, só aparecendo quando há texto (mesmo padrão `Backdrop()` já usado em `NetworkCombatController.cs`). Compilação batchmode real validada (0 `error CS`). Build WebGL novo (114.735.637 bytes) republicado no serviço Railway `webgl` — deploy `4654751a-b4a1-4c8d-90cb-198b37e22bd3`, status `SUCCESS`.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Migrar Comerciante/Forja pro padrão de prompt contextual (princípio 2 de `REFERENCIAS-INTERFACE-JOGABILIDADE.md`), em vez de "seção aparece sozinha quando perto".
