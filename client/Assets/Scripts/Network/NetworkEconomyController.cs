@@ -1,0 +1,334 @@
+using System;
+using System.Collections.Generic;
+using Espectro.Prototype;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Espectro.Network
+{
+    // Apresentação e intenções do Corte 3 (economia): nenhum item, moeda ou XP é calculado
+    // aqui — tudo vem confirmado do servidor (ver server/README.md). Espelha o mesmo padrão de
+    // NetworkCombatController: HUD construída em código, presentation-only.
+    public sealed class NetworkEconomyController : MonoBehaviour
+    {
+        public event Action<string> MineRequested;
+        public event Action<string> CraftRequested;
+        public event Action<string, int> SellRequested;
+        public event Action<string, string> EquipRequested;
+
+        private static readonly (string Code, string Label)[] SellableItems =
+        {
+            ("minerio_ferro", "Minério de Ferro"), ("minerio_cobre", "Minério de Cobre"),
+            ("lingote_ferro", "Lingote de Ferro"), ("lingote_cobre", "Lingote de Cobre"),
+            ("couro", "Couro"),
+        };
+        private static readonly Dictionary<string, string> ResourceLabels = new()
+        {
+            ["ferro"] = "Ferro", ["cobre"] = "Cobre",
+        };
+        private static readonly Dictionary<string, string> ItemDisplayNames = new()
+        {
+            ["minerio_ferro"] = "Minério de Ferro", ["minerio_cobre"] = "Minério de Cobre",
+            ["lingote_ferro"] = "Lingote de Ferro", ["lingote_cobre"] = "Lingote de Cobre",
+            ["couro"] = "Couro", ["espada_simples"] = "Espada Simples", ["picareta_simples"] = "Picareta Simples",
+            ["pocao"] = "Poção",
+        };
+
+        private readonly Dictionary<string, GameObject> nodeMarkers = new();
+        private readonly Dictionary<string, SnapshotResourceNodeDto> nodeState = new();
+        private readonly List<string> nodeScratch = new();
+        private readonly Dictionary<string, int> inventory = new();
+        private readonly Dictionary<string, Text> sellRows = new();
+
+        private PrototypePlayerController player;
+        private GameObject panel;
+        private Text coinText;
+        private Text equipmentText;
+        private Button toolToggleButton;
+        private Text toolToggleLabel;
+        private Text minePromptText;
+        private Text messageText;
+        private string equippedTool; // null = nada equipado.
+        private const float MiningRangeUnits = 2.75f; // Espelha MINING_RANGE_UNITS em economy.constants.ts.
+        private string nearestAvailableNodeId;
+        private float messageUntil;
+
+        public static NetworkEconomyController Create(PrototypePlayerController player)
+        {
+            var root = new GameObject("Economia Online - Interface", typeof(RectTransform));
+            var canvas = root.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 505;
+            var scaler = root.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+            root.AddComponent<GraphicRaycaster>();
+            var controller = root.AddComponent<NetworkEconomyController>();
+            controller.player = player;
+            controller.BuildHud();
+            controller.SetActive(false);
+            return controller;
+        }
+
+        public void SetActive(bool active)
+        {
+            panel.SetActive(active);
+            if (!active) ClearNodes();
+        }
+
+        public void ApplyEconomy(EconomySnapshotPayload economy)
+        {
+            if (economy == null) return;
+            coinText.text = $"MOEDAS: {economy.coinBalance}";
+            inventory.Clear();
+            foreach (var item in economy.inventory ?? Array.Empty<InventoryItemDto>())
+                inventory[item.itemCode] = item.quantity;
+            equippedTool = economy.equipment?.tool;
+            RefreshInventoryRows();
+            RefreshEquipmentDisplay(economy.equipment);
+        }
+
+        public void ApplyEquipResult(EquipResultPayload result)
+        {
+            if (result == null) return;
+            ApplyEconomy(result.economy);
+        }
+
+        public void ApplyMineResult(MineResultPayload result)
+        {
+            if (result == null) return;
+            var label = ResourceLabels.TryGetValue(result.resourceCode, out var name) ? name : result.resourceCode;
+            ShowMessage($"+{result.quantityGained} minério de {label}");
+            ApplyEconomy(result.economy);
+        }
+
+        public void ApplyCraftResult(CraftResultPayload result)
+        {
+            if (result == null) return;
+            ShowMessage($"+{result.producedQuantity} {DisplayName(result.producedItemCode)}");
+            ApplyEconomy(result.economy);
+        }
+
+        public void ApplySellResult(SellResultPayload result)
+        {
+            if (result == null) return;
+            ShowMessage($"Vendido: {result.quantitySold}x {DisplayName(result.itemCode)} por {result.coinsEarned} moedas");
+            ApplyEconomy(result.economy);
+        }
+
+        public void ApplyResourceNodes(SnapshotResourceNodeDto[] nodes)
+        {
+            nodeScratch.Clear();
+            foreach (var node in nodes ?? Array.Empty<SnapshotResourceNodeDto>())
+            {
+                if (node == null || string.IsNullOrEmpty(node.nodeId) || node.position == null) continue;
+                nodeScratch.Add(node.nodeId);
+                nodeState[node.nodeId] = node;
+                if (!nodeMarkers.TryGetValue(node.nodeId, out var marker) || marker == null)
+                    nodeMarkers[node.nodeId] = CreateMarker(node);
+                else
+                    UpdateMarker(marker, node);
+            }
+
+            var toRemove = new List<string>();
+            foreach (var id in nodeMarkers.Keys)
+                if (!nodeScratch.Contains(id)) toRemove.Add(id);
+            foreach (var id in toRemove)
+            {
+                if (nodeMarkers[id] != null) Destroy(nodeMarkers[id]);
+                nodeMarkers.Remove(id);
+                nodeState.Remove(id);
+            }
+        }
+
+        public void ShowMessage(string message)
+        {
+            messageText.text = message;
+            messageUntil = Time.unscaledTime + 4f;
+        }
+
+        private void Update()
+        {
+            if (!panel.activeSelf || player == null) return;
+
+            nearestAvailableNodeId = null;
+            var bestDistance = MiningRangeUnits;
+            foreach (var pair in nodeState)
+            {
+                if (!pair.Value.available) continue;
+                var nodePosition = new Vector3(pair.Value.position.x, pair.Value.position.y, pair.Value.position.z);
+                var distance = Vector3.Distance(player.transform.position, nodePosition);
+                if (distance > bestDistance) continue;
+                bestDistance = distance;
+                nearestAvailableNodeId = pair.Key;
+            }
+
+            if (nearestAvailableNodeId != null)
+            {
+                var resourceCode = nodeState[nearestAvailableNodeId].resourceCode;
+                var label = ResourceLabels.TryGetValue(resourceCode, out var name) ? name : resourceCode;
+                minePromptText.gameObject.SetActive(true);
+                minePromptText.text = $"Pressione M para minerar ({label})";
+                if (Input.GetKeyDown(KeyCode.M)) MineRequested?.Invoke(nearestAvailableNodeId);
+            }
+            else
+            {
+                minePromptText.gameObject.SetActive(false);
+            }
+
+            if (Time.unscaledTime > messageUntil) messageText.text = "";
+        }
+
+        private void RefreshInventoryRows()
+        {
+            foreach (var (code, label) in SellableItems)
+            {
+                var quantity = inventory.TryGetValue(code, out var value) ? value : 0;
+                sellRows[code].text = $"{label}: {quantity}";
+                var button = sellRows[code].transform.parent.Find("Vender")?.GetComponent<Button>();
+                if (button != null) button.interactable = quantity > 0;
+            }
+        }
+
+        private void RefreshEquipmentDisplay(EquipmentDto equipment)
+        {
+            var weapon = string.IsNullOrEmpty(equipment?.mainHand) ? "nenhuma" : DisplayName(equipment.mainHand);
+            var tool = string.IsNullOrEmpty(equipment?.tool) ? "nenhuma" : DisplayName(equipment.tool);
+            equipmentText.text = $"Arma: {weapon}  ·  Ferramenta: {tool}";
+
+            var hasPickaxeEquipped = equipment != null && equipment.tool == "picareta_simples";
+            toolToggleLabel.text = hasPickaxeEquipped ? "GUARDAR PICARETA" : "EQUIPAR PICARETA";
+            toolToggleButton.interactable = hasPickaxeEquipped || (inventory.TryGetValue("picareta_simples", out var owned) && owned > 0);
+        }
+
+        private static string DisplayName(string itemCode) =>
+            ItemDisplayNames.TryGetValue(itemCode, out var label) ? label : itemCode;
+
+        private GameObject CreateMarker(SnapshotResourceNodeDto node)
+        {
+            var isIron = node.resourceCode == "ferro";
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            marker.name = $"Veio Online - {node.nodeId}";
+            marker.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
+            Destroy(marker.GetComponent<Collider>());
+            var renderer = marker.GetComponent<Renderer>();
+            renderer.sharedMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
+            {
+                color = isIron ? new Color(0.55f, 0.34f, 0.24f) : new Color(0.72f, 0.44f, 0.22f),
+            };
+            UpdateMarker(marker, node);
+            return marker;
+        }
+
+        private static void UpdateMarker(GameObject marker, SnapshotResourceNodeDto node)
+        {
+            marker.transform.position = new Vector3(node.position.x, node.position.y + 0.4f, node.position.z);
+            marker.SetActive(node.available);
+        }
+
+        private void ClearNodes()
+        {
+            foreach (var marker in nodeMarkers.Values)
+                if (marker != null) Destroy(marker);
+            nodeMarkers.Clear();
+            nodeState.Clear();
+        }
+
+        private void OnDestroy() => ClearNodes();
+
+        private void BuildHud()
+        {
+            panel = new GameObject("Painel de Economia", typeof(RectTransform));
+            panel.transform.SetParent(transform, false);
+            var full = (RectTransform)panel.transform;
+            full.anchorMin = Vector2.zero;
+            full.anchorMax = Vector2.one;
+            full.offsetMin = full.offsetMax = Vector2.zero;
+
+            var topRight = new Vector2(1f, 1f);
+            var background = Panel(panel.transform, "Fundo Economia", topRight, new Vector2(-30f, -170f), new Vector2(430f, 400f), new Color(0.05f, 0.05f, 0.045f, 0.9f));
+            coinText = Label(background.transform, "Moedas", "MOEDAS: 0", 26, topRight, new Vector2(-16f, -14f), new Vector2(400f, 40f), TextAnchor.MiddleRight);
+            equipmentText = Label(background.transform, "Equipamento", "Arma: nenhuma  ·  Ferramenta: nenhuma", 17, topRight, new Vector2(-16f, -46f), new Vector2(400f, 28f), TextAnchor.MiddleRight);
+            equipmentText.color = new Color(0.8f, 0.85f, 0.78f);
+            toolToggleButton = MakeButton(background.transform, "Alternar Picareta", "EQUIPAR PICARETA", topRight, new Vector2(-16f, -80f), new Vector2(400f, 40f),
+                () => EquipRequested?.Invoke("tool", equippedTool == "picareta_simples" ? null : "picareta_simples"));
+            toolToggleLabel = toolToggleButton.GetComponentInChildren<Text>();
+
+            var rowY = -124f;
+            foreach (var (code, label) in SellableItems)
+            {
+                var row = new GameObject($"Linha {code}", typeof(RectTransform));
+                row.transform.SetParent(background.transform, false);
+                var rowRect = (RectTransform)row.transform;
+                rowRect.anchorMin = rowRect.anchorMax = topRight;
+                rowRect.pivot = topRight;
+                rowRect.anchoredPosition = new Vector2(-16f, rowY);
+                rowRect.sizeDelta = new Vector2(400f, 42f);
+
+                sellRows[code] = Label(row.transform, "Texto", $"{label}: 0", 20, new Vector2(0f, 0.5f), new Vector2(0f, 0f), new Vector2(260f, 40f), TextAnchor.MiddleLeft);
+                var itemCode = code;
+                MakeButton(row.transform, "Vender", "VENDER", new Vector2(1f, 0.5f), Vector2.zero, new Vector2(110f, 38f),
+                    () => { if (inventory.TryGetValue(itemCode, out var quantity) && quantity > 0) SellRequested?.Invoke(itemCode, quantity); });
+                rowY -= 44f;
+            }
+
+            MakeButton(background.transform, "Fundir Ferro", "FUNDIR FERRO", topRight, new Vector2(-16f, rowY - 8f), new Vector2(400f, 44f),
+                () => CraftRequested?.Invoke("lingote_ferro"));
+            rowY -= 52f;
+            MakeButton(background.transform, "Fundir Cobre", "FUNDIR COBRE", topRight, new Vector2(-16f, rowY - 8f), new Vector2(400f, 44f),
+                () => CraftRequested?.Invoke("lingote_cobre"));
+
+            minePromptText = Label(panel.transform, "Dica de Mineracao", "", 26, new Vector2(0.5f, 0.35f), Vector2.zero, new Vector2(700f, 50f), TextAnchor.MiddleCenter);
+            minePromptText.gameObject.SetActive(false);
+            messageText = Label(panel.transform, "Mensagem de Economia", "", 24, new Vector2(0.5f, 0.28f), Vector2.zero, new Vector2(800f, 45f), TextAnchor.MiddleCenter);
+        }
+
+        private static RectTransform Rect(GameObject item, Transform parent, Vector2 anchor, Vector2 position, Vector2 size)
+        {
+            item.transform.SetParent(parent, false);
+            var rect = (RectTransform)item.transform;
+            rect.anchorMin = rect.anchorMax = anchor;
+            rect.pivot = anchor;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            return rect;
+        }
+
+        private static GameObject Panel(Transform parent, string name, Vector2 anchor, Vector2 position, Vector2 size, Color color)
+        {
+            var item = new GameObject(name, typeof(RectTransform), typeof(Image));
+            Rect(item, parent, anchor, position, size);
+            var image = item.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
+            return item;
+        }
+
+        private static Text Label(Transform parent, string name, string value, int fontSize, Vector2 anchor, Vector2 position, Vector2 size, TextAnchor alignment)
+        {
+            var item = new GameObject(name, typeof(RectTransform), typeof(Text));
+            Rect(item, parent, anchor, position, size);
+            var text = item.GetComponent<Text>();
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.text = value;
+            text.fontSize = fontSize;
+            text.alignment = alignment;
+            text.color = new Color(0.94f, 0.96f, 0.92f);
+            text.raycastTarget = false;
+            text.supportRichText = false;
+            return text;
+        }
+
+        private static Button MakeButton(Transform parent, string name, string value, Vector2 anchor, Vector2 position, Vector2 size, UnityEngine.Events.UnityAction action)
+        {
+            var item = Panel(parent, name, anchor, position, size, new Color(0.27f, 0.2f, 0.07f, 0.96f));
+            item.GetComponent<Image>().raycastTarget = true;
+            var button = item.AddComponent<Button>();
+            button.targetGraphic = item.GetComponent<Image>();
+            button.onClick.AddListener(action);
+            Label(item.transform, "Texto", value, 18, new Vector2(0.5f, 0.5f), Vector2.zero, size, TextAnchor.MiddleCenter);
+            return button;
+        }
+    }
+}

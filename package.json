@@ -1,0 +1,17 @@
+{
+  "name": "espectro",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "server"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "server:dev": "npm run dev --workspace server",
+    "server:build": "npm run build --workspace server",
+    "server:test": "npm run test --workspace server",
+    "server:migrate": "npm run migrate --workspace server"
+  }
+}

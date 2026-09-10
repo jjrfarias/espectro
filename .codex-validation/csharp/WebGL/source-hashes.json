@@ -1,0 +1,126 @@
+[
+    {
+        "SHA256":  "2C522DBFFDC4CEBA3C43713E3A08D78DC37B869C5CE83A7602AE5F16271DF51E",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Combat\\CombatRuntimeBootstrap.cs"
+    },
+    {
+        "SHA256":  "08D1AA8E6848B3E9434C80893A3F566757777FD09939830DB6C73D9CE0D4C1D4",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Combat\\CombatShard.cs"
+    },
+    {
+        "SHA256":  "AD30F8667306D45A3E83A03BCEEEFCC7AC7D37CA563962C369F08F6C9BCD9E36",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Combat\\EnemyCombatTarget.cs"
+    },
+    {
+        "SHA256":  "CEC0B5BB299F9E68C4ABEA18275FED0FA0753ACA12168599F8F94BEE270D78C1",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Combat\\PlayerCombat.cs"
+    },
+    {
+        "SHA256":  "1E182E49A2CF1B1CAB75D4B2EDF000F89489F8555F30326AD8C882C281C04E6B",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\ApiClient.cs"
+    },
+    {
+        "SHA256":  "8E93D26C06828C34C485B36FEB767718980EFC434E77936715412E1B69D7DE2B",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkCombatController.cs"
+    },
+    {
+        "SHA256":  "32B9F12694F9EAB08CE27F822605FE37D900E6083A3D36DA8231EAA423030B25",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkEconomyController.cs"
+    },
+    {
+        "SHA256":  "C831383702AD8DE501433A8535D38604C37105E135B5E8B211B2104461D1B23F",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkEnemyView.cs"
+    },
+    {
+        "SHA256":  "2F352EE48E8211953C1BBD3D1C96EEF1A83283DC6714E42743797E3762A2DFAF",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkMapController.cs"
+    },
+    {
+        "SHA256":  "9D786E100C49EBD2CCE864FB7D21B1D98B44C3806E3DD96C6AA2D660AF00CD28",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkSession.cs"
+    },
+    {
+        "SHA256":  "CE5E3BC02D3A5B71041E76811F52B6B01D21228D67F70AFC4A61EC17AFA497C0",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkSettings.cs"
+    },
+    {
+        "SHA256":  "E79817572A3E32167BEB6E969FDE2A14748028D9F103095BE65B38D92DC868E9",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\NetworkUI.cs"
+    },
+    {
+        "SHA256":  "F14164B48BA4AD104369C0A9BEA8D7EF9F9FB9D1A0F68944949101DCD998616C",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\Protocol.cs"
+    },
+    {
+        "SHA256":  "7F535BF2E533FDBE9A4EE324519A42F5EA03840D550F22DF36FC651E1904F671",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\RemotePlayerView.cs"
+    },
+    {
+        "SHA256":  "BC1DF1BC3D615C68B62413DC5798B9AEFB116FA7E24E7DFBAB9578828E274726",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\WebGlWebSocketBridge.cs"
+    },
+    {
+        "SHA256":  "723613241F685B995FE0505F83A3075464746CE992DC75E28A0A426164B5B6B1",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\Network\\WorldConnection.cs"
+    },
+    {
+        "SHA256":  "2D00B2AA1965936D028C088F5857D1CA0084A7BD8152FD197F1848F1098B3DE2",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\UI\\DesktopControlsBootstrap.cs"
+    },
+    {
+        "SHA256":  "02746F1DA338EABA0F735F9E165BE06FA0359B179EDF44946286D8E685AB9EE0",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\UI\\InteractionButton.cs"
+    },
+    {
+        "SHA256":  "28B27AAA33C19A6EF10837CDE87210F3646129171BF2E74BEDFD1EB6550B20B6",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\UI\\InteractionController.cs"
+    },
+    {
+        "SHA256":  "78F87C6AFCBE1003124F3D9CF9E6294BBEFF41282AB2A8740E98E357256249BD",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\UI\\PerformanceHud.cs"
+    },
+    {
+        "SHA256":  "0E677BA7901F89FD5463B5687552636F800437770A27F282B4E8B19D96C90AEE",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\UI\\VirtualJoystick.cs"
+    },
+    {
+        "SHA256":  "2D58767A90639BC55BB1216B7D017A7152199CEB5FE9A58EFA946B342ED7C685",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\AdventurerCharacterBootstrap.cs"
+    },
+    {
+        "SHA256":  "76ED0F19D2C221AD048C76457FEE633E31C017E74DBEE81E4E0EE1777C160CDC",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\BercoWorldArt.cs"
+    },
+    {
+        "SHA256":  "F425607DF385ECEA322547ED342A68951FB8CD2288CEC2E09DE20AF0C70F0A51",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\EspectroWorldExpansion.cs"
+    },
+    {
+        "SHA256":  "69FA4FDE8B4E4AA2DAB2073BA9D608284FB25F16E14ACCC5D3872B32D23376F3",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\ExplorationRuntimeBootstrap.cs"
+    },
+    {
+        "SHA256":  "C8CA50F90377BCB0592F040C38724C154F3A2109C85A1BBDB4D19C0D6810FBDF",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\ProceduralCharacterAnimator.cs"
+    },
+    {
+        "SHA256":  "4BE721AD776D73AE10D1667F63F2419580552FD8C92A44C56F3B535ECD0096E3",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\PrototypePlayerController.cs"
+    },
+    {
+        "SHA256":  "8D45C2A1DCF868E051B85F23AE01F5867FBA3AF0BF54FE757DDC3B0793B76529",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\StylizedVisualBootstrap.cs"
+    },
+    {
+        "SHA256":  "72C4299E8610DE26C51FCA7EA3FFBFC8E66851DD1297DA400EADAB9E3CE37E18",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\ThirdPersonCamera.cs"
+    },
+    {
+        "SHA256":  "394A1E3CD26376B77FDA5EF162257040F42314C6CAA0D8C69C2E20B858C341DD",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\VillageNpcBootstrap.cs"
+    },
+    {
+        "SHA256":  "64E6A6537099E40915C066AB148E1AA46022A5B47B3DA74BFCE192670B1E968E",
+        "Path":  "C:\\Projetos\\game\\client\\Assets\\Scripts\\World\\WorldInteractable.cs"
+    }
+]
