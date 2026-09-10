@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Polimento visual contínuo (pedido do usuário) — legibilidade do HUD de combate (texto de alvo/mensagens soltos sobre o céu claro, sem fundo).
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Ainda não toco em `NetworkUI.cs`/`ThirdPersonCamera.cs`/`PrototypePlayerController.cs` (checar reservas do Codex antes).
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Build WebGL + republicação no Railway — publicar as duas UIs novas (Atributos, Comerciante/poção + barras de progresso) pro usuário conseguir ver, já que compilar os scripts não gera um build jogável.
 Arquivos/pastas: Editor Unity em batchmode (`-executeMethod Espectro.Editor.Corte0ProjectSetup.BuildWebGL`), `client/Builds/WebGL/`, `client/Logs/build-webgl-ui.log`; republicado no serviço Railway `webgl` (`fa30d289-441d-4fd4-b971-2cee32600afd`) via `railway up . --service webgl --path-as-root --no-gitignore`. Nenhum script/cena tocado nesta etapa.
