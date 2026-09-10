@@ -10,6 +10,11 @@ status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou pa
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Build WebGL + republicação no Railway — publicar as duas UIs novas (Atributos, Comerciante/poção + barras de progresso) pro usuário conseguir ver, já que compilar os scripts não gera um build jogável.
+Arquivos/pastas: Editor Unity em batchmode (`-executeMethod Espectro.Editor.Corte0ProjectSetup.BuildWebGL`), `client/Builds/WebGL/`, `client/Logs/build-webgl-ui.log`; republicado no serviço Railway `webgl` (`fa30d289-441d-4fd4-b971-2cee32600afd`) via `railway up . --service webgl --path-as-root --no-gitignore`. Nenhum script/cena tocado nesta etapa.
+Resultado: build concluído com retorno 0, 114.720.267 bytes, sem `error CS`; deploy `31702b3b-c908-4fcd-997f-023cd634fea3` com status `SUCCESS` no Railway. Usuário precisa recarregar a página com cache limpo (Ctrl+Shift+R) pra baixar o `.wasm`/`.data` novos.
+
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Validação de compilação — confirmação retroativa das duas entradas de UI abaixo (Atributos e Comerciante/poção + barras de progresso), pendentes de checagem de compilação real.
 Resultado: assim que o Editor do Codex fechou (0 processos `Unity.exe`), rodei o batchmode compile check completo — desta vez com Domain Reload e `CompileScripts` de verdade (não a falha de lock das duas tentativas anteriores) — terminando com "Exiting batchmode successfully now!" (código de retorno 0) e **0 `error CS`**. As duas UIs (`NetworkAttributesController.cs`, extensão de `NetworkEconomyController.cs`, e os pontos de `NetworkSession.cs` que as conectam) compilam limpo.
 
