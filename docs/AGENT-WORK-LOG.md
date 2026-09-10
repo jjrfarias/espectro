@@ -9,6 +9,18 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Criação de personagem — raça (Humano/Elfo/Anão/Orc) e gênero (Masculino/Feminino), pedido explícito do usuário ("padrão de um MMORPG"). GDD-MVP diz "sem classe fixa"; confirmado com o usuário que isto é sobre as 4 raças de `ESPECTRO-VISAO.md` §9 ("raça não é classe" — cultura/aparência/costumes, não trava progressão), não é um sistema de classes.
+Arquivos/pastas previstos: `contracts/src/index.ts`, `server/src/modules/characters/*`, `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/WorldConnection.cs`, `client/Assets/Scripts/Network/NetworkSession.cs`.
+Nota: log estava livre no momento (reserva documental do Codex acima já concluída, nenhuma outra ativa) — usuário pediu explicitamente pra eu incluir a tela em `NetworkUI.cs` também, mesmo sabendo que o Codex tinha acabado de propor um plano de UI que pode cobrir a mesma tela; se colidir, ajusto depois. Aparência visual de fato (raça/gênero no modelo 3D) fica fora do escopo — isso é arte/Codex; aqui é só o fluxo de escolha + dado salvo/devolvido pelo servidor.
+
+## CONCLUÍDO 2026-09-10 14:10 -03:00 — Codex (plano de qualidade de interface e jogabilidade)
+Área: documentação de referências e plano de evolução solicitado pelo usuário, antes de implementar.
+Arquivos/pastas: `docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md`, `docs/AGENT-WORK-LOG.md`.
+Descrição: revisar referências, visão, GDD e código atual em leitura; registrar diagnóstico, prioridades, entregas e critérios de aceite no documento de referências. Nenhuma alteração de código, asset, build ou deploy nesta tarefa.
+Delegação: `auditoria_interface` e `auditoria_fluidez` farão somente leitura de documentação/código e retornarão achados ao Codex; sem arquivos de saída nem reservas de edição. Codex é o único editor dos dois documentos acima.
+Resultado 14:17 -03:00: plano acrescentado ao documento de referências, preservando o conteúdo anterior. Auditorias concluídas somente por leitura: diagnóstico do tremor, input/contexto, autenticação real, HUD, combate/animações, NPCs/tutorial, inventário/produção, social/crônicas, acessibilidade, desempenho e prova de publicação. Etapas, dependências, limites do MVP e critérios de aceite registrados como proposta, não implementação. Verificados links locais e diferenças dos documentos; sem alterações de produto, testes runtime, build ou deploy. Liberada esta reserva documental. Corrigidas abaixo apenas duas reservas antigas do próprio Codex que continuavam ativas apesar de registros posteriores de entrega.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Correção de bug visual — usuário reportou (com screenshot) que os animais mortos ficam "grudados"/tortos em vez de tombar. Causa: a animação de queda rotaciona o corpo inteiro em Z, mas o corpo é montado de várias partes fixas (pernas, orelhas) em posições locais separadas, não um mesh único — girar o conjunto faz as pernas atravessarem o torso.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEnemyView.cs`.
@@ -366,18 +378,20 @@ Resultado: alterações aplicadas e compilação de scripts validada; o Unity tr
 Área: Unity client — autenticação e entrada.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/Network/NetworkUI.cs`, build WebGL/Railway.
 Resultado: refresh token persistido em PlayerPrefs, restauração automática e e-mail lembrado. Build Unity concluído com código 0 (`WebGL.data` 11:50) e publicado no Railway; deploy `3d03b24c-4614-47b1-aa2a-83435797d3ef`.
-## EM ANDAMENTO 2026-09-10 — Codex (correção da tela de login em produção)
+## CONCLUÍDO 2026-09-10 — Codex (correção da tela de login em produção)
 Área: Unity client — tela de autenticação e bloqueio visual do modo local.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/NetworkCombatController.cs`, build WebGL/Railway.
 Descrição: remover o atalho de teste local durante o login, impedir a aparência do mundo atrás da autenticação e adicionar a ação visual de recuperação de senha.
+Conciliação do log em 10/09/2026 14:17: reserva antiga do Codex encerrada conforme entrega registrada imediatamente abaixo. Recuperação funcional de senha segue pendente e está no novo plano; esta conclusão refere-se apenas à alteração visual publicada.
 ## CONCLUÍDO 2026-09-10 — Codex (correção da tela de login em produção)
 Área: Unity client — tela de autenticação e bloqueio visual do modo local.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/NetworkCombatController.cs`, build WebGL/Railway.
 Resultado: removido o atalho offline durante a autenticação, fundo opaco e botão visual “ESQUECI A SENHA” (endpoint de e-mail ainda pendente no servidor). Build Unity concluído com código 0 (`WebGL.data` 12:02) e publicado no Railway; deploy `4386b633-4805-4a8d-b589-4b7ec9da4a92`.
-## EM ANDAMENTO 2026-09-10 — Codex (estabilidade de câmera e movimento)
+## INTERROMPIDO 2026-09-10 — Codex (estabilidade de câmera e movimento)
 Área: Unity client — controle do personagem e câmera em colisões/troca de direção.
 Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, `client/Assets/Scripts/World/PrototypePlayerController.cs`, build WebGL/Railway.
 Descrição: eliminar tremor causado pela câmera colidindo com o próprio personagem e suavizar correções de posição.
+Conciliação do log em 10/09/2026 14:17: reserva antiga do Codex liberada. Houve builds e ajustes posteriores, mas o tremor continuou sendo relatado; causa e resolução não foram comprovadas. Retomada futura deve começar pelo diagnóstico da etapa 0 do plano, com nova reserva antes de editar.
 ## CONCLUÍDO 2026-09-10 — Codex (estabilidade de câmera e movimento)
 Área: Unity client — controle do personagem e câmera em colisões/troca de direção.
 Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
