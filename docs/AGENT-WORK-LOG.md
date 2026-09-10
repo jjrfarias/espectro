@@ -9,6 +9,10 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Polimento visual contínuo — mesma correção de legibilidade (fundo atrás de texto solto sobre a cena) aplicada ao HUD de combate, agora no painel de economia (`minePromptText`, `contextPromptText`, `messageText` sem fundo).
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Migrar Comerciante/Forja pro padrão de prompt contextual (princípio 2 de `REFERENCIAS-INTERFACE-JOGABILIDADE.md`), em vez de "seção aparece sozinha quando perto".
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkEconomyController.cs`.
