@@ -30,6 +30,22 @@ namespace Espectro.Network
         public static Task<SessionResponse> RefreshAsync(string refreshToken) =>
             SendAsync<SessionResponse>("POST", "/auth/refresh", new RefreshRequest { refreshToken = refreshToken }, null);
 
+        // docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md, plano de evolução §"Lembrar sessão e saída":
+        // sem isto, "SAIR DO ONLINE" só limpava o estado local — o refresh token continuava válido
+        // no servidor até expirar sozinho. Resposta é 204 sem corpo, daí o T generico sem uso real.
+        public static Task LogoutAsync(string refreshToken) =>
+            SendAsync<object>("POST", "/auth/logout", new RefreshRequest { refreshToken = refreshToken }, null);
+
+        // docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md, plano de evolução §2 "Esqueci a senha":
+        // servidor pronto, sem tela ainda consumindo — ver nota no documento. `RequestPasswordReset`
+        // sempre "sucede" (resposta neutra); o chamador não deve tratar isso como confirmação de
+        // que o e-mail existe.
+        public static Task<PasswordResetRequestResponse> RequestPasswordResetAsync(string email) =>
+            SendAsync<PasswordResetRequestResponse>("POST", "/auth/password-reset/request", new PasswordResetRequestPayload { email = email }, null);
+
+        public static Task ConfirmPasswordResetAsync(string token, string newPassword) =>
+            SendAsync<object>("POST", "/auth/password-reset/confirm", new PasswordResetConfirmPayload { token = token, password = newPassword }, null);
+
         public static Task<CharacterResponse> CreateCharacterAsync(string accessToken, string name, string race, string gender) =>
             SendAsync<CharacterResponse>("POST", "/characters", new CreateCharacterRequest { name = name, race = race, gender = gender }, accessToken);
 

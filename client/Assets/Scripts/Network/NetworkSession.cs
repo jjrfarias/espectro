@@ -147,6 +147,14 @@ namespace Espectro.Network
             joined = false;
             alive = false;
             busy = false;
+            // docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md, plano de evolução §2 "Logout retorna à
+            // entrada... revoga/limpa a sessão correspondente": antes disto, sair só limpava o
+            // estado local — o refresh token continuava válido no servidor até expirar sozinho
+            // (até 30 dias, ver JWT_REFRESH_TTL_DAYS). Best-effort: não bloqueia a saída se a
+            // rede falhar, só não revoga o token do lado do servidor nesse caso.
+            if (!string.IsNullOrEmpty(refreshToken)) _ = ApiClient.LogoutAsync(refreshToken);
+            PlayerPrefs.DeleteKey("espectro.session.refresh");
+            PlayerPrefs.Save();
             accessToken = refreshToken = null;
             DisposeConnection();
             ClearRemotePlayers();

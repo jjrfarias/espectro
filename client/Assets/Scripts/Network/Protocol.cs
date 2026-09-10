@@ -26,6 +26,31 @@ namespace Espectro.Network
         public string refreshToken;
     }
 
+    // docs/REFERENCIAS-INTERFACE-JOGABILIDADE.md, plano de evolução §2 "Esqueci a senha".
+    // A resposta de /request é sempre a mesma tenha a conta ou não (nunca revela se o e-mail
+    // existe); devToken só vem preenchido fora de produção, pra testar o fluxo sem provedor de
+    // e-mail real configurado — nenhuma UI ainda consome isto, é a base pronta pra tela de "esqueci
+    // a senha".
+    [Serializable]
+    public class PasswordResetRequestPayload
+    {
+        public string email;
+    }
+
+    [Serializable]
+    public class PasswordResetRequestResponse
+    {
+        public string status;
+        public string devToken;
+    }
+
+    [Serializable]
+    public class PasswordResetConfirmPayload
+    {
+        public string token;
+        public string password;
+    }
+
     [Serializable]
     public class CreateCharacterRequest
     {
