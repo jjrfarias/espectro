@@ -9,6 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Validação — jornada completa da primeira sessão (GDD §4/§20, critério de aceite 2) de ponta a ponta contra o servidor real, sem atalhos de banco.
+Arquivos/pastas: script descartável `server/e2e_full_journey_test.mjs` (será apagado ao final); nenhum arquivo de produto tocado.
+Descrição: nunca validei o ciclo inteiro (criar conta → falar com Instrutora/Minerador/Ferreiro → matar criatura → minerar → fundir → vender → recompensa do tutorial → mural público) em uma única sequência contínua — só testei pedaços separados até agora.
+
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Unity client — encanamento de rede/protocolo (não visual) pros 3 pendentes: atributos, comprar/usar poção, progresso de minerar/fundir.
 Arquivos/pastas: `client/Assets/Scripts/Network/Protocol.cs`, `client/Assets/Scripts/Network/WorldConnection.cs`. Nada de UI/HUD/cena tocado.
