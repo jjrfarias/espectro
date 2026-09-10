@@ -436,4 +436,11 @@ namespace Espectro.Network
         public string sentAt;
         public EquipResultPayload payload;
     }
+
+    [Serializable] public class NpcTalkRequestPayload { public string npcCode; }
+    [Serializable] public class NpcTalkRequestEnvelope { public int v = 1; public string type = "npc.talk.request"; public string requestId; public int sequence; public string sentAt; public NpcTalkRequestPayload payload; }
+    [Serializable] public class NpcTalkResultPayload { public string npcCode; public string tutorialStep; public bool alreadyTalked; }
+    [Serializable] public class NpcTalkResultEnvelope { public int v; public string type; public string requestId; public int sequence; public string sentAt; public NpcTalkResultPayload payload; }
+    [Serializable] public class TutorialSnapshotPayload { public string[] completedSteps; public bool rewardClaimed; }
+    [Serializable] public class TutorialSnapshotEnvelope { public int v; public string type; public string requestId; public int sequence; public string sentAt; public TutorialSnapshotPayload payload; }
 }

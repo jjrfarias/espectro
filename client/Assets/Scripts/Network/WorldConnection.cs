@@ -34,6 +34,8 @@ namespace Espectro.Network
         public event Action<CraftResultPayload> CraftResultReceived;
         public event Action<SellResultPayload> SellResultReceived;
         public event Action<EquipResultPayload> EquipResultReceived;
+        public event Action<TutorialSnapshotPayload> TutorialSnapshotReceived;
+        public event Action<NpcTalkResultPayload> NpcTalkResultReceived;
         public event Action Disconnected;
 
         private readonly ConcurrentQueue<string> incoming = new();
@@ -199,6 +201,12 @@ namespace Espectro.Network
             Send(JsonUtility.ToJson(envelope));
         }
 
+        public void SendNpcTalkRequest(string npcCode)
+        {
+            var envelope = new NpcTalkRequestEnvelope { requestId = Guid.NewGuid().ToString(), sequence = ++outboundSequence, sentAt = NowIso(), payload = new NpcTalkRequestPayload { npcCode = npcCode } };
+            Send(JsonUtility.ToJson(envelope));
+        }
+
         private void Send(string json)
         {
             if (isClosed) return;
@@ -250,6 +258,12 @@ namespace Espectro.Network
                     break;
                 case "equip.result":
                     EquipResultReceived?.Invoke(JsonUtility.FromJson<EquipResultEnvelope>(json).payload);
+                    break;
+                case "npc.talk.result":
+                    NpcTalkResultReceived?.Invoke(JsonUtility.FromJson<NpcTalkResultEnvelope>(json).payload);
+                    break;
+                case "tutorial.snapshot":
+                    TutorialSnapshotReceived?.Invoke(JsonUtility.FromJson<TutorialSnapshotEnvelope>(json).payload);
                     break;
                 default:
                     Debug.LogWarning($"[WorldConnection] Tipo de mensagem desconhecido: {peek?.type}");
