@@ -9,6 +9,20 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
+## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: "Suco" de jogo (efeitos procedurais, sem depender de arte nova) — pedido do usuário: o jogo já está online com gente entrando, quer algo que cative visualmente sem esbarrar no Codex. Primeiro item escolhido: banner de "subiu de nível" chamativo (hoje é só uma linha de texto que some em 4s).
+Arquivos/pastas previstos: `client/Assets/Scripts/Network/NetworkCombatController.cs`. Não edito `NetworkSession.cs`/`PrototypePlayerController.cs` (reserva ativa do Codex acima) nem compilo/buildo agora (build dele em andamento) — só edito o arquivo fonte e aguardo o Editor livre.
+
+## EM ANDAMENTO 2026-09-10 15:42 -03:00 — Codex (build corretiva de cadência)
+Área: build e publicação WebGL da remoção do pulso de movimento.
+Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-movement-pulse-fix.log` e Railway `webgl`.
+Descrição: compilar e publicar imediatamente a correção da regressão de passos interrompidos.
+
+## EM ANDAMENTO 2026-09-10 15:40 -03:00 — Codex (correção do pulso de movimento)
+Área: regressão de cadência após reconciliação de rede.
+Arquivos/pastas: `client/Assets/Scripts/World/PrototypePlayerController.cs`, `client/Assets/Scripts/Network/NetworkSession.cs`.
+Descrição: retirar a correção contínua de snapshots que puxa o jogador para trás em pulsos; preservar somente o reposicionamento de divergência grande.
+
 ## CONCLUÍDO 2026-09-10 15:55 -03:00 — Codex (build da reconciliação de movimento)
 Área: build e publicação WebGL da remoção do segundo `CharacterController.Move`.
 Arquivos/pastas: `client/Builds/WebGL/`, `client/Logs/build-movement-reconciliation.log` e serviço Railway `webgl`.
