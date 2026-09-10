@@ -77,7 +77,7 @@ namespace Espectro.Network
             local = online = alive = false;
             battleHud.SetActive(false);
             modeText.text = message;
-            modeButtonLabel.text = "VOLTAR AO TESTE LOCAL";
+            modeButton.gameObject.SetActive(false);
         }
 
         public void PrepareCharacter(CharacterResponse character)
@@ -97,6 +97,7 @@ namespace Espectro.Network
                 local = false;
                 battleHud.SetActive(true);
                 modeText.text = "Mundo compartilhado";
+                modeButton.gameObject.SetActive(true);
                 modeButtonLabel.text = "SAIR DO ONLINE";
                 ShowMessage("Explore a floresta. Selecione um inimigo e use F ou ATACAR.");
             }

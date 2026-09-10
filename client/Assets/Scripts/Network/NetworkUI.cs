@@ -91,6 +91,8 @@ namespace Espectro.Network
                 () => { PlayerPrefs.SetString("espectro.login.email", emailField.text.Trim()); PlayerPrefs.Save(); LoginSubmitted?.Invoke(emailField.text, passwordField.text); });
             CreateButton(panelTransform, "Botao Criar Conta", "CRIAR CONTA", new Vector2(470f, -115f), new Vector2(270f, 68f),
                 () => RegisterSubmitted?.Invoke(emailField.text, passwordField.text));
+            CreateButton(panelTransform, "Botao Esqueci Senha", "ESQUECI A SENHA", new Vector2(330f, -190f), new Vector2(300f, 48f),
+                () => SetAuthStatus("A recuperação de senha será ativada assim que o servidor de e-mail estiver configurado."));
         }
 
         private void BuildCharacterPanel(Transform parent)
@@ -121,7 +123,7 @@ namespace Espectro.Network
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
-            panel.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.05f, 0.72f);
+            panel.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.05f, 0.98f);
             return panel;
         }
 

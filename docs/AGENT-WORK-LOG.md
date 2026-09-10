@@ -311,3 +311,7 @@ Resultado: alterações aplicadas e compilação de scripts validada; o Unity tr
 Área: Unity client — autenticação e entrada.
 Arquivos/pastas: `client/Assets/Scripts/Network/NetworkSession.cs`, `client/Assets/Scripts/Network/NetworkUI.cs`, build WebGL/Railway.
 Resultado: refresh token persistido em PlayerPrefs, restauração automática e e-mail lembrado. Build Unity concluído com código 0 (`WebGL.data` 11:50) e publicado no Railway; deploy `3d03b24c-4614-47b1-aa2a-83435797d3ef`.
+## EM ANDAMENTO 2026-09-10 — Codex (correção da tela de login em produção)
+Área: Unity client — tela de autenticação e bloqueio visual do modo local.
+Arquivos/pastas: `client/Assets/Scripts/Network/NetworkUI.cs`, `client/Assets/Scripts/Network/NetworkCombatController.cs`, build WebGL/Railway.
+Descrição: remover o atalho de teste local durante o login, impedir a aparência do mundo atrás da autenticação e adicionar a ação visual de recuperação de senha.
