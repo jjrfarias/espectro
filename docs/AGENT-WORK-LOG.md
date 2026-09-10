@@ -9,10 +9,11 @@ avise o usuário e espere. Se estiver livre, adicione uma entrada no topo da lis
 status `EM ANDAMENTO` antes de tocar em qualquer arquivo. Quando terminar (ou parar) a tarefa,
 volte aqui e mude o status pra `CONCLUÍDO` (ou `INTERROMPIDO`, se não terminou).
 
-## EM ANDAMENTO 2026-09-10 — Claude (Sonnet 5, Claude Code)
-Área: Validação — jornada completa da primeira sessão (GDD §4/§20, critério de aceite 2) de ponta a ponta contra o servidor real, sem atalhos de banco.
-Arquivos/pastas: script descartável `server/e2e_full_journey_test.mjs` (será apagado ao final); nenhum arquivo de produto tocado.
+## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
+Área: Validação — jornada completa da primeira sessão (GDD §4/§20, critério de aceite 2) de ponta a ponta contra o servidor real, sem atalhos de banco. Achou e corrigiu um bug real no caminho.
+Arquivos/pastas: script descartável `server/e2e_full_journey_test.mjs` (apagado ao final); correção real em `server/src/modules/economy/economy.repository.ts` (`economySnapshotOf` exportado), `server/src/modules/economy/economy.service.ts` (reusa o helper), `server/src/modules/missions/missions.service.ts` (envia `economy.snapshot` ao pagar a recompensa), `server/tests/unit/missions.service.test.ts` (2 testes novos).
 Descrição: nunca validei o ciclo inteiro (criar conta → falar com Instrutora/Minerador/Ferreiro → matar criatura → minerar → fundir → vender → recompensa do tutorial → mural público) em uma única sequência contínua — só testei pedaços separados até agora.
+Resultado: **bug real encontrado**: a recompensa do tutorial (GDD §12, 50 moedas) creditava `coinBalance` no banco, mas nenhuma mensagem `economy.snapshot` atualizada era enviada depois — o saldo só apareceria certo pro jogador na próxima ação de economia qualquer (comprar/vender/minerar). Corrigido: `missions.service.ts` agora empurra um `economy.snapshot` fresco junto do `tutorial.snapshot` quando a recompensa é paga. `economySnapshotOf` foi movido pra `economy.repository.ts` (não `economy.service.ts`) especificamente pra `missions.service.ts` poder reusá-lo sem criar um import circular entre os dois módulos de serviço. Testado: suíte completa 14 arquivos, 118 testes (2 novos), `npx tsc --noEmit` limpo, CI verde no GitHub (run `34484992204`). Validado ponta a ponta duas vezes — local e em produção (após o deploy do fix) —, os 11 passos da jornada em sequência única, sem atalho de banco: contra produção, personagem terminou com 62 moedas (12 da venda + 50 da recompensa), crônica pública com 1 entrada confirmada.
 
 ## CONCLUÍDO 2026-09-10 — Claude (Sonnet 5, Claude Code)
 Área: Unity client — encanamento de rede/protocolo (não visual) pros 3 pendentes: atributos, comprar/usar poção, progresso de minerar/fundir.
