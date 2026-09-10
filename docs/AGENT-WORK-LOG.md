@@ -385,3 +385,7 @@ Resultado: câmera ignora o próprio jogador no SphereCast, eliminando a fonte d
 Área: Unity client — câmera e movimento.
 Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
 Resultado: ponto de seguimento suavizado para remover microtremores do CharacterController. Build concluído com código 0 às 13:47 e publicado; deploy `1a3eea5e-93b6-4eb9-9073-7a47d7ae08b2`.
+## INTERROMPIDO 2026-09-10 — Codex (estabilidade vertical da câmera)
+Área: Unity client — câmera durante caminhada.
+Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
+Resultado: limitador suave de variação vertical aplicado; tentativa de build abortada pelo lock atual do projeto Unity (código 1), sem publicação desta versão.

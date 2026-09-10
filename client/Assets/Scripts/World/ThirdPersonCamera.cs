@@ -22,6 +22,7 @@ namespace Espectro.Prototype
         private Vector3 lookPointVelocity;
         private Vector3 smoothedLookPoint;
         private bool hasSmoothedLookPoint;
+        private float stableLookY;
         private float collisionDistance;
         private float collisionDistanceVelocity;
         private Camera cameraComponent;
@@ -101,9 +102,12 @@ namespace Espectro.Prototype
             if (!hasSmoothedLookPoint)
             {
                 smoothedLookPoint = rawLookPoint;
+                stableLookY = rawLookPoint.y;
                 hasSmoothedLookPoint = true;
             }
             smoothedLookPoint = Vector3.SmoothDamp(smoothedLookPoint, rawLookPoint, ref lookPointVelocity, 0.08f);
+            stableLookY = Mathf.MoveTowards(stableLookY, rawLookPoint.y, 0.35f * Time.deltaTime);
+            smoothedLookPoint.y = stableLookY;
             var lookPoint = smoothedLookPoint;
             var rotation = Quaternion.Euler(pitch, yaw, 0f);
             var direction = rotation * Vector3.back;
