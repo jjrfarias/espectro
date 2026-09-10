@@ -373,3 +373,7 @@ Resultado: removido o atalho offline durante a autenticação, fundo opaco e bot
 Área: Unity client — controle do personagem e câmera em colisões/troca de direção.
 Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, `client/Assets/Scripts/World/PrototypePlayerController.cs`, build WebGL/Railway.
 Descrição: eliminar tremor causado pela câmera colidindo com o próprio personagem e suavizar correções de posição.
+## CONCLUÍDO 2026-09-10 — Codex (estabilidade de câmera e movimento)
+Área: Unity client — controle do personagem e câmera em colisões/troca de direção.
+Arquivos/pastas: `client/Assets/Scripts/World/ThirdPersonCamera.cs`, build WebGL/Railway.
+Resultado: câmera ignora o próprio jogador no SphereCast, eliminando a fonte de tremor ao girar/encostar. Build Unity concluído com código 0 (`WebGL.data` 13:34) e publicado no Railway; deploy `9ee516aa-9819-4d76-a96f-907b4b0d7c57`.
